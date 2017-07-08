@@ -1,0 +1,421 @@
+   1              		.cpu arm7tdmi
+   2              		.fpu softvfp
+   3              		.eabi_attribute 20, 1
+   4              		.eabi_attribute 21, 1
+   5              		.eabi_attribute 23, 3
+   6              		.eabi_attribute 24, 1
+   7              		.eabi_attribute 25, 1
+   8              		.eabi_attribute 26, 1
+   9              		.eabi_attribute 30, 6
+  10              		.eabi_attribute 18, 4
+  11              		.file	"keyboard.c"
+  21              	.Ltext0:
+  22              		.file 1 "../keyboard.c"
+ 1955              		.align	2
+ 1958              	keyboard_base:
+ 1959 0000 00000006 		.word	100663296
+ 1960              		.text
+ 1961              		.align	2
+ 1962              		.global	keyboard_init
+ 1964              	keyboard_init:
+ 1965              	.LFB0:
+   1:../keyboard.c **** /*--- Ficheros de cabecera ---*/
+   2:../keyboard.c **** #include "44b.h"
+   3:../keyboard.c **** #include "44blib.h"
+   4:../keyboard.c **** #include "def.h"
+   5:../keyboard.c **** /*--- Definición de macros ---*/
+   6:../keyboard.c **** #define KEY_VALUE_MASK 0xF
+   7:../keyboard.c **** /*--- Variables globales ---*/
+   8:../keyboard.c **** volatile UCHAR *keyboard_base = (UCHAR *)0x06000000;
+   9:../keyboard.c **** 
+  10:../keyboard.c **** 
+  11:../keyboard.c **** 
+  12:../keyboard.c **** /*--- Funciones externas ---*/
+  13:../keyboard.c **** void D8Led_symbol(int value);
+  14:../keyboard.c **** /*--- Declaracion de funciones ---*/
+  15:../keyboard.c **** void keyboard_init();
+  16:../keyboard.c **** void KeyboardInt(void) __attribute__ ((interrupt ("IRQ")));
+  17:../keyboard.c **** /*--- Codigo de las funciones ---*/
+  18:../keyboard.c **** 
+  19:../keyboard.c **** void keyboard_init() {
+ 1966              		.loc 1 19 0
+ 1967              		.cfi_startproc
+ 1968              		@ Function supports interworking.
+ 1969              		@ args = 0, pretend = 0, frame = 0
+ 1970              		@ frame_needed = 1, uses_anonymous_args = 0
+ 1971 0000 0DC0A0E1 		mov	ip, sp
+ 1972              	.LCFI0:
+ 1973              		.cfi_def_cfa_register 12
+ 1974 0004 00D82DE9 		stmfd	sp!, {fp, ip, lr, pc}
+ 1975 0008 04B04CE2 		sub	fp, ip, #4
+ 1976              		.cfi_offset 14, -8
+ 1977              		.cfi_offset 13, -12
+ 1978              		.cfi_offset 11, -16
+ 1979              	.LCFI1:
+ 1980              		.cfi_def_cfa 11, 4
+  20:../keyboard.c **** 	/* Configurar el puerto G (si no lo estuviese ya) */	
+  21:../keyboard.c **** 
+  22:../keyboard.c **** 		// Establece la funcion de los pines (EINT0-7)
+  23:../keyboard.c **** 		rPCONG = 0xffff;
+ 1981              		.loc 1 23 0
+ 1982 000c 78309FE5 		ldr	r3, .L2
+ 1983 0010 78209FE5 		ldr	r2, .L2+4
+ 1984 0014 002083E5 		str	r2, [r3, #0]
+  24:../keyboard.c **** 
+  25:../keyboard.c **** 		// Habilita el "pull up" del puerto
+  26:../keyboard.c **** 		rPUPG = 0;
+ 1985              		.loc 1 26 0
+ 1986 0018 74309FE5 		ldr	r3, .L2+8
+ 1987 001c 0020A0E3 		mov	r2, #0
+ 1988 0020 002083E5 		str	r2, [r3, #0]
+  27:../keyboard.c **** 
+  28:../keyboard.c **** 		// Configura las lineas de int. como de flanco de bajada mediante EXTINT
+  29:../keyboard.c **** 		rEXTINT = 0x33333333;
+ 1989              		.loc 1 29 0
+ 1990 0024 6C309FE5 		ldr	r3, .L2+12
+ 1991 0028 6C209FE5 		ldr	r2, .L2+16
+ 1992 002c 002083E5 		str	r2, [r3, #0]
+  30:../keyboard.c **** 
+  31:../keyboard.c **** 	/* Establece la rutina de servicio para EINT1 */
+  32:../keyboard.c **** 		pISR_EINT1 = (unsigned) KeyboardInt;
+ 1993              		.loc 1 32 0
+ 1994 0030 68309FE5 		ldr	r3, .L2+20
+ 1995 0034 68209FE5 		ldr	r2, .L2+24
+ 1996 0038 002083E5 		str	r2, [r3, #0]
+  33:../keyboard.c **** 
+  34:../keyboard.c **** 	/* Configurar controlador de interrupciones */
+  35:../keyboard.c **** 
+  36:../keyboard.c **** 		// Borra INTPND escribiendo 1s en I_ISPC
+  37:../keyboard.c **** 		rI_ISPC = BIT_EINT1;
+ 1997              		.loc 1 37 0
+ 1998 003c 64309FE5 		ldr	r3, .L2+28
+ 1999 0040 0124A0E3 		mov	r2, #16777216
+ 2000 0044 002083E5 		str	r2, [r3, #0]
+  38:../keyboard.c **** 
+  39:../keyboard.c **** 		// Configura las lineas como de tipo IRQ mediante INTMOD
+  40:../keyboard.c **** 		rINTMOD = 0x0;
+ 2001              		.loc 1 40 0
+ 2002 0048 5C309FE5 		ldr	r3, .L2+32
+ 2003 004c 0020A0E3 		mov	r2, #0
+ 2004 0050 002083E5 		str	r2, [r3, #0]
+  41:../keyboard.c **** 
+  42:../keyboard.c **** 		// Habilita int. vectorizadas y la linea IRQ (FIQ no) mediante INTCON
+  43:../keyboard.c **** 		rINTCON = 0x1;
+ 2005              		.loc 1 43 0
+ 2006 0054 1E36A0E3 		mov	r3, #31457280
+ 2007 0058 0120A0E3 		mov	r2, #1
+ 2008 005c 002083E5 		str	r2, [r3, #0]
+  44:../keyboard.c **** 
+  45:../keyboard.c **** 	/* Habilitar linea EINT1 */
+  46:../keyboard.c **** 	rINTMSK = rINTMSK & ~(BIT_EINT1);
+ 2009              		.loc 1 46 0
+ 2010 0060 48309FE5 		ldr	r3, .L2+36
+ 2011 0064 44209FE5 		ldr	r2, .L2+36
+ 2012 0068 002092E5 		ldr	r2, [r2, #0]
+ 2013 006c 0124C2E3 		bic	r2, r2, #16777216
+ 2014 0070 002083E5 		str	r2, [r3, #0]
+  47:../keyboard.c **** 
+  48:../keyboard.c **** 	/* Por precaucion, se vuelven a borrar los bits de INTPND correspondientes*/
+  49:../keyboard.c **** 	rI_ISPC = BIT_EINT1;
+ 2015              		.loc 1 49 0
+ 2016 0074 2C309FE5 		ldr	r3, .L2+28
+ 2017 0078 0124A0E3 		mov	r2, #16777216
+ 2018 007c 002083E5 		str	r2, [r3, #0]
+  50:../keyboard.c **** }
+ 2019              		.loc 1 50 0
+ 2020 0080 0CD04BE2 		sub	sp, fp, #12
+ 2021 0084 00689DE8 		ldmfd	sp, {fp, sp, lr}
+ 2022 0088 1EFF2FE1 		bx	lr
+ 2023              	.L3:
+ 2024              		.align	2
+ 2025              	.L2:
+ 2026 008c 4000D201 		.word	30539840
+ 2027 0090 FFFF0000 		.word	65535
+ 2028 0094 4800D201 		.word	30539848
+ 2029 0098 5000D201 		.word	30539856
+ 2030 009c 33333333 		.word	858993459
+ 2031 00a0 80FF7F0C 		.word	209715072
+ 2032 00a4 00000000 		.word	KeyboardInt
+ 2033 00a8 2400E001 		.word	31457316
+ 2034 00ac 0800E001 		.word	31457288
+ 2035 00b0 0C00E001 		.word	31457292
+ 2036              		.cfi_endproc
+ 2037              	.LFE0:
+ 2039              		.align	2
+ 2040              		.global	KeyboardInt
+ 2042              	KeyboardInt:
+ 2043              	.LFB1:
+  51:../keyboard.c **** 
+  52:../keyboard.c **** void KeyboardInt(void) {
+ 2044              		.loc 1 52 0
+ 2045              		.cfi_startproc
+ 2046              		@ Interrupt Service Routine.
+ 2047              		@ args = 0, pretend = 0, frame = 8
+ 2048              		@ frame_needed = 1, uses_anonymous_args = 0
+ 2049 00b4 04C02DE5 		str	ip, [sp, #-4]!
+ 2050 00b8 0DC0A0E1 		mov	ip, sp
+ 2051              	.LCFI2:
+ 2052              		.cfi_def_cfa_register 12
+ 2053 00bc 0FD82DE9 		stmfd	sp!, {r0, r1, r2, r3, fp, ip, lr, pc}
+ 2054 00c0 04B04CE2 		sub	fp, ip, #4
+ 2055              		.cfi_offset 14, -8
+ 2056              		.cfi_offset 13, -12
+ 2057              		.cfi_offset 11, -16
+ 2058              		.cfi_offset 3, -20
+ 2059              		.cfi_offset 2, -24
+ 2060              		.cfi_offset 1, -28
+ 2061              		.cfi_offset 0, -32
+ 2062              	.LCFI3:
+ 2063              		.cfi_def_cfa 11, 4
+ 2064 00c4 08D04DE2 		sub	sp, sp, #8
+  53:../keyboard.c **** 
+  54:../keyboard.c **** 
+  55:../keyboard.c **** 	/* Esperar trp mediante la funcion DelayMs() */
+  56:../keyboard.c **** 		DelayMs(20);
+ 2065              		.loc 1 56 0
+ 2066 00c8 1400A0E3 		mov	r0, #20
+ 2067 00cc FEFFFFEB 		bl	DelayMs
+  57:../keyboard.c **** 
+  58:../keyboard.c **** 		/* Identificar la tecla */
+  59:../keyboard.c **** 		int key = key_read();
+ 2068              		.loc 1 59 0
+ 2069 00d0 FEFFFFEB 		bl	key_read
+ 2070 00d4 20000BE5 		str	r0, [fp, #-32]
+  60:../keyboard.c **** 
+  61:../keyboard.c **** 
+  62:../keyboard.c **** 		/* Si la tecla se ha identificado, visualizarla en el 8SEG */
+  63:../keyboard.c **** 		if(key > -1) {
+ 2071              		.loc 1 63 0
+ 2072 00d8 20301BE5 		ldr	r3, [fp, #-32]
+ 2073 00dc 000053E3 		cmp	r3, #0
+ 2074 00e0 020000BA 		blt	.L7
+  64:../keyboard.c **** 			D8Led_symbol(key);
+ 2075              		.loc 1 64 0
+ 2076 00e4 20001BE5 		ldr	r0, [fp, #-32]
+ 2077 00e8 FEFFFFEB 		bl	D8Led_symbol
+  65:../keyboard.c **** 		}
+  66:../keyboard.c **** 
+  67:../keyboard.c **** 		/* Esperar a se libere la tecla: consultar bit 1 del registro de datos del puerto G */
+  68:../keyboard.c **** 		while ( (rPDATG & 0x00000002) == 0 ){
+ 2078              		.loc 1 68 0
+ 2079 00ec 000000EA 		b	.L6
+ 2080              	.L7:
+ 2081 00f0 0000A0E1 		mov	r0, r0	@ nop
+ 2082              	.L6:
+ 2083              		.loc 1 68 0 is_stmt 0 discriminator 1
+ 2084 00f4 30309FE5 		ldr	r3, .L8
+ 2085 00f8 003093E5 		ldr	r3, [r3, #0]
+ 2086 00fc 023003E2 		and	r3, r3, #2
+ 2087 0100 000053E3 		cmp	r3, #0
+ 2088 0104 FAFFFF0A 		beq	.L6
+  69:../keyboard.c **** 			//NOTHING
+  70:../keyboard.c **** 		}
+  71:../keyboard.c **** 
+  72:../keyboard.c **** 		/* Esperar trd mediante la funcion Delay() */
+  73:../keyboard.c **** 		DelayMs(100);
+ 2089              		.loc 1 73 0 is_stmt 1
+ 2090 0108 6400A0E3 		mov	r0, #100
+ 2091 010c FEFFFFEB 		bl	DelayMs
+  74:../keyboard.c **** 
+  75:../keyboard.c **** 
+  76:../keyboard.c **** 
+  77:../keyboard.c **** 
+  78:../keyboard.c **** 	/* Borrar interrupción de teclado */
+  79:../keyboard.c **** 	rI_ISPC = BIT_EINT1;
+ 2092              		.loc 1 79 0
+ 2093 0110 18309FE5 		ldr	r3, .L8+4
+ 2094 0114 0124A0E3 		mov	r2, #16777216
+ 2095 0118 002083E5 		str	r2, [r3, #0]
+  80:../keyboard.c **** 
+  81:../keyboard.c **** }
+ 2096              		.loc 1 81 0
+ 2097 011c 1CD04BE2 		sub	sp, fp, #28
+ 2098 0120 0F689DE8 		ldmfd	sp, {r0, r1, r2, r3, fp, sp, lr}
+ 2099 0124 04C09DE4 		ldmfd	sp!, {ip}
+ 2100 0128 04F05EE2 		subs	pc, lr, #4
+ 2101              	.L9:
+ 2102              		.align	2
+ 2103              	.L8:
+ 2104 012c 4400D201 		.word	30539844
+ 2105 0130 2400E001 		.word	31457316
+ 2106              		.cfi_endproc
+ 2107              	.LFE1:
+ 2109              		.align	2
+ 2110              		.global	key_read
+ 2112              	key_read:
+ 2113              	.LFB2:
+  82:../keyboard.c **** int key_read() {
+ 2114              		.loc 1 82 0
+ 2115              		.cfi_startproc
+ 2116              		@ Function supports interworking.
+ 2117              		@ args = 0, pretend = 0, frame = 16
+ 2118              		@ frame_needed = 1, uses_anonymous_args = 0
+ 2119 0134 0DC0A0E1 		mov	ip, sp
+ 2120              	.LCFI4:
+ 2121              		.cfi_def_cfa_register 12
+ 2122 0138 00D82DE9 		stmfd	sp!, {fp, ip, lr, pc}
+ 2123 013c 04B04CE2 		sub	fp, ip, #4
+ 2124              		.cfi_offset 14, -8
+ 2125              		.cfi_offset 13, -12
+ 2126              		.cfi_offset 11, -16
+ 2127              	.LCFI5:
+ 2128              		.cfi_def_cfa 11, 4
+ 2129 0140 10D04DE2 		sub	sp, sp, #16
+  83:../keyboard.c **** 
+  84:../keyboard.c **** 	int value= -1;
+ 2130              		.loc 1 84 0
+ 2131 0144 0030E0E3 		mvn	r3, #0
+ 2132 0148 10300BE5 		str	r3, [fp, #-16]
+  85:../keyboard.c **** 	char temp;
+  86:../keyboard.c **** 
+  87:../keyboard.c **** 	UCHAR values[] = {0xfd, 0xfb, 0xf7, 0xef};
+ 2133              		.loc 1 87 0
+ 2134 014c 18319FE5 		ldr	r3, .L19
+ 2135 0150 003093E5 		ldr	r3, [r3, #0]
+ 2136 0154 1C300BE5 		str	r3, [fp, #-28]
+  88:../keyboard.c **** 
+  89:../keyboard.c **** 	int i;
+  90:../keyboard.c **** 	for(i=0;i<4;i++) {
+ 2137              		.loc 1 90 0
+ 2138 0158 0030A0E3 		mov	r3, #0
+ 2139 015c 14300BE5 		str	r3, [fp, #-20]
+ 2140 0160 390000EA 		b	.L11
+ 2141              	.L18:
+  91:../keyboard.c **** 
+  92:../keyboard.c **** 		temp = *(keyboard_base + values[i]) & KEY_VALUE_MASK;
+ 2142              		.loc 1 92 0
+ 2143 0164 04319FE5 		ldr	r3, .L19+4
+ 2144 0168 002093E5 		ldr	r2, [r3, #0]
+ 2145 016c 0F30E0E3 		mvn	r3, #15
+ 2146 0170 14101BE5 		ldr	r1, [fp, #-20]
+ 2147 0174 0C004BE2 		sub	r0, fp, #12
+ 2148 0178 011080E0 		add	r1, r0, r1
+ 2149 017c 033081E0 		add	r3, r1, r3
+ 2150 0180 0030D3E5 		ldrb	r3, [r3, #0]	@ zero_extendqisi2
+ 2151 0184 033082E0 		add	r3, r2, r3
+ 2152 0188 0030D3E5 		ldrb	r3, [r3, #0]
+ 2153 018c FF3003E2 		and	r3, r3, #255
+ 2154 0190 0F3003E2 		and	r3, r3, #15
+ 2155 0194 15304BE5 		strb	r3, [fp, #-21]
+  93:../keyboard.c **** 		switch (temp) {
+ 2156              		.loc 1 93 0
+ 2157 0198 15305BE5 		ldrb	r3, [fp, #-21]	@ zero_extendqisi2
+ 2158 019c 073043E2 		sub	r3, r3, #7
+ 2159 01a0 070053E3 		cmp	r3, #7
+ 2160 01a4 03F19F97 		ldrls	pc, [pc, r3, asl #2]
+ 2161 01a8 240000EA 		b	.L12
+ 2162              	.L17:
+ 2163 01ac CC010000 		.word	.L13
+ 2164 01b0 40020000 		.word	.L12
+ 2165 01b4 40020000 		.word	.L12
+ 2166 01b8 40020000 		.word	.L12
+ 2167 01bc E0010000 		.word	.L14
+ 2168 01c0 40020000 		.word	.L12
+ 2169 01c4 00020000 		.word	.L15
+ 2170 01c8 20020000 		.word	.L16
+ 2171              	.L13:
+  94:../keyboard.c **** 			case 0x7:  value = 12-i*4; break;
+ 2172              		.loc 1 94 0
+ 2173 01cc 14301BE5 		ldr	r3, [fp, #-20]
+ 2174 01d0 033063E2 		rsb	r3, r3, #3
+ 2175 01d4 0331A0E1 		mov	r3, r3, asl #2
+ 2176 01d8 10300BE5 		str	r3, [fp, #-16]
+ 2177 01dc 170000EA 		b	.L12
+ 2178              	.L14:
+  95:../keyboard.c **** 			case 0xB:  value = 13-i*4; break;
+ 2179              		.loc 1 95 0
+ 2180 01e0 14201BE5 		ldr	r2, [fp, #-20]
+ 2181 01e4 0230A0E1 		mov	r3, r2
+ 2182 01e8 033FA0E1 		mov	r3, r3, asl #30
+ 2183 01ec 033062E0 		rsb	r3, r2, r3
+ 2184 01f0 0331A0E1 		mov	r3, r3, asl #2
+ 2185 01f4 0D3083E2 		add	r3, r3, #13
+ 2186 01f8 10300BE5 		str	r3, [fp, #-16]
+ 2187 01fc 0F0000EA 		b	.L12
+ 2188              	.L15:
+  96:../keyboard.c **** 			case 0xD:  value = 14-i*4; break;
+ 2189              		.loc 1 96 0
+ 2190 0200 14201BE5 		ldr	r2, [fp, #-20]
+ 2191 0204 0230A0E1 		mov	r3, r2
+ 2192 0208 033FA0E1 		mov	r3, r3, asl #30
+ 2193 020c 033062E0 		rsb	r3, r2, r3
+ 2194 0210 0331A0E1 		mov	r3, r3, asl #2
+ 2195 0214 0E3083E2 		add	r3, r3, #14
+ 2196 0218 10300BE5 		str	r3, [fp, #-16]
+ 2197 021c 070000EA 		b	.L12
+ 2198              	.L16:
+  97:../keyboard.c **** 			case 0xE:  value = 15-i*4; break;
+ 2199              		.loc 1 97 0
+ 2200 0220 14201BE5 		ldr	r2, [fp, #-20]
+ 2201 0224 0230A0E1 		mov	r3, r2
+ 2202 0228 033FA0E1 		mov	r3, r3, asl #30
+ 2203 022c 033062E0 		rsb	r3, r2, r3
+ 2204 0230 0331A0E1 		mov	r3, r3, asl #2
+ 2205 0234 0F3083E2 		add	r3, r3, #15
+ 2206 0238 10300BE5 		str	r3, [fp, #-16]
+ 2207 023c 0000A0E1 		mov	r0, r0	@ nop
+ 2208              	.L12:
+  90:../keyboard.c **** 	for(i=0;i<4;i++) {
+ 2209              		.loc 1 90 0
+ 2210 0240 14301BE5 		ldr	r3, [fp, #-20]
+ 2211 0244 013083E2 		add	r3, r3, #1
+ 2212 0248 14300BE5 		str	r3, [fp, #-20]
+ 2213              	.L11:
+  90:../keyboard.c **** 	for(i=0;i<4;i++) {
+ 2214              		.loc 1 90 0 is_stmt 0 discriminator 1
+ 2215 024c 14301BE5 		ldr	r3, [fp, #-20]
+ 2216 0250 030053E3 		cmp	r3, #3
+ 2217 0254 C2FFFFDA 		ble	.L18
+  98:../keyboard.c **** 		}
+  99:../keyboard.c **** 
+ 100:../keyboard.c **** 	}
+ 101:../keyboard.c **** 	
+ 102:../keyboard.c **** 
+ 103:../keyboard.c **** 	return value;
+ 2218              		.loc 1 103 0 is_stmt 1
+ 2219 0258 10301BE5 		ldr	r3, [fp, #-16]
+ 104:../keyboard.c **** 
+ 105:../keyboard.c **** }
+ 2220              		.loc 1 105 0
+ 2221 025c 0300A0E1 		mov	r0, r3
+ 2222 0260 0CD04BE2 		sub	sp, fp, #12
+ 2223 0264 00689DE8 		ldmfd	sp, {fp, sp, lr}
+ 2224 0268 1EFF2FE1 		bx	lr
+ 2225              	.L20:
+ 2226              		.align	2
+ 2227              	.L19:
+ 2228 026c 00000000 		.word	C.0.4717
+ 2229 0270 00000000 		.word	keyboard_base
+ 2230              		.cfi_endproc
+ 2231              	.LFE2:
+ 2233              		.section	.rodata
+ 2234              		.align	2
+ 2237              	C.0.4717:
+ 2238 0000 FD       		.byte	-3
+ 2239 0001 FB       		.byte	-5
+ 2240 0002 F7       		.byte	-9
+ 2241 0003 EF       		.byte	-17
+ 2242              		.text
+ 2243              	.Letext0:
+DEFINED SYMBOLS
+                            *ABS*:00000000 keyboard.c
+C:\Users\USUARI~1\AppData\Local\Temp\ccbADkXP.s:1958   .data:00000000 keyboard_base
+C:\Users\USUARI~1\AppData\Local\Temp\ccbADkXP.s:1955   .data:00000000 $d
+C:\Users\USUARI~1\AppData\Local\Temp\ccbADkXP.s:1961   .text:00000000 $a
+C:\Users\USUARI~1\AppData\Local\Temp\ccbADkXP.s:1964   .text:00000000 keyboard_init
+C:\Users\USUARI~1\AppData\Local\Temp\ccbADkXP.s:2026   .text:0000008c $d
+C:\Users\USUARI~1\AppData\Local\Temp\ccbADkXP.s:2042   .text:000000b4 KeyboardInt
+C:\Users\USUARI~1\AppData\Local\Temp\ccbADkXP.s:2039   .text:000000b4 $a
+C:\Users\USUARI~1\AppData\Local\Temp\ccbADkXP.s:2112   .text:00000134 key_read
+C:\Users\USUARI~1\AppData\Local\Temp\ccbADkXP.s:2104   .text:0000012c $d
+C:\Users\USUARI~1\AppData\Local\Temp\ccbADkXP.s:2109   .text:00000134 $a
+C:\Users\USUARI~1\AppData\Local\Temp\ccbADkXP.s:2163   .text:000001ac $d
+C:\Users\USUARI~1\AppData\Local\Temp\ccbADkXP.s:2173   .text:000001cc $a
+C:\Users\USUARI~1\AppData\Local\Temp\ccbADkXP.s:2228   .text:0000026c $d
+C:\Users\USUARI~1\AppData\Local\Temp\ccbADkXP.s:2237   .rodata:00000000 C.0.4717
+C:\Users\USUARI~1\AppData\Local\Temp\ccbADkXP.s:2234   .rodata:00000000 $d
+                     .debug_frame:00000010 $d
+
+UNDEFINED SYMBOLS
+DelayMs
+D8Led_symbol

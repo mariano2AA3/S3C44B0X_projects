@@ -1,0 +1,378 @@
+   1              		.cpu arm7tdmi
+   2              		.fpu softvfp
+   3              		.eabi_attribute 20, 1
+   4              		.eabi_attribute 21, 1
+   5              		.eabi_attribute 23, 3
+   6              		.eabi_attribute 24, 1
+   7              		.eabi_attribute 25, 1
+   8              		.eabi_attribute 26, 1
+   9              		.eabi_attribute 30, 6
+  10              		.eabi_attribute 18, 4
+  11              		.file	"main.c"
+  21              	.Ltext0:
+  22              		.file 1 "../main.c"
+ 1943              		.align	2
+ 1946              	str_send:
+ 1947 0000 0A534544 		.ascii	"\012SED-P4 >\000"
+ 1947      2D503420 
+ 1947      3E00
+ 1948              		.global	str_error
+ 1949 000a 0000     		.align	2
+ 1952              	str_error:
+ 1953 000c 0A536520 		.ascii	"\012Se ha producido un desbordamiento!\012\000\000"
+ 1953      68612070 
+ 1953      726F6475 
+ 1953      6369646F 
+ 1953      20756E20 
+ 1954 0032 00000000 		.space	12
+ 1954      00000000 
+ 1954      00000000 
+ 1955              		.comm	str,256,4
+ 1956 003e 0000     		.text
+ 1957              		.align	2
+ 1958              		.global	Main
+ 1960              	Main:
+ 1961              	.LFB0:
+   1:../main.c     **** /*--- ficheros de cabecera ---*/
+   2:../main.c     **** #include "44blib.h"
+   3:../main.c     **** #include "44b.h"
+   4:../main.c     **** #include "uart.h"
+   5:../main.c     **** /*--- Externas ---*/
+   6:../main.c     ****  extern void Eint4567_init(void);
+   7:../main.c     ****  extern void keyboard_init();
+   8:../main.c     ****  extern void D8Led_init(void);
+   9:../main.c     ****  extern void D8Led_symbol(int value);
+  10:../main.c     **** /*--- declaracion de funciones ---*/
+  11:../main.c     **** int Main(void);
+  12:../main.c     **** 
+  13:../main.c     **** /*--- variables globales ---*/
+  14:../main.c     **** char str_send[10] = "\nSED-P4 >\0";
+  15:../main.c     **** char str_error[50] = "\nSe ha producido un desbordamiento!\n\0";
+  16:../main.c     **** char str[256];
+  17:../main.c     **** 
+  18:../main.c     **** /*--- codigo de la funcion ---*/
+  19:../main.c     **** int Main(void){
+ 1962              		.loc 1 19 0
+ 1963              		.cfi_startproc
+ 1964              		@ Function supports interworking.
+ 1965              		@ args = 0, pretend = 0, frame = 8
+ 1966              		@ frame_needed = 1, uses_anonymous_args = 0
+ 1967 0000 0DC0A0E1 		mov	ip, sp
+ 1968              	.LCFI0:
+ 1969              		.cfi_def_cfa_register 12
+ 1970 0004 00D82DE9 		stmfd	sp!, {fp, ip, lr, pc}
+ 1971 0008 04B04CE2 		sub	fp, ip, #4
+ 1972              		.cfi_offset 14, -8
+ 1973              		.cfi_offset 13, -12
+ 1974              		.cfi_offset 11, -16
+ 1975              	.LCFI1:
+ 1976              		.cfi_def_cfa 11, 4
+ 1977 000c 08D04DE2 		sub	sp, sp, #8
+  20:../main.c     **** 
+  21:../main.c     **** 	char *pt_str = str;
+ 1978              		.loc 1 21 0
+ 1979 0010 DC319FE5 		ldr	r3, .L24
+ 1980 0014 14300BE5 		str	r3, [fp, #-20]
+  22:../main.c     **** 
+  23:../main.c     **** 	sys_init(); // inicializacion de la placa, interrupciones, puertos
+ 1981              		.loc 1 23 0
+ 1982 0018 FEFFFFEB 		bl	sys_init
+  24:../main.c     **** 
+  25:../main.c     ****     //Inicializamos los botones
+  26:../main.c     ****     rPCONG = rPCONG & 0xffff0fff;
+ 1983              		.loc 1 26 0
+ 1984 001c D4319FE5 		ldr	r3, .L24+4
+ 1985 0020 D0219FE5 		ldr	r2, .L24+4
+ 1986 0024 002092E5 		ldr	r2, [r2, #0]
+ 1987 0028 0F2AC2E3 		bic	r2, r2, #61440
+ 1988 002c 002083E5 		str	r2, [r3, #0]
+  27:../main.c     ****     rPUPG = 0;
+ 1989              		.loc 1 27 0
+ 1990 0030 C4319FE5 		ldr	r3, .L24+8
+ 1991 0034 0020A0E3 		mov	r2, #0
+ 1992 0038 002083E5 		str	r2, [r3, #0]
+  28:../main.c     **** 
+  29:../main.c     ****     Eint4567_init();
+ 1993              		.loc 1 29 0
+ 1994 003c FEFFFFEB 		bl	Eint4567_init
+  30:../main.c     **** 
+  31:../main.c     ****     keyboard_init();
+ 1995              		.loc 1 31 0
+ 1996 0040 FEFFFFEB 		bl	keyboard_init
+  32:../main.c     **** 
+  33:../main.c     ****     D8Led_init();
+ 1997              		.loc 1 33 0
+ 1998 0044 FEFFFFEB 		bl	D8Led_init
+  34:../main.c     ****     D8Led_symbol(0);
+ 1999              		.loc 1 34 0
+ 2000 0048 0000A0E3 		mov	r0, #0
+ 2001 004c FEFFFFEB 		bl	D8Led_symbol
+  35:../main.c     **** 
+  36:../main.c     ****     leds_off();
+ 2002              		.loc 1 36 0
+ 2003 0050 FEFFFFEB 		bl	leds_off
+  37:../main.c     **** 
+  38:../main.c     **** 	Uart_Init(115200); 		// inicializacion de la Uart
+ 2004              		.loc 1 38 0
+ 2005 0054 A4019FE5 		ldr	r0, .L24+12
+ 2006 0058 FEFFFFEB 		bl	Uart_Init
+  39:../main.c     **** 	Uart_Config(); 			// configuración de interrupciones y buffers
+ 2007              		.loc 1 39 0
+ 2008 005c FEFFFFEB 		bl	Uart_Config
+  40:../main.c     **** 	Uart0_Printf(str_send); // mostrar cabecera
+ 2009              		.loc 1 40 0
+ 2010 0060 9C019FE5 		ldr	r0, .L24+16
+ 2011 0064 FEFFFFEB 		bl	Uart0_Printf
+ 2012              	.L23:
+  41:../main.c     **** 
+  42:../main.c     **** 
+  43:../main.c     **** 	while( 1 ) {
+  44:../main.c     **** 
+  45:../main.c     **** 		*pt_str = Uart1_Getch(); // leer caracter del pc
+ 2013              		.loc 1 45 0
+ 2014 0068 FEFFFFEB 		bl	Uart1_Getch
+ 2015 006c 0030A0E1 		mov	r3, r0
+ 2016 0070 0320A0E1 		mov	r2, r3
+ 2017 0074 14301BE5 		ldr	r3, [fp, #-20]
+ 2018 0078 0020C3E5 		strb	r2, [r3, #0]
+  46:../main.c     **** 
+  47:../main.c     **** 		if ( *pt_str == CR_LEFT) {
+ 2019              		.loc 1 47 0
+ 2020 007c 14301BE5 		ldr	r3, [fp, #-20]
+ 2021 0080 0030D3E5 		ldrb	r3, [r3, #0]	@ zero_extendqisi2
+ 2022 0084 4C0053E3 		cmp	r3, #76
+ 2023 0088 0200001A 		bne	.L2
+ 2024              	.LBB2:
+  48:../main.c     **** 			leds_off();
+ 2025              		.loc 1 48 0
+ 2026 008c FEFFFFEB 		bl	leds_off
+  49:../main.c     **** 			led1_on();
+ 2027              		.loc 1 49 0
+ 2028 0090 FEFFFFEB 		bl	led1_on
+ 2029              	.LBE2:
+  50:../main.c     **** 		}
+  51:../main.c     **** 		else if ( *pt_str == CR_RIGHT) {
+  52:../main.c     **** 			leds_off();
+  53:../main.c     **** 			led2_on();
+  54:../main.c     **** 		}
+  55:../main.c     **** 		else {
+  56:../main.c     **** 			int numero;
+  57:../main.c     **** 
+  58:../main.c     **** 
+  59:../main.c     **** 			switch(*pt_str) {
+  60:../main.c     **** 				case CR_0: numero = 0; break;
+  61:../main.c     **** 				case CR_1: numero = 1; break;
+  62:../main.c     **** 				case CR_2: numero = 2; break;
+  63:../main.c     **** 				case CR_3: numero = 3; break;
+  64:../main.c     **** 				case CR_4: numero = 4; break;
+  65:../main.c     **** 				case CR_5: numero = 5; break;
+  66:../main.c     **** 				case CR_6: numero = 6; break;
+  67:../main.c     **** 				case CR_7: numero = 7; break;
+  68:../main.c     **** 				case CR_8: numero = 8; break;
+  69:../main.c     **** 				case CR_9: numero = 9; break;
+  70:../main.c     **** 				case CR_A: numero = 10; break;
+  71:../main.c     **** 				case CR_B: numero = 11; break;
+  72:../main.c     **** 				case CR_C: numero = 12; break;
+  73:../main.c     **** 				case CR_D: numero = 13; break;
+  74:../main.c     **** 				case CR_E: numero = 14; break;
+  75:../main.c     **** 				case CR_F: numero = 15; break;
+  76:../main.c     **** 			}
+  77:../main.c     **** 
+  78:../main.c     **** 			D8Led_symbol(numero);
+  79:../main.c     **** 		}
+  80:../main.c     **** 
+  81:../main.c     **** 	}
+ 2030              		.loc 1 81 0
+ 2031 0094 F3FFFFEA 		b	.L23
+ 2032              	.L2:
+  51:../main.c     **** 		else if ( *pt_str == CR_RIGHT) {
+ 2033              		.loc 1 51 0
+ 2034 0098 14301BE5 		ldr	r3, [fp, #-20]
+ 2035 009c 0030D3E5 		ldrb	r3, [r3, #0]	@ zero_extendqisi2
+ 2036 00a0 520053E3 		cmp	r3, #82
+ 2037 00a4 0200001A 		bne	.L4
+ 2038              	.LBB3:
+  52:../main.c     **** 			leds_off();
+ 2039              		.loc 1 52 0
+ 2040 00a8 FEFFFFEB 		bl	leds_off
+  53:../main.c     **** 			led2_on();
+ 2041              		.loc 1 53 0
+ 2042 00ac FEFFFFEB 		bl	led2_on
+ 2043              	.LBE3:
+ 2044              		.loc 1 81 0
+ 2045 00b0 ECFFFFEA 		b	.L23
+ 2046              	.L4:
+ 2047              	.LBB4:
+  59:../main.c     **** 			switch(*pt_str) {
+ 2048              		.loc 1 59 0
+ 2049 00b4 14301BE5 		ldr	r3, [fp, #-20]
+ 2050 00b8 0030D3E5 		ldrb	r3, [r3, #0]	@ zero_extendqisi2
+ 2051 00bc 303043E2 		sub	r3, r3, #48
+ 2052 00c0 160053E3 		cmp	r3, #22
+ 2053 00c4 03F19F97 		ldrls	pc, [pc, r3, asl #2]
+ 2054 00c8 460000EA 		b	.L5
+ 2055              	.L22:
+ 2056 00cc 28010000 		.word	.L6
+ 2057 00d0 34010000 		.word	.L7
+ 2058 00d4 40010000 		.word	.L8
+ 2059 00d8 4C010000 		.word	.L9
+ 2060 00dc 58010000 		.word	.L10
+ 2061 00e0 64010000 		.word	.L11
+ 2062 00e4 70010000 		.word	.L12
+ 2063 00e8 7C010000 		.word	.L13
+ 2064 00ec 88010000 		.word	.L14
+ 2065 00f0 94010000 		.word	.L15
+ 2066 00f4 E8010000 		.word	.L5
+ 2067 00f8 E8010000 		.word	.L5
+ 2068 00fc E8010000 		.word	.L5
+ 2069 0100 E8010000 		.word	.L5
+ 2070 0104 E8010000 		.word	.L5
+ 2071 0108 E8010000 		.word	.L5
+ 2072 010c E8010000 		.word	.L5
+ 2073 0110 A0010000 		.word	.L16
+ 2074 0114 AC010000 		.word	.L17
+ 2075 0118 B8010000 		.word	.L18
+ 2076 011c C4010000 		.word	.L19
+ 2077 0120 D0010000 		.word	.L20
+ 2078 0124 DC010000 		.word	.L21
+ 2079              	.L6:
+  60:../main.c     **** 				case CR_0: numero = 0; break;
+ 2080              		.loc 1 60 0
+ 2081 0128 0030A0E3 		mov	r3, #0
+ 2082 012c 10300BE5 		str	r3, [fp, #-16]
+ 2083 0130 2C0000EA 		b	.L5
+ 2084              	.L7:
+  61:../main.c     **** 				case CR_1: numero = 1; break;
+ 2085              		.loc 1 61 0
+ 2086 0134 0130A0E3 		mov	r3, #1
+ 2087 0138 10300BE5 		str	r3, [fp, #-16]
+ 2088 013c 290000EA 		b	.L5
+ 2089              	.L8:
+  62:../main.c     **** 				case CR_2: numero = 2; break;
+ 2090              		.loc 1 62 0
+ 2091 0140 0230A0E3 		mov	r3, #2
+ 2092 0144 10300BE5 		str	r3, [fp, #-16]
+ 2093 0148 260000EA 		b	.L5
+ 2094              	.L9:
+  63:../main.c     **** 				case CR_3: numero = 3; break;
+ 2095              		.loc 1 63 0
+ 2096 014c 0330A0E3 		mov	r3, #3
+ 2097 0150 10300BE5 		str	r3, [fp, #-16]
+ 2098 0154 230000EA 		b	.L5
+ 2099              	.L10:
+  64:../main.c     **** 				case CR_4: numero = 4; break;
+ 2100              		.loc 1 64 0
+ 2101 0158 0430A0E3 		mov	r3, #4
+ 2102 015c 10300BE5 		str	r3, [fp, #-16]
+ 2103 0160 200000EA 		b	.L5
+ 2104              	.L11:
+  65:../main.c     **** 				case CR_5: numero = 5; break;
+ 2105              		.loc 1 65 0
+ 2106 0164 0530A0E3 		mov	r3, #5
+ 2107 0168 10300BE5 		str	r3, [fp, #-16]
+ 2108 016c 1D0000EA 		b	.L5
+ 2109              	.L12:
+  66:../main.c     **** 				case CR_6: numero = 6; break;
+ 2110              		.loc 1 66 0
+ 2111 0170 0630A0E3 		mov	r3, #6
+ 2112 0174 10300BE5 		str	r3, [fp, #-16]
+ 2113 0178 1A0000EA 		b	.L5
+ 2114              	.L13:
+  67:../main.c     **** 				case CR_7: numero = 7; break;
+ 2115              		.loc 1 67 0
+ 2116 017c 0730A0E3 		mov	r3, #7
+ 2117 0180 10300BE5 		str	r3, [fp, #-16]
+ 2118 0184 170000EA 		b	.L5
+ 2119              	.L14:
+  68:../main.c     **** 				case CR_8: numero = 8; break;
+ 2120              		.loc 1 68 0
+ 2121 0188 0830A0E3 		mov	r3, #8
+ 2122 018c 10300BE5 		str	r3, [fp, #-16]
+ 2123 0190 140000EA 		b	.L5
+ 2124              	.L15:
+  69:../main.c     **** 				case CR_9: numero = 9; break;
+ 2125              		.loc 1 69 0
+ 2126 0194 0930A0E3 		mov	r3, #9
+ 2127 0198 10300BE5 		str	r3, [fp, #-16]
+ 2128 019c 110000EA 		b	.L5
+ 2129              	.L16:
+  70:../main.c     **** 				case CR_A: numero = 10; break;
+ 2130              		.loc 1 70 0
+ 2131 01a0 0A30A0E3 		mov	r3, #10
+ 2132 01a4 10300BE5 		str	r3, [fp, #-16]
+ 2133 01a8 0E0000EA 		b	.L5
+ 2134              	.L17:
+  71:../main.c     **** 				case CR_B: numero = 11; break;
+ 2135              		.loc 1 71 0
+ 2136 01ac 0B30A0E3 		mov	r3, #11
+ 2137 01b0 10300BE5 		str	r3, [fp, #-16]
+ 2138 01b4 0B0000EA 		b	.L5
+ 2139              	.L18:
+  72:../main.c     **** 				case CR_C: numero = 12; break;
+ 2140              		.loc 1 72 0
+ 2141 01b8 0C30A0E3 		mov	r3, #12
+ 2142 01bc 10300BE5 		str	r3, [fp, #-16]
+ 2143 01c0 080000EA 		b	.L5
+ 2144              	.L19:
+  73:../main.c     **** 				case CR_D: numero = 13; break;
+ 2145              		.loc 1 73 0
+ 2146 01c4 0D30A0E3 		mov	r3, #13
+ 2147 01c8 10300BE5 		str	r3, [fp, #-16]
+ 2148 01cc 050000EA 		b	.L5
+ 2149              	.L20:
+  74:../main.c     **** 				case CR_E: numero = 14; break;
+ 2150              		.loc 1 74 0
+ 2151 01d0 0E30A0E3 		mov	r3, #14
+ 2152 01d4 10300BE5 		str	r3, [fp, #-16]
+ 2153 01d8 020000EA 		b	.L5
+ 2154              	.L21:
+  75:../main.c     **** 				case CR_F: numero = 15; break;
+ 2155              		.loc 1 75 0
+ 2156 01dc 0F30A0E3 		mov	r3, #15
+ 2157 01e0 10300BE5 		str	r3, [fp, #-16]
+ 2158 01e4 0000A0E1 		mov	r0, r0	@ nop
+ 2159              	.L5:
+  78:../main.c     **** 			D8Led_symbol(numero);
+ 2160              		.loc 1 78 0
+ 2161 01e8 10001BE5 		ldr	r0, [fp, #-16]
+ 2162 01ec FEFFFFEB 		bl	D8Led_symbol
+ 2163              	.LBE4:
+ 2164              		.loc 1 81 0
+ 2165 01f0 9CFFFFEA 		b	.L23
+ 2166              	.L25:
+ 2167              		.align	2
+ 2168              	.L24:
+ 2169 01f4 00000000 		.word	str
+ 2170 01f8 4000D201 		.word	30539840
+ 2171 01fc 4800D201 		.word	30539848
+ 2172 0200 00C20100 		.word	115200
+ 2173 0204 00000000 		.word	str_send
+ 2174              		.cfi_endproc
+ 2175              	.LFE0:
+ 2177              	.Letext0:
+DEFINED SYMBOLS
+                            *ABS*:00000000 main.c
+C:\Users\USUARI~1\AppData\Local\Temp\ccffsYS0.s:1946   .data:00000000 str_send
+C:\Users\USUARI~1\AppData\Local\Temp\ccffsYS0.s:1943   .data:00000000 $d
+C:\Users\USUARI~1\AppData\Local\Temp\ccffsYS0.s:1952   .data:0000000c str_error
+                            *COM*:00000100 str
+C:\Users\USUARI~1\AppData\Local\Temp\ccffsYS0.s:1957   .text:00000000 $a
+C:\Users\USUARI~1\AppData\Local\Temp\ccffsYS0.s:1960   .text:00000000 Main
+C:\Users\USUARI~1\AppData\Local\Temp\ccffsYS0.s:2056   .text:000000cc $d
+C:\Users\USUARI~1\AppData\Local\Temp\ccffsYS0.s:2081   .text:00000128 $a
+C:\Users\USUARI~1\AppData\Local\Temp\ccffsYS0.s:2169   .text:000001f4 $d
+                     .debug_frame:00000010 $d
+
+UNDEFINED SYMBOLS
+sys_init
+Eint4567_init
+keyboard_init
+D8Led_init
+D8Led_symbol
+leds_off
+Uart_Init
+Uart_Config
+Uart0_Printf
+Uart1_Getch
+led1_on
+led2_on
