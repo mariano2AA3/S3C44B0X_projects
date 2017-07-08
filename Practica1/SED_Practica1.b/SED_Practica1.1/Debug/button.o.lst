@@ -1,0 +1,267 @@
+   1              		.cpu arm7tdmi
+   2              		.fpu softvfp
+   3              		.eabi_attribute 20, 1
+   4              		.eabi_attribute 21, 1
+   5              		.eabi_attribute 23, 3
+   6              		.eabi_attribute 24, 1
+   7              		.eabi_attribute 25, 1
+   8              		.eabi_attribute 26, 1
+   9              		.eabi_attribute 30, 6
+  10              		.eabi_attribute 18, 4
+  11              		.file	"button.c"
+  21              	.Ltext0:
+  22              		.file 1 "../button.c"
+ 1952              		.align	2
+ 1955              	symbol:
+ 1956 0000 00000000 		.space	4
+ 1957              		.comm	contador,4,4
+ 1958              		.text
+ 1959              		.align	2
+ 1960              		.global	Eint4567_init
+ 1962              	Eint4567_init:
+ 1963              	.LFB0:
+   1:../button.c   **** /*--- ficheros de cabecera ---*/
+   2:../button.c   **** #include "44blib.h"
+   3:../button.c   **** #include "44b.h"
+   4:../button.c   **** #include "def.h"
+   5:../button.c   **** /*--- variables globales ---*/
+   6:../button.c   **** int symbol = 0;
+   7:../button.c   **** /*--- funciones externas ---*/
+   8:../button.c   **** //extern void D8Led_Symbol(int value);
+   9:../button.c   **** /*--- declaracion de funciones ---*/
+  10:../button.c   **** void Eint4567_ISR(void) __attribute__ ((interrupt ("IRQ")));
+  11:../button.c   **** void Eint4567_init(void);
+  12:../button.c   **** extern void leds_switch ();
+  13:../button.c   **** //extern void D8Led_symbol(int value);
+  14:../button.c   **** 
+  15:../button.c   **** int contador;
+  16:../button.c   **** 
+  17:../button.c   **** /*--- codigo de funciones ---*/
+  18:../button.c   **** void Eint4567_init(void) {
+ 1964              		.loc 1 18 0
+ 1965              		.cfi_startproc
+ 1966              		@ Function supports interworking.
+ 1967              		@ args = 0, pretend = 0, frame = 0
+ 1968              		@ frame_needed = 1, uses_anonymous_args = 0
+ 1969 0000 0DC0A0E1 		mov	ip, sp
+ 1970              	.LCFI0:
+ 1971              		.cfi_def_cfa_register 12
+ 1972 0004 00D82DE9 		stmfd	sp!, {fp, ip, lr, pc}
+ 1973 0008 04B04CE2 		sub	fp, ip, #4
+ 1974              		.cfi_offset 14, -8
+ 1975              		.cfi_offset 13, -12
+ 1976              		.cfi_offset 11, -16
+ 1977              	.LCFI1:
+ 1978              		.cfi_def_cfa 11, 4
+  19:../button.c   **** 
+  20:../button.c   **** 	contador = 0;
+ 1979              		.loc 1 20 0
+ 1980 000c 94309FE5 		ldr	r3, .L2
+ 1981 0010 0020A0E3 		mov	r2, #0
+ 1982 0014 002083E5 		str	r2, [r3, #0]
+  21:../button.c   **** 
+  22:../button.c   **** 	/* Configuracion del controlador de interrupciones */
+  23:../button.c   **** 
+  24:../button.c   **** 		// Borra EXTINTPND escribiendo 1s en el propio registro
+  25:../button.c   **** 		rEXTINTPND = 0xf;
+ 1983              		.loc 1 25 0
+ 1984 0018 8C309FE5 		ldr	r3, .L2+4
+ 1985 001c 0F20A0E3 		mov	r2, #15
+ 1986 0020 002083E5 		str	r2, [r3, #0]
+  26:../button.c   **** 
+  27:../button.c   **** 		// Borra INTPND escribiendo 1s en I_ISPC
+  28:../button.c   **** 		rI_ISPC = 0xfffffff;
+ 1987              		.loc 1 28 0
+ 1988 0024 84309FE5 		ldr	r3, .L2+8
+ 1989 0028 0F22E0E3 		mvn	r2, #-268435456
+ 1990 002c 002083E5 		str	r2, [r3, #0]
+  29:../button.c   **** 
+  30:../button.c   **** 		// Configura las lineas como de tipo IRQ mediante INTMOD
+  31:../button.c   **** 		rINTMOD = 0x0000000;
+ 1991              		.loc 1 31 0
+ 1992 0030 7C309FE5 		ldr	r3, .L2+12
+ 1993 0034 0020A0E3 		mov	r2, #0
+ 1994 0038 002083E5 		str	r2, [r3, #0]
+  32:../button.c   **** 
+  33:../button.c   **** 		// Habilita int. vectorizadas y la linea IRQ (FIQ no) mediante INTCON
+  34:../button.c   **** 		rINTCON = 0x1;
+ 1995              		.loc 1 34 0
+ 1996 003c 1E36A0E3 		mov	r3, #31457280
+ 1997 0040 0120A0E3 		mov	r2, #1
+ 1998 0044 002083E5 		str	r2, [r3, #0]
+  35:../button.c   **** 
+  36:../button.c   **** 		// Enmascara todas las lineas excepto Eint4567 y el bit global (INTMSK)
+  37:../button.c   **** 		rINTMSK = 0xffffffff & ~BIT_GLOBAL & ~BIT_EINT4567;
+ 1999              		.loc 1 37 0
+ 2000 0048 68309FE5 		ldr	r3, .L2+16
+ 2001 004c 4226E0E3 		mvn	r2, #69206016
+ 2002 0050 002083E5 		str	r2, [r3, #0]
+  38:../button.c   **** 
+  39:../button.c   **** 		// Establecer la rutina de servicio para Eint4567
+  40:../button.c   **** 	    pISR_EINT4567 = (unsigned) Eint4567_ISR;
+ 2003              		.loc 1 40 0
+ 2004 0054 60309FE5 		ldr	r3, .L2+20
+ 2005 0058 60209FE5 		ldr	r2, .L2+24
+ 2006 005c 002083E5 		str	r2, [r3, #0]
+  41:../button.c   **** 
+  42:../button.c   **** 	/* Configuracion del puerto G */
+  43:../button.c   **** 		// Establece la funcion de los pines (EINT7-EINT0)
+  44:../button.c   **** 	    // Bits 6 y 7 a 0, resto a 1´s
+  45:../button.c   **** 	    rPCONG = 0xff3f;
+ 2007              		.loc 1 45 0
+ 2008 0060 5C309FE5 		ldr	r3, .L2+28
+ 2009 0064 5C209FE5 		ldr	r2, .L2+32
+ 2010 0068 002083E5 		str	r2, [r3, #0]
+  46:../button.c   **** 
+  47:../button.c   **** 		//Habilita las resistencias de pull-up
+  48:../button.c   **** 		rPUPG = 0;
+ 2011              		.loc 1 48 0
+ 2012 006c 58309FE5 		ldr	r3, .L2+36
+ 2013 0070 0020A0E3 		mov	r2, #0
+ 2014 0074 002083E5 		str	r2, [r3, #0]
+  49:../button.c   **** 
+  50:../button.c   **** 		// Configura las lineas de int. como de flanco de bajada mediante EXTINT
+  51:../button.c   **** 		// _01x_01x_01x_01x_01x_01x_01x_01x ; x,_ = doesnt care
+  52:../button.c   **** 		rEXTINT = 0x33333333;
+ 2015              		.loc 1 52 0
+ 2016 0078 50309FE5 		ldr	r3, .L2+40
+ 2017 007c 50209FE5 		ldr	r2, .L2+44
+ 2018 0080 002083E5 		str	r2, [r3, #0]
+  53:../button.c   **** 
+  54:../button.c   **** 	/* Por precaucion, se vuelven a borrar los bits de INTPND y EXTINTPND */
+  55:../button.c   **** 	    rEXTINTPND = 0xf;
+ 2019              		.loc 1 55 0
+ 2020 0084 20309FE5 		ldr	r3, .L2+4
+ 2021 0088 0F20A0E3 		mov	r2, #15
+ 2022 008c 002083E5 		str	r2, [r3, #0]
+  56:../button.c   **** 	    rI_ISPC = 0xfffffff;
+ 2023              		.loc 1 56 0
+ 2024 0090 18309FE5 		ldr	r3, .L2+8
+ 2025 0094 0F22E0E3 		mvn	r2, #-268435456
+ 2026 0098 002083E5 		str	r2, [r3, #0]
+  57:../button.c   **** }
+ 2027              		.loc 1 57 0
+ 2028 009c 0CD04BE2 		sub	sp, fp, #12
+ 2029 00a0 00689DE8 		ldmfd	sp, {fp, sp, lr}
+ 2030 00a4 1EFF2FE1 		bx	lr
+ 2031              	.L3:
+ 2032              		.align	2
+ 2033              	.L2:
+ 2034 00a8 00000000 		.word	contador
+ 2035 00ac 5400D201 		.word	30539860
+ 2036 00b0 2400E001 		.word	31457316
+ 2037 00b4 0800E001 		.word	31457288
+ 2038 00b8 0C00E001 		.word	31457292
+ 2039 00bc 74FF7F0C 		.word	209715060
+ 2040 00c0 00000000 		.word	Eint4567_ISR
+ 2041 00c4 4000D201 		.word	30539840
+ 2042 00c8 3FFF0000 		.word	65343
+ 2043 00cc 4800D201 		.word	30539848
+ 2044 00d0 5000D201 		.word	30539856
+ 2045 00d4 33333333 		.word	858993459
+ 2046              		.cfi_endproc
+ 2047              	.LFE0:
+ 2049              		.align	2
+ 2050              		.global	Eint4567_ISR
+ 2052              	Eint4567_ISR:
+ 2053              	.LFB1:
+  58:../button.c   **** 
+  59:../button.c   **** /*COMENTAR PARA LA PARTE DEL 8-SEGMENTOS
+  60:../button.c   **** DESCOMENTAR PARA LA PRIMERA PARTE CON INTERRUPCIONES
+  61:../button.c   **** */
+  62:../button.c   **** void Eint4567_ISR(void) {
+ 2054              		.loc 1 62 0
+ 2055              		.cfi_startproc
+ 2056              		@ Interrupt Service Routine.
+ 2057              		@ args = 0, pretend = 0, frame = 0
+ 2058              		@ frame_needed = 1, uses_anonymous_args = 0
+ 2059 00d8 04C02DE5 		str	ip, [sp, #-4]!
+ 2060 00dc 0DC0A0E1 		mov	ip, sp
+ 2061              	.LCFI2:
+ 2062              		.cfi_def_cfa_register 12
+ 2063 00e0 0FD82DE9 		stmfd	sp!, {r0, r1, r2, r3, fp, ip, lr, pc}
+ 2064 00e4 04B04CE2 		sub	fp, ip, #4
+ 2065              		.cfi_offset 14, -8
+ 2066              		.cfi_offset 13, -12
+ 2067              		.cfi_offset 11, -16
+ 2068              		.cfi_offset 3, -20
+ 2069              		.cfi_offset 2, -24
+ 2070              		.cfi_offset 1, -28
+ 2071              		.cfi_offset 0, -32
+ 2072              	.LCFI3:
+ 2073              		.cfi_def_cfa 11, 4
+  63:../button.c   **** 
+  64:../button.c   **** 	while ( (rPDATG & 0x00000040) == 0 || (rPDATG & 0x00000080) == 0) {}
+ 2074              		.loc 1 64 0
+ 2075 00e8 0000A0E1 		mov	r0, r0	@ nop
+ 2076              	.L5:
+ 2077              		.loc 1 64 0 is_stmt 0 discriminator 1
+ 2078 00ec 54309FE5 		ldr	r3, .L6
+ 2079 00f0 003093E5 		ldr	r3, [r3, #0]
+ 2080 00f4 403003E2 		and	r3, r3, #64
+ 2081 00f8 000053E3 		cmp	r3, #0
+ 2082 00fc FAFFFF0A 		beq	.L5
+ 2083              		.loc 1 64 0 discriminator 2
+ 2084 0100 40309FE5 		ldr	r3, .L6
+ 2085 0104 003093E5 		ldr	r3, [r3, #0]
+ 2086 0108 803003E2 		and	r3, r3, #128
+ 2087 010c 000053E3 		cmp	r3, #0
+ 2088 0110 F5FFFF0A 		beq	.L5
+  65:../button.c   **** 
+  66:../button.c   **** 	//Conmutamos LEDs
+  67:../button.c   **** 	leds_switch();
+ 2089              		.loc 1 67 0 is_stmt 1
+ 2090 0114 FEFFFFEB 		bl	leds_switch
+  68:../button.c   **** 
+  69:../button.c   **** 	//Delay para eliminar rebotes
+  70:../button.c   **** 	DelayMs(100);
+ 2091              		.loc 1 70 0
+ 2092 0118 6400A0E3 		mov	r0, #100
+ 2093 011c FEFFFFEB 		bl	DelayMs
+  71:../button.c   **** 
+  72:../button.c   **** 	//Borramos EXTINTPND ambas líneas EINT7 y EINT6
+  73:../button.c   **** 	// Ponemos a 1´s los bits de EXTINTPND3(EINT7) y EXTINTPND2(EINT6)
+  74:../button.c   **** 	rEXTINTPND = 0xC;
+ 2094              		.loc 1 74 0
+ 2095 0120 24309FE5 		ldr	r3, .L6+4
+ 2096 0124 0C20A0E3 		mov	r2, #12
+ 2097 0128 002083E5 		str	r2, [r3, #0]
+  75:../button.c   **** 
+  76:../button.c   **** 	//Borramos INTPND usando ISPC
+  77:../button.c   **** 	rI_ISPC = BIT_EINT4567;
+ 2098              		.loc 1 77 0
+ 2099 012c 1C309FE5 		ldr	r3, .L6+8
+ 2100 0130 0226A0E3 		mov	r2, #2097152
+ 2101 0134 002083E5 		str	r2, [r3, #0]
+  78:../button.c   **** 
+  79:../button.c   **** }
+ 2102              		.loc 1 79 0
+ 2103 0138 1CD04BE2 		sub	sp, fp, #28
+ 2104 013c 0F689DE8 		ldmfd	sp, {r0, r1, r2, r3, fp, sp, lr}
+ 2105 0140 04C09DE4 		ldmfd	sp!, {ip}
+ 2106 0144 04F05EE2 		subs	pc, lr, #4
+ 2107              	.L7:
+ 2108              		.align	2
+ 2109              	.L6:
+ 2110 0148 4400D201 		.word	30539844
+ 2111 014c 5400D201 		.word	30539860
+ 2112 0150 2400E001 		.word	31457316
+ 2113              		.cfi_endproc
+ 2114              	.LFE1:
+ 2116              	.Letext0:
+DEFINED SYMBOLS
+                            *ABS*:00000000 button.c
+C:\Users\USUARI~1\AppData\Local\Temp\ccZH2I7g.s:1955   .bss:00000000 symbol
+C:\Users\USUARI~1\AppData\Local\Temp\ccZH2I7g.s:1952   .bss:00000000 $d
+                            *COM*:00000004 contador
+C:\Users\USUARI~1\AppData\Local\Temp\ccZH2I7g.s:1959   .text:00000000 $a
+C:\Users\USUARI~1\AppData\Local\Temp\ccZH2I7g.s:1962   .text:00000000 Eint4567_init
+C:\Users\USUARI~1\AppData\Local\Temp\ccZH2I7g.s:2034   .text:000000a8 $d
+C:\Users\USUARI~1\AppData\Local\Temp\ccZH2I7g.s:2052   .text:000000d8 Eint4567_ISR
+C:\Users\USUARI~1\AppData\Local\Temp\ccZH2I7g.s:2049   .text:000000d8 $a
+C:\Users\USUARI~1\AppData\Local\Temp\ccZH2I7g.s:2110   .text:00000148 $d
+                     .debug_frame:00000010 $d
+
+UNDEFINED SYMBOLS
+leds_switch
+DelayMs
