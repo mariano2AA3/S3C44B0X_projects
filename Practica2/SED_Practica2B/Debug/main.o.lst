@@ -1,0 +1,457 @@
+   1              		.cpu arm7tdmi
+   2              		.fpu softvfp
+   3              		.eabi_attribute 20, 1
+   4              		.eabi_attribute 21, 1
+   5              		.eabi_attribute 23, 3
+   6              		.eabi_attribute 24, 1
+   7              		.eabi_attribute 25, 1
+   8              		.eabi_attribute 26, 1
+   9              		.eabi_attribute 30, 6
+  10              		.eabi_attribute 18, 4
+  11              		.file	"main.c"
+  21              	.Ltext0:
+  22              		.file 1 "../main.c"
+ 2879              		.align	2
+ 2880              		.global	Main
+ 2882              	Main:
+ 2883              	.LFB0:
+   1:../main.c     **** /*--- ficheros de cabecera ---*/
+   2:../main.c     **** #include "44blib.h"
+   3:../main.c     **** #include "44b.h"
+   4:../main.c     **** #include "stdio.h"
+   5:../main.c     **** 
+   6:../main.c     **** /*--- funciones externas ---*/
+   7:../main.c     **** extern void leds_off();
+   8:../main.c     **** extern void led1_on();
+   9:../main.c     **** extern void timer_init();
+  10:../main.c     **** 
+  11:../main.c     **** int secuencia_maquina[100];
+  12:../main.c     **** int secuencia_jugador[100];
+  13:../main.c     **** int pierde;
+  14:../main.c     **** int indice;
+  15:../main.c     **** int indice_jug;
+  16:../main.c     **** int nivel;
+  17:../main.c     **** int turno;
+  18:../main.c     **** int switchLed;
+  19:../main.c     **** 
+  20:../main.c     **** /*--- declaracion de funciones ---*/
+  21:../main.c     **** void Main(void);
+  22:../main.c     **** void generar_secuencia_maquina(void);
+  23:../main.c     **** void comparar_secuencias(void);
+  24:../main.c     **** /*--- codigo de funciones ---*/
+  25:../main.c     **** 
+  26:../main.c     **** void Main(void) {
+ 2884              		.loc 1 26 0
+ 2885              		.cfi_startproc
+ 2886              		@ Function supports interworking.
+ 2887              		@ args = 0, pretend = 0, frame = 0
+ 2888              		@ frame_needed = 1, uses_anonymous_args = 0
+ 2889 0000 0DC0A0E1 		mov	ip, sp
+ 2890              	.LCFI0:
+ 2891              		.cfi_def_cfa_register 12
+ 2892 0004 00D82DE9 		stmfd	sp!, {fp, ip, lr, pc}
+ 2893 0008 04B04CE2 		sub	fp, ip, #4
+ 2894              		.cfi_offset 14, -8
+ 2895              		.cfi_offset 13, -12
+ 2896              		.cfi_offset 11, -16
+ 2897              	.LCFI1:
+ 2898              		.cfi_def_cfa 11, 4
+  27:../main.c     **** 	/* Inicializar controladores */
+  28:../main.c     **** 	sys_init(); // Inicializacion de la placa, interrupciones y puertos
+ 2899              		.loc 1 28 0
+ 2900 000c FEFFFFEB 		bl	sys_init
+  29:../main.c     **** 
+  30:../main.c     **** 	rPCONG = rPCONG & 0xffff0fff;
+ 2901              		.loc 1 30 0
+ 2902 0010 34319FE5 		ldr	r3, .L8
+ 2903 0014 30219FE5 		ldr	r2, .L8
+ 2904 0018 002092E5 		ldr	r2, [r2, #0]
+ 2905 001c 0F2AC2E3 		bic	r2, r2, #61440
+ 2906 0020 002083E5 		str	r2, [r3, #0]
+  31:../main.c     **** 	rPUPG = 0;
+ 2907              		.loc 1 31 0
+ 2908 0024 24319FE5 		ldr	r3, .L8+4
+ 2909 0028 0020A0E3 		mov	r2, #0
+ 2910 002c 002083E5 		str	r2, [r3, #0]
+  32:../main.c     **** 
+  33:../main.c     **** 
+  34:../main.c     **** 	keyboard_init();
+ 2911              		.loc 1 34 0
+ 2912 0030 FEFFFFEB 		bl	keyboard_init
+  35:../main.c     **** 
+  36:../main.c     **** 	D8Led_init();
+ 2913              		.loc 1 36 0
+ 2914 0034 FEFFFFEB 		bl	D8Led_init
+  37:../main.c     **** 	D8Led_symbol(18);
+ 2915              		.loc 1 37 0
+ 2916 0038 1200A0E3 		mov	r0, #18
+ 2917 003c FEFFFFEB 		bl	D8Led_symbol
+  38:../main.c     **** 
+  39:../main.c     **** 	led1_on();
+ 2918              		.loc 1 39 0
+ 2919 0040 FEFFFFEB 		bl	led1_on
+  40:../main.c     **** 	led2_on();
+ 2920              		.loc 1 40 0
+ 2921 0044 FEFFFFEB 		bl	led2_on
+  41:../main.c     **** 
+  42:../main.c     **** 	pierde = 0;
+ 2922              		.loc 1 42 0
+ 2923 0048 04319FE5 		ldr	r3, .L8+8
+ 2924 004c 0020A0E3 		mov	r2, #0
+ 2925 0050 002083E5 		str	r2, [r3, #0]
+  43:../main.c     **** 	turno = 0;
+ 2926              		.loc 1 43 0
+ 2927 0054 FC309FE5 		ldr	r3, .L8+12
+ 2928 0058 0020A0E3 		mov	r2, #0
+ 2929 005c 002083E5 		str	r2, [r3, #0]
+  44:../main.c     **** 	indice = 0;
+ 2930              		.loc 1 44 0
+ 2931 0060 F4309FE5 		ldr	r3, .L8+16
+ 2932 0064 0020A0E3 		mov	r2, #0
+ 2933 0068 002083E5 		str	r2, [r3, #0]
+  45:../main.c     **** 	indice_jug = 0;
+ 2934              		.loc 1 45 0
+ 2935 006c EC309FE5 		ldr	r3, .L8+20
+ 2936 0070 0020A0E3 		mov	r2, #0
+ 2937 0074 002083E5 		str	r2, [r3, #0]
+  46:../main.c     **** 	nivel = 0;
+ 2938              		.loc 1 46 0
+ 2939 0078 E4309FE5 		ldr	r3, .L8+24
+ 2940 007c 0020A0E3 		mov	r2, #0
+ 2941 0080 002083E5 		str	r2, [r3, #0]
+  47:../main.c     **** 	switchLed = 0;
+ 2942              		.loc 1 47 0
+ 2943 0084 DC309FE5 		ldr	r3, .L8+28
+ 2944 0088 0020A0E3 		mov	r2, #0
+ 2945 008c 002083E5 		str	r2, [r3, #0]
+  48:../main.c     **** 
+  49:../main.c     **** 	timer_init(); // Inicializacion del temporizador
+ 2946              		.loc 1 49 0
+ 2947 0090 FEFFFFEB 		bl	timer_init
+  50:../main.c     **** 
+  51:../main.c     **** 	enciende_timer2();
+ 2948              		.loc 1 51 0
+ 2949 0094 FEFFFFEB 		bl	enciende_timer2
+  52:../main.c     **** 	while( !(rPDATG & 0x00000040) == 0 ) {}
+ 2950              		.loc 1 52 0
+ 2951 0098 0000A0E1 		mov	r0, r0	@ nop
+ 2952              	.L2:
+ 2953              		.loc 1 52 0 is_stmt 0 discriminator 1
+ 2954 009c C8309FE5 		ldr	r3, .L8+32
+ 2955 00a0 003093E5 		ldr	r3, [r3, #0]
+ 2956 00a4 403003E2 		and	r3, r3, #64
+ 2957 00a8 000053E3 		cmp	r3, #0
+ 2958 00ac FAFFFF1A 		bne	.L2
+  53:../main.c     **** 
+  54:../main.c     **** 
+  55:../main.c     **** 	while (pierde == 0) {
+ 2959              		.loc 1 55 0 is_stmt 1
+ 2960 00b0 1E0000EA 		b	.L3
+ 2961              	.L6:
+ 2962              	.LBB2:
+  56:../main.c     **** 
+  57:../main.c     **** 		/* Turno maquina */
+  58:../main.c     **** 			leds_off();
+ 2963              		.loc 1 58 0
+ 2964 00b4 FEFFFFEB 		bl	leds_off
+  59:../main.c     **** 			led1_on();
+ 2965              		.loc 1 59 0
+ 2966 00b8 FEFFFFEB 		bl	led1_on
+  60:../main.c     **** 			turno = 0;
+ 2967              		.loc 1 60 0
+ 2968 00bc 94309FE5 		ldr	r3, .L8+12
+ 2969 00c0 0020A0E3 		mov	r2, #0
+ 2970 00c4 002083E5 		str	r2, [r3, #0]
+  61:../main.c     **** 			indice = 0;
+ 2971              		.loc 1 61 0
+ 2972 00c8 8C309FE5 		ldr	r3, .L8+16
+ 2973 00cc 0020A0E3 		mov	r2, #0
+ 2974 00d0 002083E5 		str	r2, [r3, #0]
+  62:../main.c     **** 			generar_secuencia_maquina();
+ 2975              		.loc 1 62 0
+ 2976 00d4 FEFFFFEB 		bl	generar_secuencia_maquina
+  63:../main.c     **** 			enciende_timer0();
+ 2977              		.loc 1 63 0
+ 2978 00d8 FEFFFFEB 		bl	enciende_timer0
+  64:../main.c     **** 
+  65:../main.c     **** 			while(turno == 0) {}
+ 2979              		.loc 1 65 0
+ 2980 00dc 0000A0E1 		mov	r0, r0	@ nop
+ 2981              	.L4:
+ 2982              		.loc 1 65 0 is_stmt 0 discriminator 1
+ 2983 00e0 70309FE5 		ldr	r3, .L8+12
+ 2984 00e4 003093E5 		ldr	r3, [r3, #0]
+ 2985 00e8 000053E3 		cmp	r3, #0
+ 2986 00ec FBFFFF0A 		beq	.L4
+  66:../main.c     **** 
+  67:../main.c     **** 		/* Turno jugador */
+  68:../main.c     **** 			indice_jug = 0;
+ 2987              		.loc 1 68 0 is_stmt 1
+ 2988 00f0 68309FE5 		ldr	r3, .L8+20
+ 2989 00f4 0020A0E3 		mov	r2, #0
+ 2990 00f8 002083E5 		str	r2, [r3, #0]
+  69:../main.c     **** 			leds_off();
+ 2991              		.loc 1 69 0
+ 2992 00fc FEFFFFEB 		bl	leds_off
+  70:../main.c     **** 			led2_on();
+ 2993              		.loc 1 70 0
+ 2994 0100 FEFFFFEB 		bl	led2_on
+  71:../main.c     **** 			while ( !(rPDATG & 0x00000080) == 0 ) {}
+ 2995              		.loc 1 71 0
+ 2996 0104 0000A0E1 		mov	r0, r0	@ nop
+ 2997              	.L5:
+ 2998              		.loc 1 71 0 is_stmt 0 discriminator 1
+ 2999 0108 5C309FE5 		ldr	r3, .L8+32
+ 3000 010c 003093E5 		ldr	r3, [r3, #0]
+ 3001 0110 803003E2 		and	r3, r3, #128
+ 3002 0114 000053E3 		cmp	r3, #0
+ 3003 0118 FAFFFF1A 		bne	.L5
+  72:../main.c     **** 			D8Led_symbol(18);
+ 3004              		.loc 1 72 0 is_stmt 1
+ 3005 011c 1200A0E3 		mov	r0, #18
+ 3006 0120 FEFFFFEB 		bl	D8Led_symbol
+  73:../main.c     **** 			DelayMs(500);
+ 3007              		.loc 1 73 0
+ 3008 0124 7D0FA0E3 		mov	r0, #500
+ 3009 0128 FEFFFFEB 		bl	DelayMs
+  74:../main.c     **** 			comparar_secuencias();
+ 3010              		.loc 1 74 0
+ 3011 012c FEFFFFEB 		bl	comparar_secuencias
+ 3012              	.L3:
+ 3013              	.LBE2:
+  55:../main.c     **** 	while (pierde == 0) {
+ 3014              		.loc 1 55 0 discriminator 1
+ 3015 0130 1C309FE5 		ldr	r3, .L8+8
+ 3016 0134 003093E5 		ldr	r3, [r3, #0]
+ 3017 0138 000053E3 		cmp	r3, #0
+ 3018 013c DCFFFF0A 		beq	.L6
+  75:../main.c     **** 
+  76:../main.c     **** 	}
+  77:../main.c     **** 
+  78:../main.c     **** 
+  79:../main.c     **** 	leds_off();
+ 3019              		.loc 1 79 0
+ 3020 0140 FEFFFFEB 		bl	leds_off
+  80:../main.c     **** 	enciende_timer2();
+ 3021              		.loc 1 80 0
+ 3022 0144 FEFFFFEB 		bl	enciende_timer2
+ 3023              	.L7:
+  81:../main.c     **** 	// Ha perdido
+  82:../main.c     **** 	while(1) {}
+ 3024              		.loc 1 82 0 discriminator 1
+ 3025 0148 FEFFFFEA 		b	.L7
+ 3026              	.L9:
+ 3027              		.align	2
+ 3028              	.L8:
+ 3029 014c 4000D201 		.word	30539840
+ 3030 0150 4800D201 		.word	30539848
+ 3031 0154 00000000 		.word	pierde
+ 3032 0158 00000000 		.word	turno
+ 3033 015c 00000000 		.word	indice
+ 3034 0160 00000000 		.word	indice_jug
+ 3035 0164 00000000 		.word	nivel
+ 3036 0168 00000000 		.word	switchLed
+ 3037 016c 4400D201 		.word	30539844
+ 3038              		.cfi_endproc
+ 3039              	.LFE0:
+ 3041              		.align	2
+ 3042              		.global	generar_secuencia_maquina
+ 3044              	generar_secuencia_maquina:
+ 3045              	.LFB1:
+  83:../main.c     **** 
+  84:../main.c     **** }
+  85:../main.c     **** 
+  86:../main.c     **** void generar_secuencia_maquina(void) {
+ 3046              		.loc 1 86 0
+ 3047              		.cfi_startproc
+ 3048              		@ Function supports interworking.
+ 3049              		@ args = 0, pretend = 0, frame = 0
+ 3050              		@ frame_needed = 1, uses_anonymous_args = 0
+ 3051 0170 0DC0A0E1 		mov	ip, sp
+ 3052              	.LCFI2:
+ 3053              		.cfi_def_cfa_register 12
+ 3054 0174 18D82DE9 		stmfd	sp!, {r3, r4, fp, ip, lr, pc}
+ 3055 0178 04B04CE2 		sub	fp, ip, #4
+ 3056              		.cfi_offset 14, -8
+ 3057              		.cfi_offset 13, -12
+ 3058              		.cfi_offset 11, -16
+ 3059              		.cfi_offset 4, -20
+ 3060              		.cfi_offset 3, -24
+ 3061              	.LCFI3:
+ 3062              		.cfi_def_cfa 11, 4
+  87:../main.c     **** 
+  88:../main.c     **** 	secuencia_maquina[nivel] = (rand() % 15) + 1;
+ 3063              		.loc 1 88 0
+ 3064 017c 5C309FE5 		ldr	r3, .L11
+ 3065 0180 004093E5 		ldr	r4, [r3, #0]
+ 3066 0184 FEFFFFEB 		bl	rand
+ 3067 0188 0010A0E1 		mov	r1, r0
+ 3068 018c 50309FE5 		ldr	r3, .L11+4
+ 3069 0190 9123C3E0 		smull	r2, r3, r1, r3
+ 3070 0194 013083E0 		add	r3, r3, r1
+ 3071 0198 C321A0E1 		mov	r2, r3, asr #3
+ 3072 019c C13FA0E1 		mov	r3, r1, asr #31
+ 3073 01a0 022063E0 		rsb	r2, r3, r2
+ 3074 01a4 0230A0E1 		mov	r3, r2
+ 3075 01a8 0332A0E1 		mov	r3, r3, asl #4
+ 3076 01ac 033062E0 		rsb	r3, r2, r3
+ 3077 01b0 012063E0 		rsb	r2, r3, r1
+ 3078 01b4 012082E2 		add	r2, r2, #1
+ 3079 01b8 28309FE5 		ldr	r3, .L11+8
+ 3080 01bc 042183E7 		str	r2, [r3, r4, asl #2]
+  89:../main.c     **** 	nivel++;
+ 3081              		.loc 1 89 0
+ 3082 01c0 18309FE5 		ldr	r3, .L11
+ 3083 01c4 003093E5 		ldr	r3, [r3, #0]
+ 3084 01c8 012083E2 		add	r2, r3, #1
+ 3085 01cc 0C309FE5 		ldr	r3, .L11
+ 3086 01d0 002083E5 		str	r2, [r3, #0]
+  90:../main.c     **** 
+  91:../main.c     **** }
+ 3087              		.loc 1 91 0
+ 3088 01d4 14D04BE2 		sub	sp, fp, #20
+ 3089 01d8 18689DE8 		ldmfd	sp, {r3, r4, fp, sp, lr}
+ 3090 01dc 1EFF2FE1 		bx	lr
+ 3091              	.L12:
+ 3092              		.align	2
+ 3093              	.L11:
+ 3094 01e0 00000000 		.word	nivel
+ 3095 01e4 89888888 		.word	-2004318071
+ 3096 01e8 00000000 		.word	secuencia_maquina
+ 3097              		.cfi_endproc
+ 3098              	.LFE1:
+ 3100              		.align	2
+ 3101              		.global	comparar_secuencias
+ 3103              	comparar_secuencias:
+ 3104              	.LFB2:
+  92:../main.c     **** 
+  93:../main.c     **** void comparar_secuencias(void) {
+ 3105              		.loc 1 93 0
+ 3106              		.cfi_startproc
+ 3107              		@ Function supports interworking.
+ 3108              		@ args = 0, pretend = 0, frame = 8
+ 3109              		@ frame_needed = 1, uses_anonymous_args = 0
+ 3110 01ec 0DC0A0E1 		mov	ip, sp
+ 3111              	.LCFI4:
+ 3112              		.cfi_def_cfa_register 12
+ 3113 01f0 00D82DE9 		stmfd	sp!, {fp, ip, lr, pc}
+ 3114 01f4 04B04CE2 		sub	fp, ip, #4
+ 3115              		.cfi_offset 14, -8
+ 3116              		.cfi_offset 13, -12
+ 3117              		.cfi_offset 11, -16
+ 3118              	.LCFI5:
+ 3119              		.cfi_def_cfa 11, 4
+ 3120 01f8 08D04DE2 		sub	sp, sp, #8
+  94:../main.c     **** 
+  95:../main.c     **** 	if ( indice_jug > nivel ) {
+ 3121              		.loc 1 95 0
+ 3122 01fc 90309FE5 		ldr	r3, .L19
+ 3123 0200 002093E5 		ldr	r2, [r3, #0]
+ 3124 0204 8C309FE5 		ldr	r3, .L19+4
+ 3125 0208 003093E5 		ldr	r3, [r3, #0]
+ 3126 020c 030052E1 		cmp	r2, r3
+ 3127 0210 020000DA 		ble	.L14
+  96:../main.c     **** 		pierde = 1;
+ 3128              		.loc 1 96 0
+ 3129 0214 80309FE5 		ldr	r3, .L19+8
+ 3130 0218 0120A0E3 		mov	r2, #1
+ 3131 021c 002083E5 		str	r2, [r3, #0]
+ 3132              	.L14:
+  97:../main.c     **** 	}
+  98:../main.c     **** 
+  99:../main.c     **** 	int i;
+ 100:../main.c     **** 	for(i = 0;i<nivel && pierde == 0;++i) {
+ 3133              		.loc 1 100 0
+ 3134 0220 0030A0E3 		mov	r3, #0
+ 3135 0224 10300BE5 		str	r3, [fp, #-16]
+ 3136 0228 0D0000EA 		b	.L15
+ 3137              	.L18:
+ 101:../main.c     **** 		if ( secuencia_jugador[i] != secuencia_maquina[i] ) {
+ 3138              		.loc 1 101 0
+ 3139 022c 6C309FE5 		ldr	r3, .L19+12
+ 3140 0230 10201BE5 		ldr	r2, [fp, #-16]
+ 3141 0234 022193E7 		ldr	r2, [r3, r2, asl #2]
+ 3142 0238 64309FE5 		ldr	r3, .L19+16
+ 3143 023c 10101BE5 		ldr	r1, [fp, #-16]
+ 3144 0240 013193E7 		ldr	r3, [r3, r1, asl #2]
+ 3145 0244 030052E1 		cmp	r2, r3
+ 3146 0248 0200000A 		beq	.L16
+ 102:../main.c     **** 			pierde = 1;
+ 3147              		.loc 1 102 0
+ 3148 024c 48309FE5 		ldr	r3, .L19+8
+ 3149 0250 0120A0E3 		mov	r2, #1
+ 3150 0254 002083E5 		str	r2, [r3, #0]
+ 3151              	.L16:
+ 100:../main.c     **** 	for(i = 0;i<nivel && pierde == 0;++i) {
+ 3152              		.loc 1 100 0
+ 3153 0258 10301BE5 		ldr	r3, [fp, #-16]
+ 3154 025c 013083E2 		add	r3, r3, #1
+ 3155 0260 10300BE5 		str	r3, [fp, #-16]
+ 3156              	.L15:
+ 100:../main.c     **** 	for(i = 0;i<nivel && pierde == 0;++i) {
+ 3157              		.loc 1 100 0 is_stmt 0 discriminator 1
+ 3158 0264 2C309FE5 		ldr	r3, .L19+4
+ 3159 0268 003093E5 		ldr	r3, [r3, #0]
+ 3160 026c 10201BE5 		ldr	r2, [fp, #-16]
+ 3161 0270 030052E1 		cmp	r2, r3
+ 3162 0274 030000AA 		bge	.L13
+ 100:../main.c     **** 	for(i = 0;i<nivel && pierde == 0;++i) {
+ 3163              		.loc 1 100 0 discriminator 2
+ 3164 0278 1C309FE5 		ldr	r3, .L19+8
+ 3165 027c 003093E5 		ldr	r3, [r3, #0]
+ 3166 0280 000053E3 		cmp	r3, #0
+ 3167 0284 E8FFFF0A 		beq	.L18
+ 3168              	.L13:
+ 103:../main.c     **** 		}
+ 104:../main.c     **** 	}
+ 105:../main.c     **** 
+ 106:../main.c     **** }
+ 3169              		.loc 1 106 0 is_stmt 1
+ 3170 0288 0CD04BE2 		sub	sp, fp, #12
+ 3171 028c 00689DE8 		ldmfd	sp, {fp, sp, lr}
+ 3172 0290 1EFF2FE1 		bx	lr
+ 3173              	.L20:
+ 3174              		.align	2
+ 3175              	.L19:
+ 3176 0294 00000000 		.word	indice_jug
+ 3177 0298 00000000 		.word	nivel
+ 3178 029c 00000000 		.word	pierde
+ 3179 02a0 00000000 		.word	secuencia_jugador
+ 3180 02a4 00000000 		.word	secuencia_maquina
+ 3181              		.cfi_endproc
+ 3182              	.LFE2:
+ 3184              	.Letext0:
+DEFINED SYMBOLS
+                            *ABS*:00000000 main.c
+                            *COM*:00000190 secuencia_maquina
+                            *COM*:00000190 secuencia_jugador
+                            *COM*:00000004 pierde
+                            *COM*:00000004 indice
+                            *COM*:00000004 indice_jug
+                            *COM*:00000004 nivel
+                            *COM*:00000004 turno
+                            *COM*:00000004 switchLed
+C:\Users\USUARI~1\AppData\Local\Temp\ccVIXVZJ.s:2879   .text:00000000 $a
+C:\Users\USUARI~1\AppData\Local\Temp\ccVIXVZJ.s:2882   .text:00000000 Main
+C:\Users\USUARI~1\AppData\Local\Temp\ccVIXVZJ.s:3044   .text:00000170 generar_secuencia_maquina
+C:\Users\USUARI~1\AppData\Local\Temp\ccVIXVZJ.s:3103   .text:000001ec comparar_secuencias
+C:\Users\USUARI~1\AppData\Local\Temp\ccVIXVZJ.s:3029   .text:0000014c $d
+C:\Users\USUARI~1\AppData\Local\Temp\ccVIXVZJ.s:3041   .text:00000170 $a
+C:\Users\USUARI~1\AppData\Local\Temp\ccVIXVZJ.s:3094   .text:000001e0 $d
+C:\Users\USUARI~1\AppData\Local\Temp\ccVIXVZJ.s:3100   .text:000001ec $a
+C:\Users\USUARI~1\AppData\Local\Temp\ccVIXVZJ.s:3176   .text:00000294 $d
+                     .debug_frame:00000010 $d
+
+UNDEFINED SYMBOLS
+sys_init
+keyboard_init
+D8Led_init
+D8Led_symbol
+led1_on
+led2_on
+timer_init
+enciende_timer2
+leds_off
+enciende_timer0
+DelayMs
+rand
