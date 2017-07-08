@@ -1,0 +1,2442 @@
+   1              		.cpu arm7tdmi
+   2              		.fpu softvfp
+   3              		.eabi_attribute 20, 1
+   4              		.eabi_attribute 21, 1
+   5              		.eabi_attribute 23, 3
+   6              		.eabi_attribute 24, 1
+   7              		.eabi_attribute 25, 1
+   8              		.eabi_attribute 26, 1
+   9              		.eabi_attribute 30, 6
+  10              		.eabi_attribute 18, 4
+  11              		.file	"snake.c"
+  21              	.Ltext0:
+  22              		.file 1 "../snake.c"
+ 3014              		.align	2
+ 3015              		.global	iniciar_snake
+ 3017              	iniciar_snake:
+ 3018              	.LFB0:
+   1:../snake.c    **** #include "snake.h"
+   2:../snake.c    **** #include "lcd.h"
+   3:../snake.c    **** #include "uart.h"
+   4:../snake.c    **** #include "stdio.h"	// rand
+   5:../snake.c    **** 
+   6:../snake.c    **** void iniciar_snake(char id) {
+ 3019              		.loc 1 6 0
+ 3020              		.cfi_startproc
+ 3021              		@ Function supports interworking.
+ 3022              		@ args = 0, pretend = 0, frame = 8
+ 3023              		@ frame_needed = 1, uses_anonymous_args = 0
+ 3024 0000 0DC0A0E1 		mov	ip, sp
+ 3025              	.LCFI0:
+ 3026              		.cfi_def_cfa_register 12
+ 3027 0004 00D82DE9 		stmfd	sp!, {fp, ip, lr, pc}
+ 3028 0008 04B04CE2 		sub	fp, ip, #4
+ 3029              		.cfi_offset 14, -8
+ 3030              		.cfi_offset 13, -12
+ 3031              		.cfi_offset 11, -16
+ 3032              	.LCFI1:
+ 3033              		.cfi_def_cfa 11, 4
+ 3034 000c 08D04DE2 		sub	sp, sp, #8
+ 3035 0010 0030A0E1 		mov	r3, r0
+ 3036 0014 0D304BE5 		strb	r3, [fp, #-13]
+   7:../snake.c    **** 
+   8:../snake.c    **** 	crear_tablero();
+ 3037              		.loc 1 8 0
+ 3038 0018 FEFFFFEB 		bl	crear_tablero
+   9:../snake.c    **** 
+  10:../snake.c    **** 	if ( id == '1')
+ 3039              		.loc 1 10 0
+ 3040 001c 0D305BE5 		ldrb	r3, [fp, #-13]	@ zero_extendqisi2
+ 3041 0020 310053E3 		cmp	r3, #49
+ 3042 0024 0100001A 		bne	.L2
+  11:../snake.c    **** 		crear_jugadores_tipoA();
+ 3043              		.loc 1 11 0
+ 3044 0028 FEFFFFEB 		bl	crear_jugadores_tipoA
+ 3045 002c 030000EA 		b	.L3
+ 3046              	.L2:
+  12:../snake.c    **** 
+  13:../snake.c    **** 	else if ( id == '2')
+ 3047              		.loc 1 13 0
+ 3048 0030 0D305BE5 		ldrb	r3, [fp, #-13]	@ zero_extendqisi2
+ 3049 0034 320053E3 		cmp	r3, #50
+ 3050 0038 0000001A 		bne	.L3
+  14:../snake.c    **** 		crear_jugadores_tipoB();
+ 3051              		.loc 1 14 0
+ 3052 003c FEFFFFEB 		bl	crear_jugadores_tipoB
+ 3053              	.L3:
+  15:../snake.c    **** 
+  16:../snake.c    **** 	numAC = 0;
+ 3054              		.loc 1 16 0
+ 3055 0040 48309FE5 		ldr	r3, .L4
+ 3056 0044 0020A0E3 		mov	r2, #0
+ 3057 0048 002083E5 		str	r2, [r3, #0]
+  17:../snake.c    **** 
+  18:../snake.c    **** 	frutaX = 100;	// Pintamos la fruta fuera del tablero.
+ 3058              		.loc 1 18 0
+ 3059 004c 40309FE5 		ldr	r3, .L4+4
+ 3060 0050 6420A0E3 		mov	r2, #100
+ 3061 0054 002083E5 		str	r2, [r3, #0]
+  19:../snake.c    **** 	frutaY = 100;
+ 3062              		.loc 1 19 0
+ 3063 0058 38309FE5 		ldr	r3, .L4+8
+ 3064 005c 6420A0E3 		mov	r2, #100
+ 3065 0060 002083E5 		str	r2, [r3, #0]
+  20:../snake.c    **** 
+  21:../snake.c    **** 	actualizar_pos_tablero(frutaX, frutaY, FRUTA);
+ 3066              		.loc 1 21 0
+ 3067 0064 28309FE5 		ldr	r3, .L4+4
+ 3068 0068 002093E5 		ldr	r2, [r3, #0]
+ 3069 006c 24309FE5 		ldr	r3, .L4+8
+ 3070 0070 003093E5 		ldr	r3, [r3, #0]
+ 3071 0074 0200A0E1 		mov	r0, r2
+ 3072 0078 0310A0E1 		mov	r1, r3
+ 3073 007c 0220A0E3 		mov	r2, #2
+ 3074 0080 FEFFFFEB 		bl	actualizar_pos_tablero
+  22:../snake.c    **** }
+ 3075              		.loc 1 22 0
+ 3076 0084 0CD04BE2 		sub	sp, fp, #12
+ 3077 0088 00689DE8 		ldmfd	sp, {fp, sp, lr}
+ 3078 008c 1EFF2FE1 		bx	lr
+ 3079              	.L5:
+ 3080              		.align	2
+ 3081              	.L4:
+ 3082 0090 00000000 		.word	numAC
+ 3083 0094 00000000 		.word	frutaX
+ 3084 0098 00000000 		.word	frutaY
+ 3085              		.cfi_endproc
+ 3086              	.LFE0:
+ 3088              		.align	2
+ 3089              		.global	crear_tablero
+ 3091              	crear_tablero:
+ 3092              	.LFB1:
+  23:../snake.c    **** 
+  24:../snake.c    **** void crear_tablero() {
+ 3093              		.loc 1 24 0
+ 3094              		.cfi_startproc
+ 3095              		@ Function supports interworking.
+ 3096              		@ args = 0, pretend = 0, frame = 8
+ 3097              		@ frame_needed = 1, uses_anonymous_args = 0
+ 3098 009c 0DC0A0E1 		mov	ip, sp
+ 3099              	.LCFI2:
+ 3100              		.cfi_def_cfa_register 12
+ 3101 00a0 00D82DE9 		stmfd	sp!, {fp, ip, lr, pc}
+ 3102 00a4 04B04CE2 		sub	fp, ip, #4
+ 3103              		.cfi_offset 14, -8
+ 3104              		.cfi_offset 13, -12
+ 3105              		.cfi_offset 11, -16
+ 3106              	.LCFI3:
+ 3107              		.cfi_def_cfa 11, 4
+ 3108 00a8 08D04DE2 		sub	sp, sp, #8
+  25:../snake.c    **** 	int i = 0;
+ 3109              		.loc 1 25 0
+ 3110 00ac 0030A0E3 		mov	r3, #0
+ 3111 00b0 10300BE5 		str	r3, [fp, #-16]
+  26:../snake.c    **** 	int j = 0;
+ 3112              		.loc 1 26 0
+ 3113 00b4 0030A0E3 		mov	r3, #0
+ 3114 00b8 14300BE5 		str	r3, [fp, #-20]
+  27:../snake.c    **** 
+  28:../snake.c    **** 	for (i = 0; i < FILAS;++i) {
+ 3115              		.loc 1 28 0
+ 3116 00bc 0030A0E3 		mov	r3, #0
+ 3117 00c0 10300BE5 		str	r3, [fp, #-16]
+ 3118 00c4 2C0000EA 		b	.L7
+ 3119              	.L13:
+  29:../snake.c    **** 		for (j = 0; j < COLUMNAS; ++j) {
+ 3120              		.loc 1 29 0
+ 3121 00c8 0030A0E3 		mov	r3, #0
+ 3122 00cc 14300BE5 		str	r3, [fp, #-20]
+ 3123 00d0 230000EA 		b	.L8
+ 3124              	.L12:
+  30:../snake.c    **** 			if (i == 0 || i == FILAS-1 || j == 0 || j == COLUMNAS-1)
+ 3125              		.loc 1 30 0
+ 3126 00d4 10301BE5 		ldr	r3, [fp, #-16]
+ 3127 00d8 000053E3 		cmp	r3, #0
+ 3128 00dc 0800000A 		beq	.L9
+ 3129              		.loc 1 30 0 is_stmt 0 discriminator 1
+ 3130 00e0 10301BE5 		ldr	r3, [fp, #-16]
+ 3131 00e4 1D0053E3 		cmp	r3, #29
+ 3132 00e8 0500000A 		beq	.L9
+ 3133 00ec 14301BE5 		ldr	r3, [fp, #-20]
+ 3134 00f0 000053E3 		cmp	r3, #0
+ 3135 00f4 0200000A 		beq	.L9
+ 3136 00f8 14301BE5 		ldr	r3, [fp, #-20]
+ 3137 00fc 270053E3 		cmp	r3, #39
+ 3138 0100 0A00001A 		bne	.L10
+ 3139              	.L9:
+  31:../snake.c    **** 				tablero[i][j] = MURO;
+ 3140              		.loc 1 31 0 is_stmt 1
+ 3141 0104 C0109FE5 		ldr	r1, .L16
+ 3142 0108 10201BE5 		ldr	r2, [fp, #-16]
+ 3143 010c 0230A0E1 		mov	r3, r2
+ 3144 0110 0331A0E1 		mov	r3, r3, asl #2
+ 3145 0114 023083E0 		add	r3, r3, r2
+ 3146 0118 8331A0E1 		mov	r3, r3, asl #3
+ 3147 011c 14201BE5 		ldr	r2, [fp, #-20]
+ 3148 0120 023083E0 		add	r3, r3, r2
+ 3149 0124 0120A0E3 		mov	r2, #1
+ 3150 0128 032181E7 		str	r2, [r1, r3, asl #2]
+ 3151 012c 090000EA 		b	.L11
+ 3152              	.L10:
+  32:../snake.c    **** 			else
+  33:../snake.c    **** 				tablero[i][j] = VACIO;
+ 3153              		.loc 1 33 0
+ 3154 0130 94109FE5 		ldr	r1, .L16
+ 3155 0134 10201BE5 		ldr	r2, [fp, #-16]
+ 3156 0138 0230A0E1 		mov	r3, r2
+ 3157 013c 0331A0E1 		mov	r3, r3, asl #2
+ 3158 0140 023083E0 		add	r3, r3, r2
+ 3159 0144 8331A0E1 		mov	r3, r3, asl #3
+ 3160 0148 14201BE5 		ldr	r2, [fp, #-20]
+ 3161 014c 023083E0 		add	r3, r3, r2
+ 3162 0150 0020A0E3 		mov	r2, #0
+ 3163 0154 032181E7 		str	r2, [r1, r3, asl #2]
+ 3164              	.L11:
+  29:../snake.c    **** 		for (j = 0; j < COLUMNAS; ++j) {
+ 3165              		.loc 1 29 0
+ 3166 0158 14301BE5 		ldr	r3, [fp, #-20]
+ 3167 015c 013083E2 		add	r3, r3, #1
+ 3168 0160 14300BE5 		str	r3, [fp, #-20]
+ 3169              	.L8:
+  29:../snake.c    **** 		for (j = 0; j < COLUMNAS; ++j) {
+ 3170              		.loc 1 29 0 is_stmt 0 discriminator 1
+ 3171 0164 14301BE5 		ldr	r3, [fp, #-20]
+ 3172 0168 270053E3 		cmp	r3, #39
+ 3173 016c D8FFFFDA 		ble	.L12
+  28:../snake.c    **** 	for (i = 0; i < FILAS;++i) {
+ 3174              		.loc 1 28 0 is_stmt 1
+ 3175 0170 10301BE5 		ldr	r3, [fp, #-16]
+ 3176 0174 013083E2 		add	r3, r3, #1
+ 3177 0178 10300BE5 		str	r3, [fp, #-16]
+ 3178              	.L7:
+  28:../snake.c    **** 	for (i = 0; i < FILAS;++i) {
+ 3179              		.loc 1 28 0 is_stmt 0 discriminator 1
+ 3180 017c 10301BE5 		ldr	r3, [fp, #-16]
+ 3181 0180 1D0053E3 		cmp	r3, #29
+ 3182 0184 CFFFFFDA 		ble	.L13
+  34:../snake.c    **** 
+  35:../snake.c    **** 		}
+  36:../snake.c    **** 	}
+  37:../snake.c    **** 
+  38:../snake.c    **** 	// Muros
+  39:../snake.c    **** 	for (i=10;i<30;i++) {
+ 3183              		.loc 1 39 0 is_stmt 1
+ 3184 0188 0A30A0E3 		mov	r3, #10
+ 3185 018c 10300BE5 		str	r3, [fp, #-16]
+ 3186 0190 070000EA 		b	.L14
+ 3187              	.L15:
+  40:../snake.c    **** 		tablero[20][i] = MURO;
+ 3188              		.loc 1 40 0 discriminator 2
+ 3189 0194 30309FE5 		ldr	r3, .L16
+ 3190 0198 10201BE5 		ldr	r2, [fp, #-16]
+ 3191 019c 322E82E2 		add	r2, r2, #800
+ 3192 01a0 0110A0E3 		mov	r1, #1
+ 3193 01a4 021183E7 		str	r1, [r3, r2, asl #2]
+  39:../snake.c    **** 	for (i=10;i<30;i++) {
+ 3194              		.loc 1 39 0 discriminator 2
+ 3195 01a8 10301BE5 		ldr	r3, [fp, #-16]
+ 3196 01ac 013083E2 		add	r3, r3, #1
+ 3197 01b0 10300BE5 		str	r3, [fp, #-16]
+ 3198              	.L14:
+  39:../snake.c    **** 	for (i=10;i<30;i++) {
+ 3199              		.loc 1 39 0 is_stmt 0 discriminator 1
+ 3200 01b4 10301BE5 		ldr	r3, [fp, #-16]
+ 3201 01b8 1D0053E3 		cmp	r3, #29
+ 3202 01bc F4FFFFDA 		ble	.L15
+  41:../snake.c    **** 	}
+  42:../snake.c    **** 
+  43:../snake.c    **** 
+  44:../snake.c    **** }
+ 3203              		.loc 1 44 0 is_stmt 1
+ 3204 01c0 0CD04BE2 		sub	sp, fp, #12
+ 3205 01c4 00689DE8 		ldmfd	sp, {fp, sp, lr}
+ 3206 01c8 1EFF2FE1 		bx	lr
+ 3207              	.L17:
+ 3208              		.align	2
+ 3209              	.L16:
+ 3210 01cc 00000000 		.word	tablero
+ 3211              		.cfi_endproc
+ 3212              	.LFE1:
+ 3214              		.align	2
+ 3215              		.global	crear_jugadores_tipoA
+ 3217              	crear_jugadores_tipoA:
+ 3218              	.LFB2:
+  45:../snake.c    **** 
+  46:../snake.c    **** void crear_jugadores_tipoA() {
+ 3219              		.loc 1 46 0
+ 3220              		.cfi_startproc
+ 3221              		@ Function supports interworking.
+ 3222              		@ args = 0, pretend = 0, frame = 0
+ 3223              		@ frame_needed = 1, uses_anonymous_args = 0
+ 3224 01d0 0DC0A0E1 		mov	ip, sp
+ 3225              	.LCFI4:
+ 3226              		.cfi_def_cfa_register 12
+ 3227 01d4 00D82DE9 		stmfd	sp!, {fp, ip, lr, pc}
+ 3228 01d8 04B04CE2 		sub	fp, ip, #4
+ 3229              		.cfi_offset 14, -8
+ 3230              		.cfi_offset 13, -12
+ 3231              		.cfi_offset 11, -16
+ 3232              	.LCFI5:
+ 3233              		.cfi_def_cfa 11, 4
+  47:../snake.c    **** 	jug1X 	 = 5;
+ 3234              		.loc 1 47 0
+ 3235 01dc CC319FE5 		ldr	r3, .L19
+ 3236 01e0 0520A0E3 		mov	r2, #5
+ 3237 01e4 002083E5 		str	r2, [r3, #0]
+  48:../snake.c    **** 	jug1Y 	 = 5;
+ 3238              		.loc 1 48 0
+ 3239 01e8 C4319FE5 		ldr	r3, .L19+4
+ 3240 01ec 0520A0E3 		mov	r2, #5
+ 3241 01f0 002083E5 		str	r2, [r3, #0]
+  49:../snake.c    **** 	jug1Vivo = 1;
+ 3242              		.loc 1 49 0
+ 3243 01f4 BC319FE5 		ldr	r3, .L19+8
+ 3244 01f8 0120A0E3 		mov	r2, #1
+ 3245 01fc 002083E5 		str	r2, [r3, #0]
+  50:../snake.c    **** 	niveljug1 = 2;
+ 3246              		.loc 1 50 0
+ 3247 0200 B4319FE5 		ldr	r3, .L19+12
+ 3248 0204 0220A0E3 		mov	r2, #2
+ 3249 0208 002083E5 		str	r2, [r3, #0]
+  51:../snake.c    **** 	snake_jug1[0].x = jug1X;
+ 3250              		.loc 1 51 0
+ 3251 020c 9C319FE5 		ldr	r3, .L19
+ 3252 0210 002093E5 		ldr	r2, [r3, #0]
+ 3253 0214 A4319FE5 		ldr	r3, .L19+16
+ 3254 0218 002083E5 		str	r2, [r3, #0]
+  52:../snake.c    **** 	snake_jug1[0].y = jug1Y;
+ 3255              		.loc 1 52 0
+ 3256 021c 90319FE5 		ldr	r3, .L19+4
+ 3257 0220 002093E5 		ldr	r2, [r3, #0]
+ 3258 0224 94319FE5 		ldr	r3, .L19+16
+ 3259 0228 042083E5 		str	r2, [r3, #4]
+  53:../snake.c    **** 	snake_jug1[1].x = jug1X;
+ 3260              		.loc 1 53 0
+ 3261 022c 7C319FE5 		ldr	r3, .L19
+ 3262 0230 002093E5 		ldr	r2, [r3, #0]
+ 3263 0234 84319FE5 		ldr	r3, .L19+16
+ 3264 0238 082083E5 		str	r2, [r3, #8]
+  54:../snake.c    **** 	snake_jug1[1].y = jug1Y - 1;
+ 3265              		.loc 1 54 0
+ 3266 023c 70319FE5 		ldr	r3, .L19+4
+ 3267 0240 003093E5 		ldr	r3, [r3, #0]
+ 3268 0244 012043E2 		sub	r2, r3, #1
+ 3269 0248 70319FE5 		ldr	r3, .L19+16
+ 3270 024c 0C2083E5 		str	r2, [r3, #12]
+  55:../snake.c    **** 
+  56:../snake.c    **** 	tablero[jug1X][jug1Y] = CABEZA_J1;
+ 3271              		.loc 1 56 0
+ 3272 0250 58319FE5 		ldr	r3, .L19
+ 3273 0254 002093E5 		ldr	r2, [r3, #0]
+ 3274 0258 54319FE5 		ldr	r3, .L19+4
+ 3275 025c 000093E5 		ldr	r0, [r3, #0]
+ 3276 0260 5C119FE5 		ldr	r1, .L19+20
+ 3277 0264 0230A0E1 		mov	r3, r2
+ 3278 0268 0331A0E1 		mov	r3, r3, asl #2
+ 3279 026c 023083E0 		add	r3, r3, r2
+ 3280 0270 8331A0E1 		mov	r3, r3, asl #3
+ 3281 0274 003083E0 		add	r3, r3, r0
+ 3282 0278 0320A0E3 		mov	r2, #3
+ 3283 027c 032181E7 		str	r2, [r1, r3, asl #2]
+  57:../snake.c    **** 	tablero[jug1X][jug1Y-1] = CUERPO_J1;
+ 3284              		.loc 1 57 0
+ 3285 0280 28319FE5 		ldr	r3, .L19
+ 3286 0284 002093E5 		ldr	r2, [r3, #0]
+ 3287 0288 24319FE5 		ldr	r3, .L19+4
+ 3288 028c 003093E5 		ldr	r3, [r3, #0]
+ 3289 0290 010043E2 		sub	r0, r3, #1
+ 3290 0294 28119FE5 		ldr	r1, .L19+20
+ 3291 0298 0230A0E1 		mov	r3, r2
+ 3292 029c 0331A0E1 		mov	r3, r3, asl #2
+ 3293 02a0 023083E0 		add	r3, r3, r2
+ 3294 02a4 8331A0E1 		mov	r3, r3, asl #3
+ 3295 02a8 003083E0 		add	r3, r3, r0
+ 3296 02ac 0420A0E3 		mov	r2, #4
+ 3297 02b0 032181E7 		str	r2, [r1, r3, asl #2]
+  58:../snake.c    **** 	jug1_dir = DIRECCION_DER;
+ 3298              		.loc 1 58 0
+ 3299 02b4 0C319FE5 		ldr	r3, .L19+24
+ 3300 02b8 7220A0E3 		mov	r2, #114
+ 3301 02bc 0020C3E5 		strb	r2, [r3, #0]
+  59:../snake.c    **** 
+  60:../snake.c    **** 	jug2X 	 = 5;
+ 3302              		.loc 1 60 0
+ 3303 02c0 04319FE5 		ldr	r3, .L19+28
+ 3304 02c4 0520A0E3 		mov	r2, #5
+ 3305 02c8 002083E5 		str	r2, [r3, #0]
+  61:../snake.c    **** 	jug2Y 	 = COLUMNAS - 5;
+ 3306              		.loc 1 61 0
+ 3307 02cc FC309FE5 		ldr	r3, .L19+32
+ 3308 02d0 2320A0E3 		mov	r2, #35
+ 3309 02d4 002083E5 		str	r2, [r3, #0]
+  62:../snake.c    **** 	jug2Vivo = 1;
+ 3310              		.loc 1 62 0
+ 3311 02d8 F4309FE5 		ldr	r3, .L19+36
+ 3312 02dc 0120A0E3 		mov	r2, #1
+ 3313 02e0 002083E5 		str	r2, [r3, #0]
+  63:../snake.c    **** 	niveljug2 = 2;
+ 3314              		.loc 1 63 0
+ 3315 02e4 EC309FE5 		ldr	r3, .L19+40
+ 3316 02e8 0220A0E3 		mov	r2, #2
+ 3317 02ec 002083E5 		str	r2, [r3, #0]
+  64:../snake.c    **** 	snake_jug2[0].x = jug2X;
+ 3318              		.loc 1 64 0
+ 3319 02f0 D4309FE5 		ldr	r3, .L19+28
+ 3320 02f4 002093E5 		ldr	r2, [r3, #0]
+ 3321 02f8 DC309FE5 		ldr	r3, .L19+44
+ 3322 02fc 002083E5 		str	r2, [r3, #0]
+  65:../snake.c    **** 	snake_jug2[0].y = jug2Y;
+ 3323              		.loc 1 65 0
+ 3324 0300 C8309FE5 		ldr	r3, .L19+32
+ 3325 0304 002093E5 		ldr	r2, [r3, #0]
+ 3326 0308 CC309FE5 		ldr	r3, .L19+44
+ 3327 030c 042083E5 		str	r2, [r3, #4]
+  66:../snake.c    **** 	snake_jug2[1].x = jug2X;
+ 3328              		.loc 1 66 0
+ 3329 0310 B4309FE5 		ldr	r3, .L19+28
+ 3330 0314 002093E5 		ldr	r2, [r3, #0]
+ 3331 0318 BC309FE5 		ldr	r3, .L19+44
+ 3332 031c 082083E5 		str	r2, [r3, #8]
+  67:../snake.c    **** 	snake_jug2[1].y = jug2Y + 1;
+ 3333              		.loc 1 67 0
+ 3334 0320 A8309FE5 		ldr	r3, .L19+32
+ 3335 0324 003093E5 		ldr	r3, [r3, #0]
+ 3336 0328 012083E2 		add	r2, r3, #1
+ 3337 032c A8309FE5 		ldr	r3, .L19+44
+ 3338 0330 0C2083E5 		str	r2, [r3, #12]
+  68:../snake.c    **** 
+  69:../snake.c    **** 	tablero[jug2X][jug2Y] = CABEZA_J2;
+ 3339              		.loc 1 69 0
+ 3340 0334 90309FE5 		ldr	r3, .L19+28
+ 3341 0338 002093E5 		ldr	r2, [r3, #0]
+ 3342 033c 8C309FE5 		ldr	r3, .L19+32
+ 3343 0340 000093E5 		ldr	r0, [r3, #0]
+ 3344 0344 78109FE5 		ldr	r1, .L19+20
+ 3345 0348 0230A0E1 		mov	r3, r2
+ 3346 034c 0331A0E1 		mov	r3, r3, asl #2
+ 3347 0350 023083E0 		add	r3, r3, r2
+ 3348 0354 8331A0E1 		mov	r3, r3, asl #3
+ 3349 0358 003083E0 		add	r3, r3, r0
+ 3350 035c 0520A0E3 		mov	r2, #5
+ 3351 0360 032181E7 		str	r2, [r1, r3, asl #2]
+  70:../snake.c    **** 	tablero[jug2X][jug2Y+1] = CUERPO_J2;
+ 3352              		.loc 1 70 0
+ 3353 0364 60309FE5 		ldr	r3, .L19+28
+ 3354 0368 002093E5 		ldr	r2, [r3, #0]
+ 3355 036c 5C309FE5 		ldr	r3, .L19+32
+ 3356 0370 003093E5 		ldr	r3, [r3, #0]
+ 3357 0374 010083E2 		add	r0, r3, #1
+ 3358 0378 44109FE5 		ldr	r1, .L19+20
+ 3359 037c 0230A0E1 		mov	r3, r2
+ 3360 0380 0331A0E1 		mov	r3, r3, asl #2
+ 3361 0384 023083E0 		add	r3, r3, r2
+ 3362 0388 8331A0E1 		mov	r3, r3, asl #3
+ 3363 038c 003083E0 		add	r3, r3, r0
+ 3364 0390 0620A0E3 		mov	r2, #6
+ 3365 0394 032181E7 		str	r2, [r1, r3, asl #2]
+  71:../snake.c    **** 	jug2_dir = DIRECCION_IZQ;
+ 3366              		.loc 1 71 0
+ 3367 0398 40309FE5 		ldr	r3, .L19+48
+ 3368 039c 6C20A0E3 		mov	r2, #108
+ 3369 03a0 0020C3E5 		strb	r2, [r3, #0]
+  72:../snake.c    **** }
+ 3370              		.loc 1 72 0
+ 3371 03a4 0CD04BE2 		sub	sp, fp, #12
+ 3372 03a8 00689DE8 		ldmfd	sp, {fp, sp, lr}
+ 3373 03ac 1EFF2FE1 		bx	lr
+ 3374              	.L20:
+ 3375              		.align	2
+ 3376              	.L19:
+ 3377 03b0 00000000 		.word	jug1X
+ 3378 03b4 00000000 		.word	jug1Y
+ 3379 03b8 00000000 		.word	jug1Vivo
+ 3380 03bc 00000000 		.word	niveljug1
+ 3381 03c0 00000000 		.word	snake_jug1
+ 3382 03c4 00000000 		.word	tablero
+ 3383 03c8 00000000 		.word	jug1_dir
+ 3384 03cc 00000000 		.word	jug2X
+ 3385 03d0 00000000 		.word	jug2Y
+ 3386 03d4 00000000 		.word	jug2Vivo
+ 3387 03d8 00000000 		.word	niveljug2
+ 3388 03dc 00000000 		.word	snake_jug2
+ 3389 03e0 00000000 		.word	jug2_dir
+ 3390              		.cfi_endproc
+ 3391              	.LFE2:
+ 3393              		.align	2
+ 3394              		.global	crear_jugadores_tipoB
+ 3396              	crear_jugadores_tipoB:
+ 3397              	.LFB3:
+  73:../snake.c    **** 
+  74:../snake.c    **** void crear_jugadores_tipoB() {
+ 3398              		.loc 1 74 0
+ 3399              		.cfi_startproc
+ 3400              		@ Function supports interworking.
+ 3401              		@ args = 0, pretend = 0, frame = 0
+ 3402              		@ frame_needed = 1, uses_anonymous_args = 0
+ 3403 03e4 0DC0A0E1 		mov	ip, sp
+ 3404              	.LCFI6:
+ 3405              		.cfi_def_cfa_register 12
+ 3406 03e8 00D82DE9 		stmfd	sp!, {fp, ip, lr, pc}
+ 3407 03ec 04B04CE2 		sub	fp, ip, #4
+ 3408              		.cfi_offset 14, -8
+ 3409              		.cfi_offset 13, -12
+ 3410              		.cfi_offset 11, -16
+ 3411              	.LCFI7:
+ 3412              		.cfi_def_cfa 11, 4
+  75:../snake.c    **** 	jug1X 	 = 5;
+ 3413              		.loc 1 75 0
+ 3414 03f0 CC319FE5 		ldr	r3, .L22
+ 3415 03f4 0520A0E3 		mov	r2, #5
+ 3416 03f8 002083E5 		str	r2, [r3, #0]
+  76:../snake.c    **** 	jug1Y 	 = COLUMNAS - 5;
+ 3417              		.loc 1 76 0
+ 3418 03fc C4319FE5 		ldr	r3, .L22+4
+ 3419 0400 2320A0E3 		mov	r2, #35
+ 3420 0404 002083E5 		str	r2, [r3, #0]
+  77:../snake.c    **** 	jug1Vivo = 1;
+ 3421              		.loc 1 77 0
+ 3422 0408 BC319FE5 		ldr	r3, .L22+8
+ 3423 040c 0120A0E3 		mov	r2, #1
+ 3424 0410 002083E5 		str	r2, [r3, #0]
+  78:../snake.c    **** 	niveljug1 = 2;
+ 3425              		.loc 1 78 0
+ 3426 0414 B4319FE5 		ldr	r3, .L22+12
+ 3427 0418 0220A0E3 		mov	r2, #2
+ 3428 041c 002083E5 		str	r2, [r3, #0]
+  79:../snake.c    **** 	snake_jug1[0].x = jug1X;
+ 3429              		.loc 1 79 0
+ 3430 0420 9C319FE5 		ldr	r3, .L22
+ 3431 0424 002093E5 		ldr	r2, [r3, #0]
+ 3432 0428 A4319FE5 		ldr	r3, .L22+16
+ 3433 042c 002083E5 		str	r2, [r3, #0]
+  80:../snake.c    **** 	snake_jug1[0].y = jug1Y;
+ 3434              		.loc 1 80 0
+ 3435 0430 90319FE5 		ldr	r3, .L22+4
+ 3436 0434 002093E5 		ldr	r2, [r3, #0]
+ 3437 0438 94319FE5 		ldr	r3, .L22+16
+ 3438 043c 042083E5 		str	r2, [r3, #4]
+  81:../snake.c    **** 	snake_jug1[1].x = jug1X;
+ 3439              		.loc 1 81 0
+ 3440 0440 7C319FE5 		ldr	r3, .L22
+ 3441 0444 002093E5 		ldr	r2, [r3, #0]
+ 3442 0448 84319FE5 		ldr	r3, .L22+16
+ 3443 044c 082083E5 		str	r2, [r3, #8]
+  82:../snake.c    **** 	snake_jug1[1].y = jug1Y + 1;
+ 3444              		.loc 1 82 0
+ 3445 0450 70319FE5 		ldr	r3, .L22+4
+ 3446 0454 003093E5 		ldr	r3, [r3, #0]
+ 3447 0458 012083E2 		add	r2, r3, #1
+ 3448 045c 70319FE5 		ldr	r3, .L22+16
+ 3449 0460 0C2083E5 		str	r2, [r3, #12]
+  83:../snake.c    **** 
+  84:../snake.c    **** 	tablero[jug1X][jug1Y] = CABEZA_J1;
+ 3450              		.loc 1 84 0
+ 3451 0464 58319FE5 		ldr	r3, .L22
+ 3452 0468 002093E5 		ldr	r2, [r3, #0]
+ 3453 046c 54319FE5 		ldr	r3, .L22+4
+ 3454 0470 000093E5 		ldr	r0, [r3, #0]
+ 3455 0474 5C119FE5 		ldr	r1, .L22+20
+ 3456 0478 0230A0E1 		mov	r3, r2
+ 3457 047c 0331A0E1 		mov	r3, r3, asl #2
+ 3458 0480 023083E0 		add	r3, r3, r2
+ 3459 0484 8331A0E1 		mov	r3, r3, asl #3
+ 3460 0488 003083E0 		add	r3, r3, r0
+ 3461 048c 0320A0E3 		mov	r2, #3
+ 3462 0490 032181E7 		str	r2, [r1, r3, asl #2]
+  85:../snake.c    **** 	tablero[jug1X][jug1Y+1] = CUERPO_J1;
+ 3463              		.loc 1 85 0
+ 3464 0494 28319FE5 		ldr	r3, .L22
+ 3465 0498 002093E5 		ldr	r2, [r3, #0]
+ 3466 049c 24319FE5 		ldr	r3, .L22+4
+ 3467 04a0 003093E5 		ldr	r3, [r3, #0]
+ 3468 04a4 010083E2 		add	r0, r3, #1
+ 3469 04a8 28119FE5 		ldr	r1, .L22+20
+ 3470 04ac 0230A0E1 		mov	r3, r2
+ 3471 04b0 0331A0E1 		mov	r3, r3, asl #2
+ 3472 04b4 023083E0 		add	r3, r3, r2
+ 3473 04b8 8331A0E1 		mov	r3, r3, asl #3
+ 3474 04bc 003083E0 		add	r3, r3, r0
+ 3475 04c0 0420A0E3 		mov	r2, #4
+ 3476 04c4 032181E7 		str	r2, [r1, r3, asl #2]
+  86:../snake.c    **** 	jug1_dir = DIRECCION_IZQ;
+ 3477              		.loc 1 86 0
+ 3478 04c8 0C319FE5 		ldr	r3, .L22+24
+ 3479 04cc 6C20A0E3 		mov	r2, #108
+ 3480 04d0 0020C3E5 		strb	r2, [r3, #0]
+  87:../snake.c    **** 
+  88:../snake.c    **** 	jug2X 	 = 5;
+ 3481              		.loc 1 88 0
+ 3482 04d4 04319FE5 		ldr	r3, .L22+28
+ 3483 04d8 0520A0E3 		mov	r2, #5
+ 3484 04dc 002083E5 		str	r2, [r3, #0]
+  89:../snake.c    **** 	jug2Y 	 = 5;
+ 3485              		.loc 1 89 0
+ 3486 04e0 FC309FE5 		ldr	r3, .L22+32
+ 3487 04e4 0520A0E3 		mov	r2, #5
+ 3488 04e8 002083E5 		str	r2, [r3, #0]
+  90:../snake.c    **** 	jug2Vivo = 1;
+ 3489              		.loc 1 90 0
+ 3490 04ec F4309FE5 		ldr	r3, .L22+36
+ 3491 04f0 0120A0E3 		mov	r2, #1
+ 3492 04f4 002083E5 		str	r2, [r3, #0]
+  91:../snake.c    **** 	niveljug2 = 2;
+ 3493              		.loc 1 91 0
+ 3494 04f8 EC309FE5 		ldr	r3, .L22+40
+ 3495 04fc 0220A0E3 		mov	r2, #2
+ 3496 0500 002083E5 		str	r2, [r3, #0]
+  92:../snake.c    **** 	snake_jug2[0].x = jug2X;
+ 3497              		.loc 1 92 0
+ 3498 0504 D4309FE5 		ldr	r3, .L22+28
+ 3499 0508 002093E5 		ldr	r2, [r3, #0]
+ 3500 050c DC309FE5 		ldr	r3, .L22+44
+ 3501 0510 002083E5 		str	r2, [r3, #0]
+  93:../snake.c    **** 	snake_jug2[0].y = jug2Y;
+ 3502              		.loc 1 93 0
+ 3503 0514 C8309FE5 		ldr	r3, .L22+32
+ 3504 0518 002093E5 		ldr	r2, [r3, #0]
+ 3505 051c CC309FE5 		ldr	r3, .L22+44
+ 3506 0520 042083E5 		str	r2, [r3, #4]
+  94:../snake.c    **** 	snake_jug2[1].x = jug2X;
+ 3507              		.loc 1 94 0
+ 3508 0524 B4309FE5 		ldr	r3, .L22+28
+ 3509 0528 002093E5 		ldr	r2, [r3, #0]
+ 3510 052c BC309FE5 		ldr	r3, .L22+44
+ 3511 0530 082083E5 		str	r2, [r3, #8]
+  95:../snake.c    **** 	snake_jug2[1].y = jug2Y - 1;
+ 3512              		.loc 1 95 0
+ 3513 0534 A8309FE5 		ldr	r3, .L22+32
+ 3514 0538 003093E5 		ldr	r3, [r3, #0]
+ 3515 053c 012043E2 		sub	r2, r3, #1
+ 3516 0540 A8309FE5 		ldr	r3, .L22+44
+ 3517 0544 0C2083E5 		str	r2, [r3, #12]
+  96:../snake.c    **** 
+  97:../snake.c    **** 	tablero[jug2X][jug2Y] = CABEZA_J2;
+ 3518              		.loc 1 97 0
+ 3519 0548 90309FE5 		ldr	r3, .L22+28
+ 3520 054c 002093E5 		ldr	r2, [r3, #0]
+ 3521 0550 8C309FE5 		ldr	r3, .L22+32
+ 3522 0554 000093E5 		ldr	r0, [r3, #0]
+ 3523 0558 78109FE5 		ldr	r1, .L22+20
+ 3524 055c 0230A0E1 		mov	r3, r2
+ 3525 0560 0331A0E1 		mov	r3, r3, asl #2
+ 3526 0564 023083E0 		add	r3, r3, r2
+ 3527 0568 8331A0E1 		mov	r3, r3, asl #3
+ 3528 056c 003083E0 		add	r3, r3, r0
+ 3529 0570 0520A0E3 		mov	r2, #5
+ 3530 0574 032181E7 		str	r2, [r1, r3, asl #2]
+  98:../snake.c    **** 	tablero[jug2X][jug2Y-1] = CUERPO_J2;
+ 3531              		.loc 1 98 0
+ 3532 0578 60309FE5 		ldr	r3, .L22+28
+ 3533 057c 002093E5 		ldr	r2, [r3, #0]
+ 3534 0580 5C309FE5 		ldr	r3, .L22+32
+ 3535 0584 003093E5 		ldr	r3, [r3, #0]
+ 3536 0588 010043E2 		sub	r0, r3, #1
+ 3537 058c 44109FE5 		ldr	r1, .L22+20
+ 3538 0590 0230A0E1 		mov	r3, r2
+ 3539 0594 0331A0E1 		mov	r3, r3, asl #2
+ 3540 0598 023083E0 		add	r3, r3, r2
+ 3541 059c 8331A0E1 		mov	r3, r3, asl #3
+ 3542 05a0 003083E0 		add	r3, r3, r0
+ 3543 05a4 0620A0E3 		mov	r2, #6
+ 3544 05a8 032181E7 		str	r2, [r1, r3, asl #2]
+  99:../snake.c    **** 	jug2_dir = DIRECCION_DER;
+ 3545              		.loc 1 99 0
+ 3546 05ac 40309FE5 		ldr	r3, .L22+48
+ 3547 05b0 7220A0E3 		mov	r2, #114
+ 3548 05b4 0020C3E5 		strb	r2, [r3, #0]
+ 100:../snake.c    **** }
+ 3549              		.loc 1 100 0
+ 3550 05b8 0CD04BE2 		sub	sp, fp, #12
+ 3551 05bc 00689DE8 		ldmfd	sp, {fp, sp, lr}
+ 3552 05c0 1EFF2FE1 		bx	lr
+ 3553              	.L23:
+ 3554              		.align	2
+ 3555              	.L22:
+ 3556 05c4 00000000 		.word	jug1X
+ 3557 05c8 00000000 		.word	jug1Y
+ 3558 05cc 00000000 		.word	jug1Vivo
+ 3559 05d0 00000000 		.word	niveljug1
+ 3560 05d4 00000000 		.word	snake_jug1
+ 3561 05d8 00000000 		.word	tablero
+ 3562 05dc 00000000 		.word	jug1_dir
+ 3563 05e0 00000000 		.word	jug2X
+ 3564 05e4 00000000 		.word	jug2Y
+ 3565 05e8 00000000 		.word	jug2Vivo
+ 3566 05ec 00000000 		.word	niveljug2
+ 3567 05f0 00000000 		.word	snake_jug2
+ 3568 05f4 00000000 		.word	jug2_dir
+ 3569              		.cfi_endproc
+ 3570              	.LFE3:
+ 3572              		.align	2
+ 3573              		.global	pintar
+ 3575              	pintar:
+ 3576              	.LFB4:
+ 101:../snake.c    **** 
+ 102:../snake.c    **** 
+ 103:../snake.c    **** void pintar() {
+ 3577              		.loc 1 103 0
+ 3578              		.cfi_startproc
+ 3579              		@ Function supports interworking.
+ 3580              		@ args = 0, pretend = 0, frame = 8
+ 3581              		@ frame_needed = 1, uses_anonymous_args = 0
+ 3582 05f8 0DC0A0E1 		mov	ip, sp
+ 3583              	.LCFI8:
+ 3584              		.cfi_def_cfa_register 12
+ 3585 05fc 00D82DE9 		stmfd	sp!, {fp, ip, lr, pc}
+ 3586 0600 04B04CE2 		sub	fp, ip, #4
+ 3587              		.cfi_offset 14, -8
+ 3588              		.cfi_offset 13, -12
+ 3589              		.cfi_offset 11, -16
+ 3590              	.LCFI9:
+ 3591              		.cfi_def_cfa 11, 4
+ 3592 0604 08D04DE2 		sub	sp, sp, #8
+ 104:../snake.c    **** 	int i = 0;
+ 3593              		.loc 1 104 0
+ 3594 0608 0030A0E3 		mov	r3, #0
+ 3595 060c 10300BE5 		str	r3, [fp, #-16]
+ 105:../snake.c    **** 	int j = 0;
+ 3596              		.loc 1 105 0
+ 3597 0610 0030A0E3 		mov	r3, #0
+ 3598 0614 14300BE5 		str	r3, [fp, #-20]
+ 106:../snake.c    **** 
+ 107:../snake.c    **** 	for (i = 0; i < FILAS; ++i) {
+ 3599              		.loc 1 107 0
+ 3600 0618 0030A0E3 		mov	r3, #0
+ 3601 061c 10300BE5 		str	r3, [fp, #-16]
+ 3602 0620 260000EA 		b	.L25
+ 3603              	.L29:
+ 108:../snake.c    **** 		for (j = 0; j < COLUMNAS; ++j) {
+ 3604              		.loc 1 108 0
+ 3605 0624 0030A0E3 		mov	r3, #0
+ 3606 0628 14300BE5 		str	r3, [fp, #-20]
+ 3607 062c 1D0000EA 		b	.L26
+ 3608              	.L28:
+ 109:../snake.c    **** 			if ( tablero[i][j] == MURO ) {
+ 3609              		.loc 1 109 0
+ 3610 0630 A0109FE5 		ldr	r1, .L30
+ 3611 0634 10201BE5 		ldr	r2, [fp, #-16]
+ 3612 0638 0230A0E1 		mov	r3, r2
+ 3613 063c 0331A0E1 		mov	r3, r3, asl #2
+ 3614 0640 023083E0 		add	r3, r3, r2
+ 3615 0644 8331A0E1 		mov	r3, r3, asl #3
+ 3616 0648 14201BE5 		ldr	r2, [fp, #-20]
+ 3617 064c 023083E0 		add	r3, r3, r2
+ 3618 0650 033191E7 		ldr	r3, [r1, r3, asl #2]
+ 3619 0654 010053E3 		cmp	r3, #1
+ 3620 0658 0F00001A 		bne	.L27
+ 110:../snake.c    **** 				lcd_pintar_muro(i * CELDA, j * CELDA, CELDA);
+ 3621              		.loc 1 110 0
+ 3622 065c 10301BE5 		ldr	r3, [fp, #-16]
+ 3623 0660 0338A0E1 		mov	r3, r3, asl #16
+ 3624 0664 2338A0E1 		mov	r3, r3, lsr #16
+ 3625 0668 8331A0E1 		mov	r3, r3, asl #3
+ 3626 066c 0338A0E1 		mov	r3, r3, asl #16
+ 3627 0670 2328A0E1 		mov	r2, r3, lsr #16
+ 3628 0674 14301BE5 		ldr	r3, [fp, #-20]
+ 3629 0678 0338A0E1 		mov	r3, r3, asl #16
+ 3630 067c 2338A0E1 		mov	r3, r3, lsr #16
+ 3631 0680 8331A0E1 		mov	r3, r3, asl #3
+ 3632 0684 0338A0E1 		mov	r3, r3, asl #16
+ 3633 0688 2338A0E1 		mov	r3, r3, lsr #16
+ 3634 068c 0200A0E1 		mov	r0, r2
+ 3635 0690 0310A0E1 		mov	r1, r3
+ 3636 0694 0820A0E3 		mov	r2, #8
+ 3637 0698 FEFFFFEB 		bl	lcd_pintar_muro
+ 3638              	.L27:
+ 108:../snake.c    **** 		for (j = 0; j < COLUMNAS; ++j) {
+ 3639              		.loc 1 108 0
+ 3640 069c 14301BE5 		ldr	r3, [fp, #-20]
+ 3641 06a0 013083E2 		add	r3, r3, #1
+ 3642 06a4 14300BE5 		str	r3, [fp, #-20]
+ 3643              	.L26:
+ 108:../snake.c    **** 		for (j = 0; j < COLUMNAS; ++j) {
+ 3644              		.loc 1 108 0 is_stmt 0 discriminator 1
+ 3645 06a8 14301BE5 		ldr	r3, [fp, #-20]
+ 3646 06ac 270053E3 		cmp	r3, #39
+ 3647 06b0 DEFFFFDA 		ble	.L28
+ 107:../snake.c    **** 	for (i = 0; i < FILAS; ++i) {
+ 3648              		.loc 1 107 0 is_stmt 1
+ 3649 06b4 10301BE5 		ldr	r3, [fp, #-16]
+ 3650 06b8 013083E2 		add	r3, r3, #1
+ 3651 06bc 10300BE5 		str	r3, [fp, #-16]
+ 3652              	.L25:
+ 107:../snake.c    **** 	for (i = 0; i < FILAS; ++i) {
+ 3653              		.loc 1 107 0 is_stmt 0 discriminator 1
+ 3654 06c0 10301BE5 		ldr	r3, [fp, #-16]
+ 3655 06c4 1D0053E3 		cmp	r3, #29
+ 3656 06c8 D5FFFFDA 		ble	.L29
+ 111:../snake.c    **** 			}
+ 112:../snake.c    **** 
+ 113:../snake.c    **** 		}
+ 114:../snake.c    **** 	}
+ 115:../snake.c    **** }
+ 3657              		.loc 1 115 0 is_stmt 1
+ 3658 06cc 0CD04BE2 		sub	sp, fp, #12
+ 3659 06d0 00689DE8 		ldmfd	sp, {fp, sp, lr}
+ 3660 06d4 1EFF2FE1 		bx	lr
+ 3661              	.L31:
+ 3662              		.align	2
+ 3663              	.L30:
+ 3664 06d8 00000000 		.word	tablero
+ 3665              		.cfi_endproc
+ 3666              	.LFE4:
+ 3668              		.align	2
+ 3669              		.global	repintar
+ 3671              	repintar:
+ 3672              	.LFB5:
+ 116:../snake.c    **** 
+ 117:../snake.c    **** void repintar() {
+ 3673              		.loc 1 117 0
+ 3674              		.cfi_startproc
+ 3675              		@ Function supports interworking.
+ 3676              		@ args = 0, pretend = 0, frame = 8
+ 3677              		@ frame_needed = 1, uses_anonymous_args = 0
+ 3678 06dc 0DC0A0E1 		mov	ip, sp
+ 3679              	.LCFI10:
+ 3680              		.cfi_def_cfa_register 12
+ 3681 06e0 00D82DE9 		stmfd	sp!, {fp, ip, lr, pc}
+ 3682 06e4 04B04CE2 		sub	fp, ip, #4
+ 3683              		.cfi_offset 14, -8
+ 3684              		.cfi_offset 13, -12
+ 3685              		.cfi_offset 11, -16
+ 3686              	.LCFI11:
+ 3687              		.cfi_def_cfa 11, 4
+ 3688 06e8 08D04DE2 		sub	sp, sp, #8
+ 118:../snake.c    **** 
+ 119:../snake.c    **** 	int i = 0;
+ 3689              		.loc 1 119 0
+ 3690 06ec 0030A0E3 		mov	r3, #0
+ 3691 06f0 10300BE5 		str	r3, [fp, #-16]
+ 120:../snake.c    **** 
+ 121:../snake.c    **** 	for (i = 0; i < numAC; ++i) {
+ 3692              		.loc 1 121 0
+ 3693 06f4 0030A0E3 		mov	r3, #0
+ 3694 06f8 10300BE5 		str	r3, [fp, #-16]
+ 3695 06fc E00100EA 		b	.L33
+ 3696              	.L46:
+ 122:../snake.c    **** 
+ 123:../snake.c    **** 		if ( ac[i].nuevo_valor == CABEZA_J1 || ac[i].nuevo_valor == CABEZA_J2 ) {
+ 3697              		.loc 1 123 0
+ 3698 0700 A8079FE5 		ldr	r0, .L47
+ 3699 0704 10201BE5 		ldr	r2, [fp, #-16]
+ 3700 0708 0810A0E3 		mov	r1, #8
+ 3701 070c 0230A0E1 		mov	r3, r2
+ 3702 0710 8330A0E1 		mov	r3, r3, asl #1
+ 3703 0714 023083E0 		add	r3, r3, r2
+ 3704 0718 0331A0E1 		mov	r3, r3, asl #2
+ 3705 071c 033080E0 		add	r3, r0, r3
+ 3706 0720 013083E0 		add	r3, r3, r1
+ 3707 0724 003093E5 		ldr	r3, [r3, #0]
+ 3708 0728 030053E3 		cmp	r3, #3
+ 3709 072c 0B00000A 		beq	.L34
+ 3710              		.loc 1 123 0 is_stmt 0 discriminator 1
+ 3711 0730 78079FE5 		ldr	r0, .L47
+ 3712 0734 10201BE5 		ldr	r2, [fp, #-16]
+ 3713 0738 0810A0E3 		mov	r1, #8
+ 3714 073c 0230A0E1 		mov	r3, r2
+ 3715 0740 8330A0E1 		mov	r3, r3, asl #1
+ 3716 0744 023083E0 		add	r3, r3, r2
+ 3717 0748 0331A0E1 		mov	r3, r3, asl #2
+ 3718 074c 033080E0 		add	r3, r0, r3
+ 3719 0750 013083E0 		add	r3, r3, r1
+ 3720 0754 003093E5 		ldr	r3, [r3, #0]
+ 3721 0758 050053E3 		cmp	r3, #5
+ 3722 075c 8900001A 		bne	.L35
+ 3723              	.L34:
+ 124:../snake.c    **** 			if (jug1_dir == DIRECCION_ARRIBA)
+ 3724              		.loc 1 124 0 is_stmt 1
+ 3725 0760 4C379FE5 		ldr	r3, .L47+4
+ 3726 0764 0030D3E5 		ldrb	r3, [r3, #0]	@ zero_extendqisi2
+ 3727 0768 750053E3 		cmp	r3, #117
+ 3728 076c 1E00001A 		bne	.L36
+ 125:../snake.c    **** 				lcd_pintar_cabeza_serpiente_arriba(ac[i].x * CELDA, ac[i].y * CELDA);
+ 3729              		.loc 1 125 0
+ 3730 0770 38179FE5 		ldr	r1, .L47
+ 3731 0774 10201BE5 		ldr	r2, [fp, #-16]
+ 3732 0778 0230A0E1 		mov	r3, r2
+ 3733 077c 8330A0E1 		mov	r3, r3, asl #1
+ 3734 0780 023083E0 		add	r3, r3, r2
+ 3735 0784 0331A0E1 		mov	r3, r3, asl #2
+ 3736 0788 033081E0 		add	r3, r1, r3
+ 3737 078c 003093E5 		ldr	r3, [r3, #0]
+ 3738 0790 0338A0E1 		mov	r3, r3, asl #16
+ 3739 0794 2338A0E1 		mov	r3, r3, lsr #16
+ 3740 0798 8331A0E1 		mov	r3, r3, asl #3
+ 3741 079c 0338A0E1 		mov	r3, r3, asl #16
+ 3742 07a0 2318A0E1 		mov	r1, r3, lsr #16
+ 3743 07a4 04C79FE5 		ldr	ip, .L47
+ 3744 07a8 10201BE5 		ldr	r2, [fp, #-16]
+ 3745 07ac 0400A0E3 		mov	r0, #4
+ 3746 07b0 0230A0E1 		mov	r3, r2
+ 3747 07b4 8330A0E1 		mov	r3, r3, asl #1
+ 3748 07b8 023083E0 		add	r3, r3, r2
+ 3749 07bc 0331A0E1 		mov	r3, r3, asl #2
+ 3750 07c0 03308CE0 		add	r3, ip, r3
+ 3751 07c4 003083E0 		add	r3, r3, r0
+ 3752 07c8 003093E5 		ldr	r3, [r3, #0]
+ 3753 07cc 0338A0E1 		mov	r3, r3, asl #16
+ 3754 07d0 2338A0E1 		mov	r3, r3, lsr #16
+ 3755 07d4 8331A0E1 		mov	r3, r3, asl #3
+ 3756 07d8 0338A0E1 		mov	r3, r3, asl #16
+ 3757 07dc 2338A0E1 		mov	r3, r3, lsr #16
+ 3758 07e0 0100A0E1 		mov	r0, r1
+ 3759 07e4 0310A0E1 		mov	r1, r3
+ 3760 07e8 FEFFFFEB 		bl	lcd_pintar_cabeza_serpiente_arriba
+ 3761              	.L36:
+ 126:../snake.c    **** 			if (jug1_dir == DIRECCION_ABAJO)
+ 3762              		.loc 1 126 0
+ 3763 07ec C0369FE5 		ldr	r3, .L47+4
+ 3764 07f0 0030D3E5 		ldrb	r3, [r3, #0]	@ zero_extendqisi2
+ 3765 07f4 640053E3 		cmp	r3, #100
+ 3766 07f8 1E00001A 		bne	.L37
+ 127:../snake.c    **** 				lcd_pintar_cabeza_serpiente_abajo(ac[i].x * CELDA, ac[i].y * CELDA);
+ 3767              		.loc 1 127 0
+ 3768 07fc AC169FE5 		ldr	r1, .L47
+ 3769 0800 10201BE5 		ldr	r2, [fp, #-16]
+ 3770 0804 0230A0E1 		mov	r3, r2
+ 3771 0808 8330A0E1 		mov	r3, r3, asl #1
+ 3772 080c 023083E0 		add	r3, r3, r2
+ 3773 0810 0331A0E1 		mov	r3, r3, asl #2
+ 3774 0814 033081E0 		add	r3, r1, r3
+ 3775 0818 003093E5 		ldr	r3, [r3, #0]
+ 3776 081c 0338A0E1 		mov	r3, r3, asl #16
+ 3777 0820 2338A0E1 		mov	r3, r3, lsr #16
+ 3778 0824 8331A0E1 		mov	r3, r3, asl #3
+ 3779 0828 0338A0E1 		mov	r3, r3, asl #16
+ 3780 082c 2318A0E1 		mov	r1, r3, lsr #16
+ 3781 0830 78C69FE5 		ldr	ip, .L47
+ 3782 0834 10201BE5 		ldr	r2, [fp, #-16]
+ 3783 0838 0400A0E3 		mov	r0, #4
+ 3784 083c 0230A0E1 		mov	r3, r2
+ 3785 0840 8330A0E1 		mov	r3, r3, asl #1
+ 3786 0844 023083E0 		add	r3, r3, r2
+ 3787 0848 0331A0E1 		mov	r3, r3, asl #2
+ 3788 084c 03308CE0 		add	r3, ip, r3
+ 3789 0850 003083E0 		add	r3, r3, r0
+ 3790 0854 003093E5 		ldr	r3, [r3, #0]
+ 3791 0858 0338A0E1 		mov	r3, r3, asl #16
+ 3792 085c 2338A0E1 		mov	r3, r3, lsr #16
+ 3793 0860 8331A0E1 		mov	r3, r3, asl #3
+ 3794 0864 0338A0E1 		mov	r3, r3, asl #16
+ 3795 0868 2338A0E1 		mov	r3, r3, lsr #16
+ 3796 086c 0100A0E1 		mov	r0, r1
+ 3797 0870 0310A0E1 		mov	r1, r3
+ 3798 0874 FEFFFFEB 		bl	lcd_pintar_cabeza_serpiente_abajo
+ 3799              	.L37:
+ 128:../snake.c    **** 			if (jug1_dir == DIRECCION_IZQ)
+ 3800              		.loc 1 128 0
+ 3801 0878 34369FE5 		ldr	r3, .L47+4
+ 3802 087c 0030D3E5 		ldrb	r3, [r3, #0]	@ zero_extendqisi2
+ 3803 0880 6C0053E3 		cmp	r3, #108
+ 3804 0884 1F00001A 		bne	.L38
+ 129:../snake.c    **** 				lcd_pintar_cabeza_serpiente_izquierda(ac[i].x * CELDA, ac[i].y * CELDA);
+ 3805              		.loc 1 129 0
+ 3806 0888 20169FE5 		ldr	r1, .L47
+ 3807 088c 10201BE5 		ldr	r2, [fp, #-16]
+ 3808 0890 0230A0E1 		mov	r3, r2
+ 3809 0894 8330A0E1 		mov	r3, r3, asl #1
+ 3810 0898 023083E0 		add	r3, r3, r2
+ 3811 089c 0331A0E1 		mov	r3, r3, asl #2
+ 3812 08a0 033081E0 		add	r3, r1, r3
+ 3813 08a4 003093E5 		ldr	r3, [r3, #0]
+ 3814 08a8 0338A0E1 		mov	r3, r3, asl #16
+ 3815 08ac 2338A0E1 		mov	r3, r3, lsr #16
+ 3816 08b0 8331A0E1 		mov	r3, r3, asl #3
+ 3817 08b4 0338A0E1 		mov	r3, r3, asl #16
+ 3818 08b8 2318A0E1 		mov	r1, r3, lsr #16
+ 3819 08bc ECC59FE5 		ldr	ip, .L47
+ 3820 08c0 10201BE5 		ldr	r2, [fp, #-16]
+ 3821 08c4 0400A0E3 		mov	r0, #4
+ 3822 08c8 0230A0E1 		mov	r3, r2
+ 3823 08cc 8330A0E1 		mov	r3, r3, asl #1
+ 3824 08d0 023083E0 		add	r3, r3, r2
+ 3825 08d4 0331A0E1 		mov	r3, r3, asl #2
+ 3826 08d8 03308CE0 		add	r3, ip, r3
+ 3827 08dc 003083E0 		add	r3, r3, r0
+ 3828 08e0 003093E5 		ldr	r3, [r3, #0]
+ 3829 08e4 0338A0E1 		mov	r3, r3, asl #16
+ 3830 08e8 2338A0E1 		mov	r3, r3, lsr #16
+ 3831 08ec 8331A0E1 		mov	r3, r3, asl #3
+ 3832 08f0 0338A0E1 		mov	r3, r3, asl #16
+ 3833 08f4 2338A0E1 		mov	r3, r3, lsr #16
+ 3834 08f8 0100A0E1 		mov	r0, r1
+ 3835 08fc 0310A0E1 		mov	r1, r3
+ 3836 0900 FEFFFFEB 		bl	lcd_pintar_cabeza_serpiente_izquierda
+ 128:../snake.c    **** 			if (jug1_dir == DIRECCION_IZQ)
+ 3837              		.loc 1 128 0
+ 3838 0904 5B0100EA 		b	.L40
+ 3839              	.L38:
+ 130:../snake.c    **** 			else
+ 131:../snake.c    **** 				lcd_pintar_cabeza_serpiente_derecha(ac[i].x * CELDA, ac[i].y * CELDA);
+ 3840              		.loc 1 131 0
+ 3841 0908 A0159FE5 		ldr	r1, .L47
+ 3842 090c 10201BE5 		ldr	r2, [fp, #-16]
+ 3843 0910 0230A0E1 		mov	r3, r2
+ 3844 0914 8330A0E1 		mov	r3, r3, asl #1
+ 3845 0918 023083E0 		add	r3, r3, r2
+ 3846 091c 0331A0E1 		mov	r3, r3, asl #2
+ 3847 0920 033081E0 		add	r3, r1, r3
+ 3848 0924 003093E5 		ldr	r3, [r3, #0]
+ 3849 0928 0338A0E1 		mov	r3, r3, asl #16
+ 3850 092c 2338A0E1 		mov	r3, r3, lsr #16
+ 3851 0930 8331A0E1 		mov	r3, r3, asl #3
+ 3852 0934 0338A0E1 		mov	r3, r3, asl #16
+ 3853 0938 2318A0E1 		mov	r1, r3, lsr #16
+ 3854 093c 6CC59FE5 		ldr	ip, .L47
+ 3855 0940 10201BE5 		ldr	r2, [fp, #-16]
+ 3856 0944 0400A0E3 		mov	r0, #4
+ 3857 0948 0230A0E1 		mov	r3, r2
+ 3858 094c 8330A0E1 		mov	r3, r3, asl #1
+ 3859 0950 023083E0 		add	r3, r3, r2
+ 3860 0954 0331A0E1 		mov	r3, r3, asl #2
+ 3861 0958 03308CE0 		add	r3, ip, r3
+ 3862 095c 003083E0 		add	r3, r3, r0
+ 3863 0960 003093E5 		ldr	r3, [r3, #0]
+ 3864 0964 0338A0E1 		mov	r3, r3, asl #16
+ 3865 0968 2338A0E1 		mov	r3, r3, lsr #16
+ 3866 096c 8331A0E1 		mov	r3, r3, asl #3
+ 3867 0970 0338A0E1 		mov	r3, r3, asl #16
+ 3868 0974 2338A0E1 		mov	r3, r3, lsr #16
+ 3869 0978 0100A0E1 		mov	r0, r1
+ 3870 097c 0310A0E1 		mov	r1, r3
+ 3871 0980 FEFFFFEB 		bl	lcd_pintar_cabeza_serpiente_derecha
+ 128:../snake.c    **** 			if (jug1_dir == DIRECCION_IZQ)
+ 3872              		.loc 1 128 0
+ 3873 0984 3B0100EA 		b	.L40
+ 3874              	.L35:
+ 132:../snake.c    **** 		}
+ 133:../snake.c    **** 		else if ( ac[i].nuevo_valor == CUERPO_J1 ) {
+ 3875              		.loc 1 133 0
+ 3876 0988 20059FE5 		ldr	r0, .L47
+ 3877 098c 10201BE5 		ldr	r2, [fp, #-16]
+ 3878 0990 0810A0E3 		mov	r1, #8
+ 3879 0994 0230A0E1 		mov	r3, r2
+ 3880 0998 8330A0E1 		mov	r3, r3, asl #1
+ 3881 099c 023083E0 		add	r3, r3, r2
+ 3882 09a0 0331A0E1 		mov	r3, r3, asl #2
+ 3883 09a4 033080E0 		add	r3, r0, r3
+ 3884 09a8 013083E0 		add	r3, r3, r1
+ 3885 09ac 003093E5 		ldr	r3, [r3, #0]
+ 3886 09b0 040053E3 		cmp	r3, #4
+ 3887 09b4 4100001A 		bne	.L41
+ 134:../snake.c    **** 			lcd_pintar_celda(ac[i].x * CELDA, ac[i].y * CELDA, CELDA, LCD_WHITE); //OPTIMIZAR!!!
+ 3888              		.loc 1 134 0
+ 3889 09b8 F0149FE5 		ldr	r1, .L47
+ 3890 09bc 10201BE5 		ldr	r2, [fp, #-16]
+ 3891 09c0 0230A0E1 		mov	r3, r2
+ 3892 09c4 8330A0E1 		mov	r3, r3, asl #1
+ 3893 09c8 023083E0 		add	r3, r3, r2
+ 3894 09cc 0331A0E1 		mov	r3, r3, asl #2
+ 3895 09d0 033081E0 		add	r3, r1, r3
+ 3896 09d4 003093E5 		ldr	r3, [r3, #0]
+ 3897 09d8 0338A0E1 		mov	r3, r3, asl #16
+ 3898 09dc 2338A0E1 		mov	r3, r3, lsr #16
+ 3899 09e0 8331A0E1 		mov	r3, r3, asl #3
+ 3900 09e4 0338A0E1 		mov	r3, r3, asl #16
+ 3901 09e8 2318A0E1 		mov	r1, r3, lsr #16
+ 3902 09ec BCC49FE5 		ldr	ip, .L47
+ 3903 09f0 10201BE5 		ldr	r2, [fp, #-16]
+ 3904 09f4 0400A0E3 		mov	r0, #4
+ 3905 09f8 0230A0E1 		mov	r3, r2
+ 3906 09fc 8330A0E1 		mov	r3, r3, asl #1
+ 3907 0a00 023083E0 		add	r3, r3, r2
+ 3908 0a04 0331A0E1 		mov	r3, r3, asl #2
+ 3909 0a08 03308CE0 		add	r3, ip, r3
+ 3910 0a0c 003083E0 		add	r3, r3, r0
+ 3911 0a10 003093E5 		ldr	r3, [r3, #0]
+ 3912 0a14 0338A0E1 		mov	r3, r3, asl #16
+ 3913 0a18 2338A0E1 		mov	r3, r3, lsr #16
+ 3914 0a1c 8331A0E1 		mov	r3, r3, asl #3
+ 3915 0a20 0338A0E1 		mov	r3, r3, asl #16
+ 3916 0a24 2338A0E1 		mov	r3, r3, lsr #16
+ 3917 0a28 0100A0E1 		mov	r0, r1
+ 3918 0a2c 0310A0E1 		mov	r1, r3
+ 3919 0a30 0820A0E3 		mov	r2, #8
+ 3920 0a34 0030A0E3 		mov	r3, #0
+ 3921 0a38 FEFFFFEB 		bl	lcd_pintar_celda
+ 135:../snake.c    **** 			lcd_pintar_cuerpo_serpiente1(ac[i].x * CELDA, ac[i].y * CELDA, CELDA);
+ 3922              		.loc 1 135 0
+ 3923 0a3c 6C149FE5 		ldr	r1, .L47
+ 3924 0a40 10201BE5 		ldr	r2, [fp, #-16]
+ 3925 0a44 0230A0E1 		mov	r3, r2
+ 3926 0a48 8330A0E1 		mov	r3, r3, asl #1
+ 3927 0a4c 023083E0 		add	r3, r3, r2
+ 3928 0a50 0331A0E1 		mov	r3, r3, asl #2
+ 3929 0a54 033081E0 		add	r3, r1, r3
+ 3930 0a58 003093E5 		ldr	r3, [r3, #0]
+ 3931 0a5c 0338A0E1 		mov	r3, r3, asl #16
+ 3932 0a60 2338A0E1 		mov	r3, r3, lsr #16
+ 3933 0a64 8331A0E1 		mov	r3, r3, asl #3
+ 3934 0a68 0338A0E1 		mov	r3, r3, asl #16
+ 3935 0a6c 2318A0E1 		mov	r1, r3, lsr #16
+ 3936 0a70 38C49FE5 		ldr	ip, .L47
+ 3937 0a74 10201BE5 		ldr	r2, [fp, #-16]
+ 3938 0a78 0400A0E3 		mov	r0, #4
+ 3939 0a7c 0230A0E1 		mov	r3, r2
+ 3940 0a80 8330A0E1 		mov	r3, r3, asl #1
+ 3941 0a84 023083E0 		add	r3, r3, r2
+ 3942 0a88 0331A0E1 		mov	r3, r3, asl #2
+ 3943 0a8c 03308CE0 		add	r3, ip, r3
+ 3944 0a90 003083E0 		add	r3, r3, r0
+ 3945 0a94 003093E5 		ldr	r3, [r3, #0]
+ 3946 0a98 0338A0E1 		mov	r3, r3, asl #16
+ 3947 0a9c 2338A0E1 		mov	r3, r3, lsr #16
+ 3948 0aa0 8331A0E1 		mov	r3, r3, asl #3
+ 3949 0aa4 0338A0E1 		mov	r3, r3, asl #16
+ 3950 0aa8 2338A0E1 		mov	r3, r3, lsr #16
+ 3951 0aac 0100A0E1 		mov	r0, r1
+ 3952 0ab0 0310A0E1 		mov	r1, r3
+ 3953 0ab4 0820A0E3 		mov	r2, #8
+ 3954 0ab8 FEFFFFEB 		bl	lcd_pintar_cuerpo_serpiente1
+ 3955 0abc ED0000EA 		b	.L40
+ 3956              	.L41:
+ 136:../snake.c    **** 		}
+ 137:../snake.c    **** 		else if ( ac[i].nuevo_valor == CUERPO_J2 ) {
+ 3957              		.loc 1 137 0
+ 3958 0ac0 E8039FE5 		ldr	r0, .L47
+ 3959 0ac4 10201BE5 		ldr	r2, [fp, #-16]
+ 3960 0ac8 0810A0E3 		mov	r1, #8
+ 3961 0acc 0230A0E1 		mov	r3, r2
+ 3962 0ad0 8330A0E1 		mov	r3, r3, asl #1
+ 3963 0ad4 023083E0 		add	r3, r3, r2
+ 3964 0ad8 0331A0E1 		mov	r3, r3, asl #2
+ 3965 0adc 033080E0 		add	r3, r0, r3
+ 3966 0ae0 013083E0 		add	r3, r3, r1
+ 3967 0ae4 003093E5 		ldr	r3, [r3, #0]
+ 3968 0ae8 060053E3 		cmp	r3, #6
+ 3969 0aec 4000001A 		bne	.L42
+ 138:../snake.c    **** 			lcd_pintar_celda(ac[i].x * CELDA, ac[i].y * CELDA, CELDA, LCD_WHITE); //OPTIMIZAR!!!
+ 3970              		.loc 1 138 0
+ 3971 0af0 B8139FE5 		ldr	r1, .L47
+ 3972 0af4 10201BE5 		ldr	r2, [fp, #-16]
+ 3973 0af8 0230A0E1 		mov	r3, r2
+ 3974 0afc 8330A0E1 		mov	r3, r3, asl #1
+ 3975 0b00 023083E0 		add	r3, r3, r2
+ 3976 0b04 0331A0E1 		mov	r3, r3, asl #2
+ 3977 0b08 033081E0 		add	r3, r1, r3
+ 3978 0b0c 003093E5 		ldr	r3, [r3, #0]
+ 3979 0b10 0338A0E1 		mov	r3, r3, asl #16
+ 3980 0b14 2338A0E1 		mov	r3, r3, lsr #16
+ 3981 0b18 8331A0E1 		mov	r3, r3, asl #3
+ 3982 0b1c 0338A0E1 		mov	r3, r3, asl #16
+ 3983 0b20 2318A0E1 		mov	r1, r3, lsr #16
+ 3984 0b24 84C39FE5 		ldr	ip, .L47
+ 3985 0b28 10201BE5 		ldr	r2, [fp, #-16]
+ 3986 0b2c 0400A0E3 		mov	r0, #4
+ 3987 0b30 0230A0E1 		mov	r3, r2
+ 3988 0b34 8330A0E1 		mov	r3, r3, asl #1
+ 3989 0b38 023083E0 		add	r3, r3, r2
+ 3990 0b3c 0331A0E1 		mov	r3, r3, asl #2
+ 3991 0b40 03308CE0 		add	r3, ip, r3
+ 3992 0b44 003083E0 		add	r3, r3, r0
+ 3993 0b48 003093E5 		ldr	r3, [r3, #0]
+ 3994 0b4c 0338A0E1 		mov	r3, r3, asl #16
+ 3995 0b50 2338A0E1 		mov	r3, r3, lsr #16
+ 3996 0b54 8331A0E1 		mov	r3, r3, asl #3
+ 3997 0b58 0338A0E1 		mov	r3, r3, asl #16
+ 3998 0b5c 2338A0E1 		mov	r3, r3, lsr #16
+ 3999 0b60 0100A0E1 		mov	r0, r1
+ 4000 0b64 0310A0E1 		mov	r1, r3
+ 4001 0b68 0820A0E3 		mov	r2, #8
+ 4002 0b6c 0030A0E3 		mov	r3, #0
+ 4003 0b70 FEFFFFEB 		bl	lcd_pintar_celda
+ 139:../snake.c    **** 			lcd_pintar_cuerpo_serpiente2(ac[i].x * CELDA, ac[i].y * CELDA);
+ 4004              		.loc 1 139 0
+ 4005 0b74 34139FE5 		ldr	r1, .L47
+ 4006 0b78 10201BE5 		ldr	r2, [fp, #-16]
+ 4007 0b7c 0230A0E1 		mov	r3, r2
+ 4008 0b80 8330A0E1 		mov	r3, r3, asl #1
+ 4009 0b84 023083E0 		add	r3, r3, r2
+ 4010 0b88 0331A0E1 		mov	r3, r3, asl #2
+ 4011 0b8c 033081E0 		add	r3, r1, r3
+ 4012 0b90 003093E5 		ldr	r3, [r3, #0]
+ 4013 0b94 0338A0E1 		mov	r3, r3, asl #16
+ 4014 0b98 2338A0E1 		mov	r3, r3, lsr #16
+ 4015 0b9c 8331A0E1 		mov	r3, r3, asl #3
+ 4016 0ba0 0338A0E1 		mov	r3, r3, asl #16
+ 4017 0ba4 2318A0E1 		mov	r1, r3, lsr #16
+ 4018 0ba8 00C39FE5 		ldr	ip, .L47
+ 4019 0bac 10201BE5 		ldr	r2, [fp, #-16]
+ 4020 0bb0 0400A0E3 		mov	r0, #4
+ 4021 0bb4 0230A0E1 		mov	r3, r2
+ 4022 0bb8 8330A0E1 		mov	r3, r3, asl #1
+ 4023 0bbc 023083E0 		add	r3, r3, r2
+ 4024 0bc0 0331A0E1 		mov	r3, r3, asl #2
+ 4025 0bc4 03308CE0 		add	r3, ip, r3
+ 4026 0bc8 003083E0 		add	r3, r3, r0
+ 4027 0bcc 003093E5 		ldr	r3, [r3, #0]
+ 4028 0bd0 0338A0E1 		mov	r3, r3, asl #16
+ 4029 0bd4 2338A0E1 		mov	r3, r3, lsr #16
+ 4030 0bd8 8331A0E1 		mov	r3, r3, asl #3
+ 4031 0bdc 0338A0E1 		mov	r3, r3, asl #16
+ 4032 0be0 2338A0E1 		mov	r3, r3, lsr #16
+ 4033 0be4 0100A0E1 		mov	r0, r1
+ 4034 0be8 0310A0E1 		mov	r1, r3
+ 4035 0bec FEFFFFEB 		bl	lcd_pintar_cuerpo_serpiente2
+ 4036 0bf0 A00000EA 		b	.L40
+ 4037              	.L42:
+ 140:../snake.c    **** 		}
+ 141:../snake.c    **** 		else if ( ac[i].nuevo_valor == VACIO ) {
+ 4038              		.loc 1 141 0
+ 4039 0bf4 B4029FE5 		ldr	r0, .L47
+ 4040 0bf8 10201BE5 		ldr	r2, [fp, #-16]
+ 4041 0bfc 0810A0E3 		mov	r1, #8
+ 4042 0c00 0230A0E1 		mov	r3, r2
+ 4043 0c04 8330A0E1 		mov	r3, r3, asl #1
+ 4044 0c08 023083E0 		add	r3, r3, r2
+ 4045 0c0c 0331A0E1 		mov	r3, r3, asl #2
+ 4046 0c10 033080E0 		add	r3, r0, r3
+ 4047 0c14 013083E0 		add	r3, r3, r1
+ 4048 0c18 003093E5 		ldr	r3, [r3, #0]
+ 4049 0c1c 000053E3 		cmp	r3, #0
+ 4050 0c20 2100001A 		bne	.L43
+ 142:../snake.c    **** 			lcd_pintar_celda(ac[i].x * CELDA, ac[i].y * CELDA, CELDA, LCD_WHITE);
+ 4051              		.loc 1 142 0
+ 4052 0c24 84129FE5 		ldr	r1, .L47
+ 4053 0c28 10201BE5 		ldr	r2, [fp, #-16]
+ 4054 0c2c 0230A0E1 		mov	r3, r2
+ 4055 0c30 8330A0E1 		mov	r3, r3, asl #1
+ 4056 0c34 023083E0 		add	r3, r3, r2
+ 4057 0c38 0331A0E1 		mov	r3, r3, asl #2
+ 4058 0c3c 033081E0 		add	r3, r1, r3
+ 4059 0c40 003093E5 		ldr	r3, [r3, #0]
+ 4060 0c44 0338A0E1 		mov	r3, r3, asl #16
+ 4061 0c48 2338A0E1 		mov	r3, r3, lsr #16
+ 4062 0c4c 8331A0E1 		mov	r3, r3, asl #3
+ 4063 0c50 0338A0E1 		mov	r3, r3, asl #16
+ 4064 0c54 2318A0E1 		mov	r1, r3, lsr #16
+ 4065 0c58 50C29FE5 		ldr	ip, .L47
+ 4066 0c5c 10201BE5 		ldr	r2, [fp, #-16]
+ 4067 0c60 0400A0E3 		mov	r0, #4
+ 4068 0c64 0230A0E1 		mov	r3, r2
+ 4069 0c68 8330A0E1 		mov	r3, r3, asl #1
+ 4070 0c6c 023083E0 		add	r3, r3, r2
+ 4071 0c70 0331A0E1 		mov	r3, r3, asl #2
+ 4072 0c74 03308CE0 		add	r3, ip, r3
+ 4073 0c78 003083E0 		add	r3, r3, r0
+ 4074 0c7c 003093E5 		ldr	r3, [r3, #0]
+ 4075 0c80 0338A0E1 		mov	r3, r3, asl #16
+ 4076 0c84 2338A0E1 		mov	r3, r3, lsr #16
+ 4077 0c88 8331A0E1 		mov	r3, r3, asl #3
+ 4078 0c8c 0338A0E1 		mov	r3, r3, asl #16
+ 4079 0c90 2338A0E1 		mov	r3, r3, lsr #16
+ 4080 0c94 0100A0E1 		mov	r0, r1
+ 4081 0c98 0310A0E1 		mov	r1, r3
+ 4082 0c9c 0820A0E3 		mov	r2, #8
+ 4083 0ca0 0030A0E3 		mov	r3, #0
+ 4084 0ca4 FEFFFFEB 		bl	lcd_pintar_celda
+ 4085 0ca8 720000EA 		b	.L40
+ 4086              	.L43:
+ 143:../snake.c    **** 		}
+ 144:../snake.c    **** 		else if ( ac[i].nuevo_valor == FRUTA ) {
+ 4087              		.loc 1 144 0
+ 4088 0cac FC019FE5 		ldr	r0, .L47
+ 4089 0cb0 10201BE5 		ldr	r2, [fp, #-16]
+ 4090 0cb4 0810A0E3 		mov	r1, #8
+ 4091 0cb8 0230A0E1 		mov	r3, r2
+ 4092 0cbc 8330A0E1 		mov	r3, r3, asl #1
+ 4093 0cc0 023083E0 		add	r3, r3, r2
+ 4094 0cc4 0331A0E1 		mov	r3, r3, asl #2
+ 4095 0cc8 033080E0 		add	r3, r0, r3
+ 4096 0ccc 013083E0 		add	r3, r3, r1
+ 4097 0cd0 003093E5 		ldr	r3, [r3, #0]
+ 4098 0cd4 020053E3 		cmp	r3, #2
+ 4099 0cd8 6600001A 		bne	.L40
+ 145:../snake.c    **** 			if (jug1_dir == DIRECCION_ARRIBA)
+ 4100              		.loc 1 145 0
+ 4101 0cdc D0319FE5 		ldr	r3, .L47+4
+ 4102 0ce0 0030D3E5 		ldrb	r3, [r3, #0]	@ zero_extendqisi2
+ 4103 0ce4 750053E3 		cmp	r3, #117
+ 4104 0ce8 1F00001A 		bne	.L44
+ 146:../snake.c    **** 				lcd_pintar_naranja(ac[i].x * CELDA, ac[i].y * CELDA);
+ 4105              		.loc 1 146 0
+ 4106 0cec BC119FE5 		ldr	r1, .L47
+ 4107 0cf0 10201BE5 		ldr	r2, [fp, #-16]
+ 4108 0cf4 0230A0E1 		mov	r3, r2
+ 4109 0cf8 8330A0E1 		mov	r3, r3, asl #1
+ 4110 0cfc 023083E0 		add	r3, r3, r2
+ 4111 0d00 0331A0E1 		mov	r3, r3, asl #2
+ 4112 0d04 033081E0 		add	r3, r1, r3
+ 4113 0d08 003093E5 		ldr	r3, [r3, #0]
+ 4114 0d0c 0338A0E1 		mov	r3, r3, asl #16
+ 4115 0d10 2338A0E1 		mov	r3, r3, lsr #16
+ 4116 0d14 8331A0E1 		mov	r3, r3, asl #3
+ 4117 0d18 0338A0E1 		mov	r3, r3, asl #16
+ 4118 0d1c 2318A0E1 		mov	r1, r3, lsr #16
+ 4119 0d20 88C19FE5 		ldr	ip, .L47
+ 4120 0d24 10201BE5 		ldr	r2, [fp, #-16]
+ 4121 0d28 0400A0E3 		mov	r0, #4
+ 4122 0d2c 0230A0E1 		mov	r3, r2
+ 4123 0d30 8330A0E1 		mov	r3, r3, asl #1
+ 4124 0d34 023083E0 		add	r3, r3, r2
+ 4125 0d38 0331A0E1 		mov	r3, r3, asl #2
+ 4126 0d3c 03308CE0 		add	r3, ip, r3
+ 4127 0d40 003083E0 		add	r3, r3, r0
+ 4128 0d44 003093E5 		ldr	r3, [r3, #0]
+ 4129 0d48 0338A0E1 		mov	r3, r3, asl #16
+ 4130 0d4c 2338A0E1 		mov	r3, r3, lsr #16
+ 4131 0d50 8331A0E1 		mov	r3, r3, asl #3
+ 4132 0d54 0338A0E1 		mov	r3, r3, asl #16
+ 4133 0d58 2338A0E1 		mov	r3, r3, lsr #16
+ 4134 0d5c 0100A0E1 		mov	r0, r1
+ 4135 0d60 0310A0E1 		mov	r1, r3
+ 4136 0d64 FEFFFFEB 		bl	lcd_pintar_naranja
+ 4137 0d68 420000EA 		b	.L40
+ 4138              	.L44:
+ 147:../snake.c    **** 			else if (jug1_dir == DIRECCION_ABAJO)
+ 4139              		.loc 1 147 0
+ 4140 0d6c 40319FE5 		ldr	r3, .L47+4
+ 4141 0d70 0030D3E5 		ldrb	r3, [r3, #0]	@ zero_extendqisi2
+ 4142 0d74 640053E3 		cmp	r3, #100
+ 4143 0d78 1F00001A 		bne	.L45
+ 148:../snake.c    **** 				lcd_pintar_platano(ac[i].x * CELDA, ac[i].y * CELDA);
+ 4144              		.loc 1 148 0
+ 4145 0d7c 2C119FE5 		ldr	r1, .L47
+ 4146 0d80 10201BE5 		ldr	r2, [fp, #-16]
+ 4147 0d84 0230A0E1 		mov	r3, r2
+ 4148 0d88 8330A0E1 		mov	r3, r3, asl #1
+ 4149 0d8c 023083E0 		add	r3, r3, r2
+ 4150 0d90 0331A0E1 		mov	r3, r3, asl #2
+ 4151 0d94 033081E0 		add	r3, r1, r3
+ 4152 0d98 003093E5 		ldr	r3, [r3, #0]
+ 4153 0d9c 0338A0E1 		mov	r3, r3, asl #16
+ 4154 0da0 2338A0E1 		mov	r3, r3, lsr #16
+ 4155 0da4 8331A0E1 		mov	r3, r3, asl #3
+ 4156 0da8 0338A0E1 		mov	r3, r3, asl #16
+ 4157 0dac 2318A0E1 		mov	r1, r3, lsr #16
+ 4158 0db0 F8C09FE5 		ldr	ip, .L47
+ 4159 0db4 10201BE5 		ldr	r2, [fp, #-16]
+ 4160 0db8 0400A0E3 		mov	r0, #4
+ 4161 0dbc 0230A0E1 		mov	r3, r2
+ 4162 0dc0 8330A0E1 		mov	r3, r3, asl #1
+ 4163 0dc4 023083E0 		add	r3, r3, r2
+ 4164 0dc8 0331A0E1 		mov	r3, r3, asl #2
+ 4165 0dcc 03308CE0 		add	r3, ip, r3
+ 4166 0dd0 003083E0 		add	r3, r3, r0
+ 4167 0dd4 003093E5 		ldr	r3, [r3, #0]
+ 4168 0dd8 0338A0E1 		mov	r3, r3, asl #16
+ 4169 0ddc 2338A0E1 		mov	r3, r3, lsr #16
+ 4170 0de0 8331A0E1 		mov	r3, r3, asl #3
+ 4171 0de4 0338A0E1 		mov	r3, r3, asl #16
+ 4172 0de8 2338A0E1 		mov	r3, r3, lsr #16
+ 4173 0dec 0100A0E1 		mov	r0, r1
+ 4174 0df0 0310A0E1 		mov	r1, r3
+ 4175 0df4 FEFFFFEB 		bl	lcd_pintar_platano
+ 4176 0df8 1E0000EA 		b	.L40
+ 4177              	.L45:
+ 149:../snake.c    **** 			else
+ 150:../snake.c    **** 				lcd_pintar_cereza(ac[i].x * CELDA, ac[i].y * CELDA);
+ 4178              		.loc 1 150 0
+ 4179 0dfc AC109FE5 		ldr	r1, .L47
+ 4180 0e00 10201BE5 		ldr	r2, [fp, #-16]
+ 4181 0e04 0230A0E1 		mov	r3, r2
+ 4182 0e08 8330A0E1 		mov	r3, r3, asl #1
+ 4183 0e0c 023083E0 		add	r3, r3, r2
+ 4184 0e10 0331A0E1 		mov	r3, r3, asl #2
+ 4185 0e14 033081E0 		add	r3, r1, r3
+ 4186 0e18 003093E5 		ldr	r3, [r3, #0]
+ 4187 0e1c 0338A0E1 		mov	r3, r3, asl #16
+ 4188 0e20 2338A0E1 		mov	r3, r3, lsr #16
+ 4189 0e24 8331A0E1 		mov	r3, r3, asl #3
+ 4190 0e28 0338A0E1 		mov	r3, r3, asl #16
+ 4191 0e2c 2318A0E1 		mov	r1, r3, lsr #16
+ 4192 0e30 78C09FE5 		ldr	ip, .L47
+ 4193 0e34 10201BE5 		ldr	r2, [fp, #-16]
+ 4194 0e38 0400A0E3 		mov	r0, #4
+ 4195 0e3c 0230A0E1 		mov	r3, r2
+ 4196 0e40 8330A0E1 		mov	r3, r3, asl #1
+ 4197 0e44 023083E0 		add	r3, r3, r2
+ 4198 0e48 0331A0E1 		mov	r3, r3, asl #2
+ 4199 0e4c 03308CE0 		add	r3, ip, r3
+ 4200 0e50 003083E0 		add	r3, r3, r0
+ 4201 0e54 003093E5 		ldr	r3, [r3, #0]
+ 4202 0e58 0338A0E1 		mov	r3, r3, asl #16
+ 4203 0e5c 2338A0E1 		mov	r3, r3, lsr #16
+ 4204 0e60 8331A0E1 		mov	r3, r3, asl #3
+ 4205 0e64 0338A0E1 		mov	r3, r3, asl #16
+ 4206 0e68 2338A0E1 		mov	r3, r3, lsr #16
+ 4207 0e6c 0100A0E1 		mov	r0, r1
+ 4208 0e70 0310A0E1 		mov	r1, r3
+ 4209 0e74 FEFFFFEB 		bl	lcd_pintar_cereza
+ 4210              	.L40:
+ 121:../snake.c    **** 	for (i = 0; i < numAC; ++i) {
+ 4211              		.loc 1 121 0
+ 4212 0e78 10301BE5 		ldr	r3, [fp, #-16]
+ 4213 0e7c 013083E2 		add	r3, r3, #1
+ 4214 0e80 10300BE5 		str	r3, [fp, #-16]
+ 4215              	.L33:
+ 121:../snake.c    **** 	for (i = 0; i < numAC; ++i) {
+ 4216              		.loc 1 121 0 is_stmt 0 discriminator 1
+ 4217 0e84 2C309FE5 		ldr	r3, .L47+8
+ 4218 0e88 003093E5 		ldr	r3, [r3, #0]
+ 4219 0e8c 10201BE5 		ldr	r2, [fp, #-16]
+ 4220 0e90 030052E1 		cmp	r2, r3
+ 4221 0e94 19FEFFBA 		blt	.L46
+ 151:../snake.c    **** 		}
+ 152:../snake.c    **** 	}
+ 153:../snake.c    **** 	numAC = 0;
+ 4222              		.loc 1 153 0 is_stmt 1
+ 4223 0e98 18309FE5 		ldr	r3, .L47+8
+ 4224 0e9c 0020A0E3 		mov	r2, #0
+ 4225 0ea0 002083E5 		str	r2, [r3, #0]
+ 154:../snake.c    **** }
+ 4226              		.loc 1 154 0
+ 4227 0ea4 0CD04BE2 		sub	sp, fp, #12
+ 4228 0ea8 00689DE8 		ldmfd	sp, {fp, sp, lr}
+ 4229 0eac 1EFF2FE1 		bx	lr
+ 4230              	.L48:
+ 4231              		.align	2
+ 4232              	.L47:
+ 4233 0eb0 00000000 		.word	ac
+ 4234 0eb4 00000000 		.word	jug1_dir
+ 4235 0eb8 00000000 		.word	numAC
+ 4236              		.cfi_endproc
+ 4237              	.LFE5:
+ 4239              		.align	2
+ 4240              		.global	cambiar_direccion_jugador1
+ 4242              	cambiar_direccion_jugador1:
+ 4243              	.LFB6:
+ 155:../snake.c    **** 
+ 156:../snake.c    **** void cambiar_direccion_jugador1(int dir) {
+ 4244              		.loc 1 156 0
+ 4245              		.cfi_startproc
+ 4246              		@ Function supports interworking.
+ 4247              		@ args = 0, pretend = 0, frame = 8
+ 4248              		@ frame_needed = 1, uses_anonymous_args = 0
+ 4249 0ebc 0DC0A0E1 		mov	ip, sp
+ 4250              	.LCFI12:
+ 4251              		.cfi_def_cfa_register 12
+ 4252 0ec0 00D82DE9 		stmfd	sp!, {fp, ip, lr, pc}
+ 4253 0ec4 04B04CE2 		sub	fp, ip, #4
+ 4254              		.cfi_offset 14, -8
+ 4255              		.cfi_offset 13, -12
+ 4256              		.cfi_offset 11, -16
+ 4257              	.LCFI13:
+ 4258              		.cfi_def_cfa 11, 4
+ 4259 0ec8 08D04DE2 		sub	sp, sp, #8
+ 4260 0ecc 10000BE5 		str	r0, [fp, #-16]
+ 157:../snake.c    **** 
+ 158:../snake.c    **** 	if ( (dir == DIRECCION_ARRIBA && jug1_dir != DIRECCION_ABAJO) ||
+ 4261              		.loc 1 158 0
+ 4262 0ed0 10301BE5 		ldr	r3, [fp, #-16]
+ 4263 0ed4 750053E3 		cmp	r3, #117
+ 4264 0ed8 0300001A 		bne	.L50
+ 4265              		.loc 1 158 0 is_stmt 0 discriminator 1
+ 4266 0edc 78309FE5 		ldr	r3, .L55
+ 4267 0ee0 0030D3E5 		ldrb	r3, [r3, #0]	@ zero_extendqisi2
+ 4268 0ee4 640053E3 		cmp	r3, #100
+ 4269 0ee8 1400001A 		bne	.L51
+ 4270              	.L50:
+ 4271              		.loc 1 158 0 discriminator 2
+ 4272 0eec 10301BE5 		ldr	r3, [fp, #-16]
+ 4273 0ef0 640053E3 		cmp	r3, #100
+ 4274 0ef4 0300001A 		bne	.L52
+ 159:../snake.c    **** 			(dir == DIRECCION_ABAJO && jug1_dir != DIRECCION_ARRIBA) ||
+ 4275              		.loc 1 159 0 is_stmt 1
+ 4276 0ef8 5C309FE5 		ldr	r3, .L55
+ 4277 0efc 0030D3E5 		ldrb	r3, [r3, #0]	@ zero_extendqisi2
+ 4278 0f00 750053E3 		cmp	r3, #117
+ 4279 0f04 0D00001A 		bne	.L51
+ 4280              	.L52:
+ 4281              		.loc 1 159 0 is_stmt 0 discriminator 1
+ 4282 0f08 10301BE5 		ldr	r3, [fp, #-16]
+ 4283 0f0c 720053E3 		cmp	r3, #114
+ 4284 0f10 0300001A 		bne	.L53
+ 160:../snake.c    **** 			(dir == DIRECCION_DER && jug1_dir != DIRECCION_IZQ) ||
+ 4285              		.loc 1 160 0 is_stmt 1
+ 4286 0f14 40309FE5 		ldr	r3, .L55
+ 4287 0f18 0030D3E5 		ldrb	r3, [r3, #0]	@ zero_extendqisi2
+ 4288 0f1c 6C0053E3 		cmp	r3, #108
+ 4289 0f20 0600001A 		bne	.L51
+ 4290              	.L53:
+ 4291              		.loc 1 160 0 is_stmt 0 discriminator 1
+ 4292 0f24 10301BE5 		ldr	r3, [fp, #-16]
+ 4293 0f28 6C0053E3 		cmp	r3, #108
+ 4294 0f2c 0700001A 		bne	.L49
+ 161:../snake.c    **** 			(dir == DIRECCION_IZQ && jug1_dir != DIRECCION_DER))
+ 4295              		.loc 1 161 0 is_stmt 1
+ 4296 0f30 24309FE5 		ldr	r3, .L55
+ 4297 0f34 0030D3E5 		ldrb	r3, [r3, #0]	@ zero_extendqisi2
+ 4298 0f38 720053E3 		cmp	r3, #114
+ 4299 0f3c 0300000A 		beq	.L49
+ 4300              	.L51:
+ 162:../snake.c    **** 
+ 163:../snake.c    **** 		jug1_dir = dir;
+ 4301              		.loc 1 163 0
+ 4302 0f40 10301BE5 		ldr	r3, [fp, #-16]
+ 4303 0f44 FF2003E2 		and	r2, r3, #255
+ 4304 0f48 0C309FE5 		ldr	r3, .L55
+ 4305 0f4c 0020C3E5 		strb	r2, [r3, #0]
+ 4306              	.L49:
+ 164:../snake.c    **** }
+ 4307              		.loc 1 164 0
+ 4308 0f50 0CD04BE2 		sub	sp, fp, #12
+ 4309 0f54 00689DE8 		ldmfd	sp, {fp, sp, lr}
+ 4310 0f58 1EFF2FE1 		bx	lr
+ 4311              	.L56:
+ 4312              		.align	2
+ 4313              	.L55:
+ 4314 0f5c 00000000 		.word	jug1_dir
+ 4315              		.cfi_endproc
+ 4316              	.LFE6:
+ 4318              		.align	2
+ 4319              		.global	actualizar
+ 4321              	actualizar:
+ 4322              	.LFB7:
+ 165:../snake.c    **** 
+ 166:../snake.c    **** void actualizar() {
+ 4323              		.loc 1 166 0
+ 4324              		.cfi_startproc
+ 4325              		@ Function supports interworking.
+ 4326              		@ args = 0, pretend = 0, frame = 8
+ 4327              		@ frame_needed = 1, uses_anonymous_args = 0
+ 4328 0f60 0DC0A0E1 		mov	ip, sp
+ 4329              	.LCFI14:
+ 4330              		.cfi_def_cfa_register 12
+ 4331 0f64 00D82DE9 		stmfd	sp!, {fp, ip, lr, pc}
+ 4332 0f68 04B04CE2 		sub	fp, ip, #4
+ 4333              		.cfi_offset 14, -8
+ 4334              		.cfi_offset 13, -12
+ 4335              		.cfi_offset 11, -16
+ 4336              	.LCFI15:
+ 4337              		.cfi_def_cfa 11, 4
+ 4338 0f6c 08D04DE2 		sub	sp, sp, #8
+ 167:../snake.c    **** 
+ 168:../snake.c    **** 	switch( jug1_dir ) {
+ 4339              		.loc 1 168 0
+ 4340 0f70 F4349FE5 		ldr	r3, .L81
+ 4341 0f74 0030D3E5 		ldrb	r3, [r3, #0]	@ zero_extendqisi2
+ 4342 0f78 643043E2 		sub	r3, r3, #100
+ 4343 0f7c 110053E3 		cmp	r3, #17
+ 4344 0f80 03F19F97 		ldrls	pc, [pc, r3, asl #2]
+ 4345 0f84 290000EA 		b	.L58
+ 4346              	.L63:
+ 4347 0f88 E80F0000 		.word	.L59
+ 4348 0f8c 30100000 		.word	.L58
+ 4349 0f90 30100000 		.word	.L58
+ 4350 0f94 30100000 		.word	.L58
+ 4351 0f98 30100000 		.word	.L58
+ 4352 0f9c 30100000 		.word	.L58
+ 4353 0fa0 30100000 		.word	.L58
+ 4354 0fa4 30100000 		.word	.L58
+ 4355 0fa8 18100000 		.word	.L60
+ 4356 0fac 30100000 		.word	.L58
+ 4357 0fb0 30100000 		.word	.L58
+ 4358 0fb4 30100000 		.word	.L58
+ 4359 0fb8 30100000 		.word	.L58
+ 4360 0fbc 30100000 		.word	.L58
+ 4361 0fc0 00100000 		.word	.L61
+ 4362 0fc4 30100000 		.word	.L58
+ 4363 0fc8 30100000 		.word	.L58
+ 4364 0fcc D00F0000 		.word	.L62
+ 4365              	.L62:
+ 169:../snake.c    **** 		case DIRECCION_ARRIBA:
+ 170:../snake.c    **** 			jug1X--;
+ 4366              		.loc 1 170 0
+ 4367 0fd0 98349FE5 		ldr	r3, .L81+4
+ 4368 0fd4 003093E5 		ldr	r3, [r3, #0]
+ 4369 0fd8 012043E2 		sub	r2, r3, #1
+ 4370 0fdc 8C349FE5 		ldr	r3, .L81+4
+ 4371 0fe0 002083E5 		str	r2, [r3, #0]
+ 171:../snake.c    **** 		break;
+ 4372              		.loc 1 171 0
+ 4373 0fe4 110000EA 		b	.L58
+ 4374              	.L59:
+ 172:../snake.c    **** 
+ 173:../snake.c    **** 		case DIRECCION_ABAJO:
+ 174:../snake.c    **** 			jug1X++;
+ 4375              		.loc 1 174 0
+ 4376 0fe8 80349FE5 		ldr	r3, .L81+4
+ 4377 0fec 003093E5 		ldr	r3, [r3, #0]
+ 4378 0ff0 012083E2 		add	r2, r3, #1
+ 4379 0ff4 74349FE5 		ldr	r3, .L81+4
+ 4380 0ff8 002083E5 		str	r2, [r3, #0]
+ 175:../snake.c    **** 		break;
+ 4381              		.loc 1 175 0
+ 4382 0ffc 0B0000EA 		b	.L58
+ 4383              	.L61:
+ 176:../snake.c    **** 
+ 177:../snake.c    **** 		case DIRECCION_DER:
+ 178:../snake.c    **** 			jug1Y++;
+ 4384              		.loc 1 178 0
+ 4385 1000 6C349FE5 		ldr	r3, .L81+8
+ 4386 1004 003093E5 		ldr	r3, [r3, #0]
+ 4387 1008 012083E2 		add	r2, r3, #1
+ 4388 100c 60349FE5 		ldr	r3, .L81+8
+ 4389 1010 002083E5 		str	r2, [r3, #0]
+ 179:../snake.c    **** 		break;
+ 4390              		.loc 1 179 0
+ 4391 1014 050000EA 		b	.L58
+ 4392              	.L60:
+ 180:../snake.c    **** 
+ 181:../snake.c    **** 		case DIRECCION_IZQ:
+ 182:../snake.c    **** 			jug1Y--;
+ 4393              		.loc 1 182 0
+ 4394 1018 54349FE5 		ldr	r3, .L81+8
+ 4395 101c 003093E5 		ldr	r3, [r3, #0]
+ 4396 1020 012043E2 		sub	r2, r3, #1
+ 4397 1024 48349FE5 		ldr	r3, .L81+8
+ 4398 1028 002083E5 		str	r2, [r3, #0]
+ 183:../snake.c    **** 		break;
+ 4399              		.loc 1 183 0
+ 4400 102c 0000A0E1 		mov	r0, r0	@ nop
+ 4401              	.L58:
+ 184:../snake.c    **** 	}
+ 185:../snake.c    **** 
+ 186:../snake.c    **** 
+ 187:../snake.c    **** 	switch( jug2_dir ) {
+ 4402              		.loc 1 187 0
+ 4403 1030 40349FE5 		ldr	r3, .L81+12
+ 4404 1034 0030D3E5 		ldrb	r3, [r3, #0]	@ zero_extendqisi2
+ 4405 1038 643043E2 		sub	r3, r3, #100
+ 4406 103c 110053E3 		cmp	r3, #17
+ 4407 1040 03F19F97 		ldrls	pc, [pc, r3, asl #2]
+ 4408 1044 290000EA 		b	.L64
+ 4409              	.L69:
+ 4410 1048 A8100000 		.word	.L65
+ 4411 104c F0100000 		.word	.L64
+ 4412 1050 F0100000 		.word	.L64
+ 4413 1054 F0100000 		.word	.L64
+ 4414 1058 F0100000 		.word	.L64
+ 4415 105c F0100000 		.word	.L64
+ 4416 1060 F0100000 		.word	.L64
+ 4417 1064 F0100000 		.word	.L64
+ 4418 1068 D8100000 		.word	.L66
+ 4419 106c F0100000 		.word	.L64
+ 4420 1070 F0100000 		.word	.L64
+ 4421 1074 F0100000 		.word	.L64
+ 4422 1078 F0100000 		.word	.L64
+ 4423 107c F0100000 		.word	.L64
+ 4424 1080 C0100000 		.word	.L67
+ 4425 1084 F0100000 		.word	.L64
+ 4426 1088 F0100000 		.word	.L64
+ 4427 108c 90100000 		.word	.L68
+ 4428              	.L68:
+ 188:../snake.c    **** 		case DIRECCION_ARRIBA:
+ 189:../snake.c    **** 			jug2X--;
+ 4429              		.loc 1 189 0
+ 4430 1090 E4339FE5 		ldr	r3, .L81+16
+ 4431 1094 003093E5 		ldr	r3, [r3, #0]
+ 4432 1098 012043E2 		sub	r2, r3, #1
+ 4433 109c D8339FE5 		ldr	r3, .L81+16
+ 4434 10a0 002083E5 		str	r2, [r3, #0]
+ 190:../snake.c    **** 		break;
+ 4435              		.loc 1 190 0
+ 4436 10a4 110000EA 		b	.L64
+ 4437              	.L65:
+ 191:../snake.c    **** 
+ 192:../snake.c    **** 		case DIRECCION_ABAJO:
+ 193:../snake.c    **** 			jug2X++;
+ 4438              		.loc 1 193 0
+ 4439 10a8 CC339FE5 		ldr	r3, .L81+16
+ 4440 10ac 003093E5 		ldr	r3, [r3, #0]
+ 4441 10b0 012083E2 		add	r2, r3, #1
+ 4442 10b4 C0339FE5 		ldr	r3, .L81+16
+ 4443 10b8 002083E5 		str	r2, [r3, #0]
+ 194:../snake.c    **** 		break;
+ 4444              		.loc 1 194 0
+ 4445 10bc 0B0000EA 		b	.L64
+ 4446              	.L67:
+ 195:../snake.c    **** 
+ 196:../snake.c    **** 		case DIRECCION_DER:
+ 197:../snake.c    **** 			jug2Y++;
+ 4447              		.loc 1 197 0
+ 4448 10c0 B8339FE5 		ldr	r3, .L81+20
+ 4449 10c4 003093E5 		ldr	r3, [r3, #0]
+ 4450 10c8 012083E2 		add	r2, r3, #1
+ 4451 10cc AC339FE5 		ldr	r3, .L81+20
+ 4452 10d0 002083E5 		str	r2, [r3, #0]
+ 198:../snake.c    **** 		break;
+ 4453              		.loc 1 198 0
+ 4454 10d4 050000EA 		b	.L64
+ 4455              	.L66:
+ 199:../snake.c    **** 
+ 200:../snake.c    **** 		case DIRECCION_IZQ:
+ 201:../snake.c    **** 			jug2Y--;
+ 4456              		.loc 1 201 0
+ 4457 10d8 A0339FE5 		ldr	r3, .L81+20
+ 4458 10dc 003093E5 		ldr	r3, [r3, #0]
+ 4459 10e0 012043E2 		sub	r2, r3, #1
+ 4460 10e4 94339FE5 		ldr	r3, .L81+20
+ 4461 10e8 002083E5 		str	r2, [r3, #0]
+ 202:../snake.c    **** 		break;
+ 4462              		.loc 1 202 0
+ 4463 10ec 0000A0E1 		mov	r0, r0	@ nop
+ 4464              	.L64:
+ 203:../snake.c    **** 	}
+ 204:../snake.c    **** 
+ 205:../snake.c    **** 	// Comprobamos situaciones de colision, comer o mover la serpiente
+ 206:../snake.c    **** 
+ 207:../snake.c    **** 	if ( tablero[jug1X][jug1Y] != VACIO && tablero[jug1X][jug1Y] != FRUTA )
+ 4465              		.loc 1 207 0
+ 4466 10f0 78339FE5 		ldr	r3, .L81+4
+ 4467 10f4 002093E5 		ldr	r2, [r3, #0]
+ 4468 10f8 74339FE5 		ldr	r3, .L81+8
+ 4469 10fc 000093E5 		ldr	r0, [r3, #0]
+ 4470 1100 7C139FE5 		ldr	r1, .L81+24
+ 4471 1104 0230A0E1 		mov	r3, r2
+ 4472 1108 0331A0E1 		mov	r3, r3, asl #2
+ 4473 110c 023083E0 		add	r3, r3, r2
+ 4474 1110 8331A0E1 		mov	r3, r3, asl #3
+ 4475 1114 003083E0 		add	r3, r3, r0
+ 4476 1118 033191E7 		ldr	r3, [r1, r3, asl #2]
+ 4477 111c 000053E3 		cmp	r3, #0
+ 4478 1120 1000000A 		beq	.L70
+ 4479              		.loc 1 207 0 is_stmt 0 discriminator 1
+ 4480 1124 44339FE5 		ldr	r3, .L81+4
+ 4481 1128 002093E5 		ldr	r2, [r3, #0]
+ 4482 112c 40339FE5 		ldr	r3, .L81+8
+ 4483 1130 000093E5 		ldr	r0, [r3, #0]
+ 4484 1134 48139FE5 		ldr	r1, .L81+24
+ 4485 1138 0230A0E1 		mov	r3, r2
+ 4486 113c 0331A0E1 		mov	r3, r3, asl #2
+ 4487 1140 023083E0 		add	r3, r3, r2
+ 4488 1144 8331A0E1 		mov	r3, r3, asl #3
+ 4489 1148 003083E0 		add	r3, r3, r0
+ 4490 114c 033191E7 		ldr	r3, [r1, r3, asl #2]
+ 4491 1150 020053E3 		cmp	r3, #2
+ 4492 1154 0300000A 		beq	.L70
+ 208:../snake.c    **** 		jug1Vivo = 0;
+ 4493              		.loc 1 208 0 is_stmt 1
+ 4494 1158 28339FE5 		ldr	r3, .L81+28
+ 4495 115c 0020A0E3 		mov	r2, #0
+ 4496 1160 002083E5 		str	r2, [r3, #0]
+ 4497 1164 BD0000EA 		b	.L57
+ 4498              	.L70:
+ 209:../snake.c    **** 	else if ( tablero[jug2X][jug2Y] != VACIO && tablero[jug2X][jug2Y] != FRUTA )
+ 4499              		.loc 1 209 0
+ 4500 1168 0C339FE5 		ldr	r3, .L81+16
+ 4501 116c 002093E5 		ldr	r2, [r3, #0]
+ 4502 1170 08339FE5 		ldr	r3, .L81+20
+ 4503 1174 000093E5 		ldr	r0, [r3, #0]
+ 4504 1178 04139FE5 		ldr	r1, .L81+24
+ 4505 117c 0230A0E1 		mov	r3, r2
+ 4506 1180 0331A0E1 		mov	r3, r3, asl #2
+ 4507 1184 023083E0 		add	r3, r3, r2
+ 4508 1188 8331A0E1 		mov	r3, r3, asl #3
+ 4509 118c 003083E0 		add	r3, r3, r0
+ 4510 1190 033191E7 		ldr	r3, [r1, r3, asl #2]
+ 4511 1194 000053E3 		cmp	r3, #0
+ 4512 1198 1000000A 		beq	.L72
+ 4513              		.loc 1 209 0 is_stmt 0 discriminator 1
+ 4514 119c D8329FE5 		ldr	r3, .L81+16
+ 4515 11a0 002093E5 		ldr	r2, [r3, #0]
+ 4516 11a4 D4329FE5 		ldr	r3, .L81+20
+ 4517 11a8 000093E5 		ldr	r0, [r3, #0]
+ 4518 11ac D0129FE5 		ldr	r1, .L81+24
+ 4519 11b0 0230A0E1 		mov	r3, r2
+ 4520 11b4 0331A0E1 		mov	r3, r3, asl #2
+ 4521 11b8 023083E0 		add	r3, r3, r2
+ 4522 11bc 8331A0E1 		mov	r3, r3, asl #3
+ 4523 11c0 003083E0 		add	r3, r3, r0
+ 4524 11c4 033191E7 		ldr	r3, [r1, r3, asl #2]
+ 4525 11c8 020053E3 		cmp	r3, #2
+ 4526 11cc 0300000A 		beq	.L72
+ 210:../snake.c    **** 		jug2Vivo = 0;
+ 4527              		.loc 1 210 0 is_stmt 1
+ 4528 11d0 B4329FE5 		ldr	r3, .L81+32
+ 4529 11d4 0020A0E3 		mov	r2, #0
+ 4530 11d8 002083E5 		str	r2, [r3, #0]
+ 4531 11dc 9F0000EA 		b	.L57
+ 4532              	.L72:
+ 4533              	.LBB2:
+ 211:../snake.c    **** 	else {
+ 212:../snake.c    **** 
+ 213:../snake.c    **** 		int i;
+ 214:../snake.c    **** 
+ 215:../snake.c    **** 		for (i = niveljug1; i > 0; --i)
+ 4534              		.loc 1 215 0
+ 4535 11e0 A8329FE5 		ldr	r3, .L81+36
+ 4536 11e4 003093E5 		ldr	r3, [r3, #0]
+ 4537 11e8 10300BE5 		str	r3, [fp, #-16]
+ 4538 11ec 0D0000EA 		b	.L73
+ 4539              	.L74:
+ 216:../snake.c    **** 			snake_jug1[i] = snake_jug1[i-1];
+ 4540              		.loc 1 216 0 discriminator 2
+ 4541 11f0 10301BE5 		ldr	r3, [fp, #-16]
+ 4542 11f4 012043E2 		sub	r2, r3, #1
+ 4543 11f8 94029FE5 		ldr	r0, .L81+40
+ 4544 11fc 10301BE5 		ldr	r3, [fp, #-16]
+ 4545 1200 8C129FE5 		ldr	r1, .L81+40
+ 4546 1204 8331A0E1 		mov	r3, r3, asl #3
+ 4547 1208 033080E0 		add	r3, r0, r3
+ 4548 120c 8221A0E1 		mov	r2, r2, asl #3
+ 4549 1210 022081E0 		add	r2, r1, r2
+ 4550 1214 030092E8 		ldmia	r2, {r0, r1}
+ 4551 1218 030083E8 		stmia	r3, {r0, r1}
+ 215:../snake.c    **** 		for (i = niveljug1; i > 0; --i)
+ 4552              		.loc 1 215 0 discriminator 2
+ 4553 121c 10301BE5 		ldr	r3, [fp, #-16]
+ 4554 1220 013043E2 		sub	r3, r3, #1
+ 4555 1224 10300BE5 		str	r3, [fp, #-16]
+ 4556              	.L73:
+ 215:../snake.c    **** 		for (i = niveljug1; i > 0; --i)
+ 4557              		.loc 1 215 0 is_stmt 0 discriminator 1
+ 4558 1228 10301BE5 		ldr	r3, [fp, #-16]
+ 4559 122c 000053E3 		cmp	r3, #0
+ 4560 1230 EEFFFFCA 		bgt	.L74
+ 217:../snake.c    **** 
+ 218:../snake.c    **** 		for (i = niveljug2; i > 0; --i)
+ 4561              		.loc 1 218 0 is_stmt 1
+ 4562 1234 5C329FE5 		ldr	r3, .L81+44
+ 4563 1238 003093E5 		ldr	r3, [r3, #0]
+ 4564 123c 10300BE5 		str	r3, [fp, #-16]
+ 4565 1240 0D0000EA 		b	.L75
+ 4566              	.L76:
+ 219:../snake.c    **** 			snake_jug2[i] = snake_jug2[i-1];
+ 4567              		.loc 1 219 0 discriminator 2
+ 4568 1244 10301BE5 		ldr	r3, [fp, #-16]
+ 4569 1248 012043E2 		sub	r2, r3, #1
+ 4570 124c 48029FE5 		ldr	r0, .L81+48
+ 4571 1250 10301BE5 		ldr	r3, [fp, #-16]
+ 4572 1254 40129FE5 		ldr	r1, .L81+48
+ 4573 1258 8331A0E1 		mov	r3, r3, asl #3
+ 4574 125c 033080E0 		add	r3, r0, r3
+ 4575 1260 8221A0E1 		mov	r2, r2, asl #3
+ 4576 1264 022081E0 		add	r2, r1, r2
+ 4577 1268 030092E8 		ldmia	r2, {r0, r1}
+ 4578 126c 030083E8 		stmia	r3, {r0, r1}
+ 218:../snake.c    **** 		for (i = niveljug2; i > 0; --i)
+ 4579              		.loc 1 218 0 discriminator 2
+ 4580 1270 10301BE5 		ldr	r3, [fp, #-16]
+ 4581 1274 013043E2 		sub	r3, r3, #1
+ 4582 1278 10300BE5 		str	r3, [fp, #-16]
+ 4583              	.L75:
+ 218:../snake.c    **** 		for (i = niveljug2; i > 0; --i)
+ 4584              		.loc 1 218 0 is_stmt 0 discriminator 1
+ 4585 127c 10301BE5 		ldr	r3, [fp, #-16]
+ 4586 1280 000053E3 		cmp	r3, #0
+ 4587 1284 EEFFFFCA 		bgt	.L76
+ 220:../snake.c    **** 
+ 221:../snake.c    **** 		snake_jug1[0].x = jug1X;
+ 4588              		.loc 1 221 0 is_stmt 1
+ 4589 1288 E0319FE5 		ldr	r3, .L81+4
+ 4590 128c 002093E5 		ldr	r2, [r3, #0]
+ 4591 1290 FC319FE5 		ldr	r3, .L81+40
+ 4592 1294 002083E5 		str	r2, [r3, #0]
+ 222:../snake.c    **** 		snake_jug1[0].y = jug1Y;
+ 4593              		.loc 1 222 0
+ 4594 1298 D4319FE5 		ldr	r3, .L81+8
+ 4595 129c 002093E5 		ldr	r2, [r3, #0]
+ 4596 12a0 EC319FE5 		ldr	r3, .L81+40
+ 4597 12a4 042083E5 		str	r2, [r3, #4]
+ 223:../snake.c    **** 
+ 224:../snake.c    **** 		snake_jug2[0].x = jug2X;
+ 4598              		.loc 1 224 0
+ 4599 12a8 CC319FE5 		ldr	r3, .L81+16
+ 4600 12ac 002093E5 		ldr	r2, [r3, #0]
+ 4601 12b0 E4319FE5 		ldr	r3, .L81+48
+ 4602 12b4 002083E5 		str	r2, [r3, #0]
+ 225:../snake.c    **** 		snake_jug2[0].y = jug2Y;
+ 4603              		.loc 1 225 0
+ 4604 12b8 C0319FE5 		ldr	r3, .L81+20
+ 4605 12bc 002093E5 		ldr	r2, [r3, #0]
+ 4606 12c0 D4319FE5 		ldr	r3, .L81+48
+ 4607 12c4 042083E5 		str	r2, [r3, #4]
+ 226:../snake.c    **** 
+ 227:../snake.c    **** 
+ 228:../snake.c    **** 		if ( tablero[jug1X][jug1Y] == FRUTA )
+ 4608              		.loc 1 228 0
+ 4609 12c8 A0319FE5 		ldr	r3, .L81+4
+ 4610 12cc 002093E5 		ldr	r2, [r3, #0]
+ 4611 12d0 9C319FE5 		ldr	r3, .L81+8
+ 4612 12d4 000093E5 		ldr	r0, [r3, #0]
+ 4613 12d8 A4119FE5 		ldr	r1, .L81+24
+ 4614 12dc 0230A0E1 		mov	r3, r2
+ 4615 12e0 0331A0E1 		mov	r3, r3, asl #2
+ 4616 12e4 023083E0 		add	r3, r3, r2
+ 4617 12e8 8331A0E1 		mov	r3, r3, asl #3
+ 4618 12ec 003083E0 		add	r3, r3, r0
+ 4619 12f0 033191E7 		ldr	r3, [r1, r3, asl #2]
+ 4620 12f4 020053E3 		cmp	r3, #2
+ 4621 12f8 0500001A 		bne	.L77
+ 229:../snake.c    **** 			niveljug1++;
+ 4622              		.loc 1 229 0
+ 4623 12fc 8C319FE5 		ldr	r3, .L81+36
+ 4624 1300 003093E5 		ldr	r3, [r3, #0]
+ 4625 1304 012083E2 		add	r2, r3, #1
+ 4626 1308 80319FE5 		ldr	r3, .L81+36
+ 4627 130c 002083E5 		str	r2, [r3, #0]
+ 4628 1310 0F0000EA 		b	.L78
+ 4629              	.L77:
+ 230:../snake.c    **** 		else
+ 231:../snake.c    **** 			actualizar_pos_tablero(snake_jug1[niveljug1].x, snake_jug1[niveljug1].y, VACIO); // Mandamos bor
+ 4630              		.loc 1 231 0
+ 4631 1314 74319FE5 		ldr	r3, .L81+36
+ 4632 1318 002093E5 		ldr	r2, [r3, #0]
+ 4633 131c 70319FE5 		ldr	r3, .L81+40
+ 4634 1320 822193E7 		ldr	r2, [r3, r2, asl #3]
+ 4635 1324 64319FE5 		ldr	r3, .L81+36
+ 4636 1328 001093E5 		ldr	r1, [r3, #0]
+ 4637 132c 60019FE5 		ldr	r0, .L81+40
+ 4638 1330 0430A0E3 		mov	r3, #4
+ 4639 1334 8111A0E1 		mov	r1, r1, asl #3
+ 4640 1338 011080E0 		add	r1, r0, r1
+ 4641 133c 033081E0 		add	r3, r1, r3
+ 4642 1340 003093E5 		ldr	r3, [r3, #0]
+ 4643 1344 0200A0E1 		mov	r0, r2
+ 4644 1348 0310A0E1 		mov	r1, r3
+ 4645 134c 0020A0E3 		mov	r2, #0
+ 4646 1350 FEFFFFEB 		bl	actualizar_pos_tablero
+ 4647              	.L78:
+ 232:../snake.c    **** 
+ 233:../snake.c    **** 		if ( tablero[jug2X][jug2Y] == FRUTA )
+ 4648              		.loc 1 233 0
+ 4649 1354 20319FE5 		ldr	r3, .L81+16
+ 4650 1358 002093E5 		ldr	r2, [r3, #0]
+ 4651 135c 1C319FE5 		ldr	r3, .L81+20
+ 4652 1360 000093E5 		ldr	r0, [r3, #0]
+ 4653 1364 18119FE5 		ldr	r1, .L81+24
+ 4654 1368 0230A0E1 		mov	r3, r2
+ 4655 136c 0331A0E1 		mov	r3, r3, asl #2
+ 4656 1370 023083E0 		add	r3, r3, r2
+ 4657 1374 8331A0E1 		mov	r3, r3, asl #3
+ 4658 1378 003083E0 		add	r3, r3, r0
+ 4659 137c 033191E7 		ldr	r3, [r1, r3, asl #2]
+ 4660 1380 020053E3 		cmp	r3, #2
+ 4661 1384 0500001A 		bne	.L79
+ 234:../snake.c    **** 			niveljug2++;
+ 4662              		.loc 1 234 0
+ 4663 1388 08319FE5 		ldr	r3, .L81+44
+ 4664 138c 003093E5 		ldr	r3, [r3, #0]
+ 4665 1390 012083E2 		add	r2, r3, #1
+ 4666 1394 FC309FE5 		ldr	r3, .L81+44
+ 4667 1398 002083E5 		str	r2, [r3, #0]
+ 4668 139c 0F0000EA 		b	.L80
+ 4669              	.L79:
+ 235:../snake.c    **** 		else
+ 236:../snake.c    **** 			actualizar_pos_tablero(snake_jug2[niveljug2].x, snake_jug2[niveljug2].y, VACIO); // Mandamos bor
+ 4670              		.loc 1 236 0
+ 4671 13a0 F0309FE5 		ldr	r3, .L81+44
+ 4672 13a4 002093E5 		ldr	r2, [r3, #0]
+ 4673 13a8 EC309FE5 		ldr	r3, .L81+48
+ 4674 13ac 822193E7 		ldr	r2, [r3, r2, asl #3]
+ 4675 13b0 E0309FE5 		ldr	r3, .L81+44
+ 4676 13b4 001093E5 		ldr	r1, [r3, #0]
+ 4677 13b8 DC009FE5 		ldr	r0, .L81+48
+ 4678 13bc 0430A0E3 		mov	r3, #4
+ 4679 13c0 8111A0E1 		mov	r1, r1, asl #3
+ 4680 13c4 011080E0 		add	r1, r0, r1
+ 4681 13c8 033081E0 		add	r3, r1, r3
+ 4682 13cc 003093E5 		ldr	r3, [r3, #0]
+ 4683 13d0 0200A0E1 		mov	r0, r2
+ 4684 13d4 0310A0E1 		mov	r1, r3
+ 4685 13d8 0020A0E3 		mov	r2, #0
+ 4686 13dc FEFFFFEB 		bl	actualizar_pos_tablero
+ 4687              	.L80:
+ 237:../snake.c    **** 
+ 238:../snake.c    **** 		actualizar_pos_tablero(jug1X, jug1Y, CABEZA_J1); // Mandamos pintar la cabeza del jugador 1
+ 4688              		.loc 1 238 0
+ 4689 13e0 88309FE5 		ldr	r3, .L81+4
+ 4690 13e4 002093E5 		ldr	r2, [r3, #0]
+ 4691 13e8 84309FE5 		ldr	r3, .L81+8
+ 4692 13ec 003093E5 		ldr	r3, [r3, #0]
+ 4693 13f0 0200A0E1 		mov	r0, r2
+ 4694 13f4 0310A0E1 		mov	r1, r3
+ 4695 13f8 0320A0E3 		mov	r2, #3
+ 4696 13fc FEFFFFEB 		bl	actualizar_pos_tablero
+ 239:../snake.c    **** 		actualizar_pos_tablero(snake_jug1[1].x, snake_jug1[1].y, CUERPO_J1); // Mandamos pintar el cuerpo
+ 4697              		.loc 1 239 0
+ 4698 1400 8C309FE5 		ldr	r3, .L81+40
+ 4699 1404 082093E5 		ldr	r2, [r3, #8]
+ 4700 1408 84309FE5 		ldr	r3, .L81+40
+ 4701 140c 0C3093E5 		ldr	r3, [r3, #12]
+ 4702 1410 0200A0E1 		mov	r0, r2
+ 4703 1414 0310A0E1 		mov	r1, r3
+ 4704 1418 0420A0E3 		mov	r2, #4
+ 4705 141c FEFFFFEB 		bl	actualizar_pos_tablero
+ 240:../snake.c    **** 
+ 241:../snake.c    **** 		actualizar_pos_tablero(jug2X, jug2Y, CABEZA_J2); // Mandamos pintar la cabeza del jugador 2
+ 4706              		.loc 1 241 0
+ 4707 1420 54309FE5 		ldr	r3, .L81+16
+ 4708 1424 002093E5 		ldr	r2, [r3, #0]
+ 4709 1428 50309FE5 		ldr	r3, .L81+20
+ 4710 142c 003093E5 		ldr	r3, [r3, #0]
+ 4711 1430 0200A0E1 		mov	r0, r2
+ 4712 1434 0310A0E1 		mov	r1, r3
+ 4713 1438 0520A0E3 		mov	r2, #5
+ 4714 143c FEFFFFEB 		bl	actualizar_pos_tablero
+ 242:../snake.c    **** 		actualizar_pos_tablero(snake_jug2[1].x, snake_jug2[1].y, CUERPO_J2); // Mandamos pintar el cuerpo
+ 4715              		.loc 1 242 0
+ 4716 1440 54309FE5 		ldr	r3, .L81+48
+ 4717 1444 082093E5 		ldr	r2, [r3, #8]
+ 4718 1448 4C309FE5 		ldr	r3, .L81+48
+ 4719 144c 0C3093E5 		ldr	r3, [r3, #12]
+ 4720 1450 0200A0E1 		mov	r0, r2
+ 4721 1454 0310A0E1 		mov	r1, r3
+ 4722 1458 0620A0E3 		mov	r2, #6
+ 4723 145c FEFFFFEB 		bl	actualizar_pos_tablero
+ 4724              	.L57:
+ 4725              	.LBE2:
+ 243:../snake.c    **** 	}
+ 244:../snake.c    **** }
+ 4726              		.loc 1 244 0
+ 4727 1460 0CD04BE2 		sub	sp, fp, #12
+ 4728 1464 00689DE8 		ldmfd	sp, {fp, sp, lr}
+ 4729 1468 1EFF2FE1 		bx	lr
+ 4730              	.L82:
+ 4731              		.align	2
+ 4732              	.L81:
+ 4733 146c 00000000 		.word	jug1_dir
+ 4734 1470 00000000 		.word	jug1X
+ 4735 1474 00000000 		.word	jug1Y
+ 4736 1478 00000000 		.word	jug2_dir
+ 4737 147c 00000000 		.word	jug2X
+ 4738 1480 00000000 		.word	jug2Y
+ 4739 1484 00000000 		.word	tablero
+ 4740 1488 00000000 		.word	jug1Vivo
+ 4741 148c 00000000 		.word	jug2Vivo
+ 4742 1490 00000000 		.word	niveljug1
+ 4743 1494 00000000 		.word	snake_jug1
+ 4744 1498 00000000 		.word	niveljug2
+ 4745 149c 00000000 		.word	snake_jug2
+ 4746              		.cfi_endproc
+ 4747              	.LFE7:
+ 4749              		.align	2
+ 4750              		.global	actualizar_pos_tablero
+ 4752              	actualizar_pos_tablero:
+ 4753              	.LFB8:
+ 245:../snake.c    **** 
+ 246:../snake.c    **** void actualizar_pos_tablero(int x, int y, int nuevo_valor){
+ 4754              		.loc 1 246 0
+ 4755              		.cfi_startproc
+ 4756              		@ Function supports interworking.
+ 4757              		@ args = 0, pretend = 0, frame = 16
+ 4758              		@ frame_needed = 1, uses_anonymous_args = 0
+ 4759 14a0 0DC0A0E1 		mov	ip, sp
+ 4760              	.LCFI16:
+ 4761              		.cfi_def_cfa_register 12
+ 4762 14a4 00D82DE9 		stmfd	sp!, {fp, ip, lr, pc}
+ 4763 14a8 04B04CE2 		sub	fp, ip, #4
+ 4764              		.cfi_offset 14, -8
+ 4765              		.cfi_offset 13, -12
+ 4766              		.cfi_offset 11, -16
+ 4767              	.LCFI17:
+ 4768              		.cfi_def_cfa 11, 4
+ 4769 14ac 10D04DE2 		sub	sp, sp, #16
+ 4770 14b0 10000BE5 		str	r0, [fp, #-16]
+ 4771 14b4 14100BE5 		str	r1, [fp, #-20]
+ 4772 14b8 18200BE5 		str	r2, [fp, #-24]
+ 247:../snake.c    **** 	tablero[x][y] = nuevo_valor;
+ 4773              		.loc 1 247 0
+ 4774 14bc C8109FE5 		ldr	r1, .L84
+ 4775 14c0 10201BE5 		ldr	r2, [fp, #-16]
+ 4776 14c4 0230A0E1 		mov	r3, r2
+ 4777 14c8 0331A0E1 		mov	r3, r3, asl #2
+ 4778 14cc 023083E0 		add	r3, r3, r2
+ 4779 14d0 8331A0E1 		mov	r3, r3, asl #3
+ 4780 14d4 14201BE5 		ldr	r2, [fp, #-20]
+ 4781 14d8 023083E0 		add	r3, r3, r2
+ 4782 14dc 18201BE5 		ldr	r2, [fp, #-24]
+ 4783 14e0 032181E7 		str	r2, [r1, r3, asl #2]
+ 248:../snake.c    **** 	ac[numAC].x = x;
+ 4784              		.loc 1 248 0
+ 4785 14e4 A4309FE5 		ldr	r3, .L84+4
+ 4786 14e8 002093E5 		ldr	r2, [r3, #0]
+ 4787 14ec A0109FE5 		ldr	r1, .L84+8
+ 4788 14f0 0230A0E1 		mov	r3, r2
+ 4789 14f4 8330A0E1 		mov	r3, r3, asl #1
+ 4790 14f8 023083E0 		add	r3, r3, r2
+ 4791 14fc 0331A0E1 		mov	r3, r3, asl #2
+ 4792 1500 033081E0 		add	r3, r1, r3
+ 4793 1504 10201BE5 		ldr	r2, [fp, #-16]
+ 4794 1508 002083E5 		str	r2, [r3, #0]
+ 249:../snake.c    **** 	ac[numAC].y = y;
+ 4795              		.loc 1 249 0
+ 4796 150c 7C309FE5 		ldr	r3, .L84+4
+ 4797 1510 002093E5 		ldr	r2, [r3, #0]
+ 4798 1514 78009FE5 		ldr	r0, .L84+8
+ 4799 1518 0410A0E3 		mov	r1, #4
+ 4800 151c 0230A0E1 		mov	r3, r2
+ 4801 1520 8330A0E1 		mov	r3, r3, asl #1
+ 4802 1524 023083E0 		add	r3, r3, r2
+ 4803 1528 0331A0E1 		mov	r3, r3, asl #2
+ 4804 152c 033080E0 		add	r3, r0, r3
+ 4805 1530 013083E0 		add	r3, r3, r1
+ 4806 1534 14201BE5 		ldr	r2, [fp, #-20]
+ 4807 1538 002083E5 		str	r2, [r3, #0]
+ 250:../snake.c    **** 	ac[numAC].nuevo_valor = nuevo_valor;
+ 4808              		.loc 1 250 0
+ 4809 153c 4C309FE5 		ldr	r3, .L84+4
+ 4810 1540 002093E5 		ldr	r2, [r3, #0]
+ 4811 1544 48009FE5 		ldr	r0, .L84+8
+ 4812 1548 0810A0E3 		mov	r1, #8
+ 4813 154c 0230A0E1 		mov	r3, r2
+ 4814 1550 8330A0E1 		mov	r3, r3, asl #1
+ 4815 1554 023083E0 		add	r3, r3, r2
+ 4816 1558 0331A0E1 		mov	r3, r3, asl #2
+ 4817 155c 033080E0 		add	r3, r0, r3
+ 4818 1560 013083E0 		add	r3, r3, r1
+ 4819 1564 18201BE5 		ldr	r2, [fp, #-24]
+ 4820 1568 002083E5 		str	r2, [r3, #0]
+ 251:../snake.c    **** 	numAC++;
+ 4821              		.loc 1 251 0
+ 4822 156c 1C309FE5 		ldr	r3, .L84+4
+ 4823 1570 003093E5 		ldr	r3, [r3, #0]
+ 4824 1574 012083E2 		add	r2, r3, #1
+ 4825 1578 10309FE5 		ldr	r3, .L84+4
+ 4826 157c 002083E5 		str	r2, [r3, #0]
+ 252:../snake.c    **** 
+ 253:../snake.c    **** }
+ 4827              		.loc 1 253 0
+ 4828 1580 0CD04BE2 		sub	sp, fp, #12
+ 4829 1584 00689DE8 		ldmfd	sp, {fp, sp, lr}
+ 4830 1588 1EFF2FE1 		bx	lr
+ 4831              	.L85:
+ 4832              		.align	2
+ 4833              	.L84:
+ 4834 158c 00000000 		.word	tablero
+ 4835 1590 00000000 		.word	numAC
+ 4836 1594 00000000 		.word	ac
+ 4837              		.cfi_endproc
+ 4838              	.LFE8:
+ 4840              		.align	2
+ 4841              		.global	generarFruta
+ 4843              	generarFruta:
+ 4844              	.LFB9:
+ 254:../snake.c    **** 
+ 255:../snake.c    **** void generarFruta(void) {
+ 4845              		.loc 1 255 0
+ 4846              		.cfi_startproc
+ 4847              		@ Function supports interworking.
+ 4848              		@ args = 0, pretend = 0, frame = 8
+ 4849              		@ frame_needed = 1, uses_anonymous_args = 0
+ 4850 1598 0DC0A0E1 		mov	ip, sp
+ 4851              	.LCFI18:
+ 4852              		.cfi_def_cfa_register 12
+ 4853 159c 00D82DE9 		stmfd	sp!, {fp, ip, lr, pc}
+ 4854 15a0 04B04CE2 		sub	fp, ip, #4
+ 4855              		.cfi_offset 14, -8
+ 4856              		.cfi_offset 13, -12
+ 4857              		.cfi_offset 11, -16
+ 4858              	.LCFI19:
+ 4859              		.cfi_def_cfa 11, 4
+ 4860 15a4 08D04DE2 		sub	sp, sp, #8
+ 256:../snake.c    **** 	// Quitamos (si existe) la fruta anterior
+ 257:../snake.c    **** 	actualizar_pos_tablero(frutaX, frutaY, VACIO);
+ 4861              		.loc 1 257 0
+ 4862 15a8 94319FE5 		ldr	r3, .L88
+ 4863 15ac 002093E5 		ldr	r2, [r3, #0]
+ 4864 15b0 90319FE5 		ldr	r3, .L88+4
+ 4865 15b4 003093E5 		ldr	r3, [r3, #0]
+ 4866 15b8 0200A0E1 		mov	r0, r2
+ 4867 15bc 0310A0E1 		mov	r1, r3
+ 4868 15c0 0020A0E3 		mov	r2, #0
+ 4869 15c4 FEFFFFEB 		bl	actualizar_pos_tablero
+ 4870              	.L87:
+ 4871              	.LBB3:
+ 258:../snake.c    **** 
+ 259:../snake.c    **** 	// Ponemos la fruta nueva
+ 260:../snake.c    **** 	do {
+ 261:../snake.c    **** 		int r = 7;//rand() % COLUMNAS;
+ 4872              		.loc 1 261 0 discriminator 1
+ 4873 15c8 0730A0E3 		mov	r3, #7
+ 4874 15cc 10300BE5 		str	r3, [fp, #-16]
+ 262:../snake.c    **** 		frutaX = ( (r + jug1X + jug2X) % (FILAS - 2)) + 1;
+ 4875              		.loc 1 262 0 discriminator 1
+ 4876 15d0 74319FE5 		ldr	r3, .L88+8
+ 4877 15d4 002093E5 		ldr	r2, [r3, #0]
+ 4878 15d8 10301BE5 		ldr	r3, [fp, #-16]
+ 4879 15dc 032082E0 		add	r2, r2, r3
+ 4880 15e0 68319FE5 		ldr	r3, .L88+12
+ 4881 15e4 003093E5 		ldr	r3, [r3, #0]
+ 4882 15e8 031082E0 		add	r1, r2, r3
+ 4883 15ec 60319FE5 		ldr	r3, .L88+16
+ 4884 15f0 9123C3E0 		smull	r2, r3, r1, r3
+ 4885 15f4 013083E0 		add	r3, r3, r1
+ 4886 15f8 4322A0E1 		mov	r2, r3, asr #4
+ 4887 15fc C13FA0E1 		mov	r3, r1, asr #31
+ 4888 1600 022063E0 		rsb	r2, r3, r2
+ 4889 1604 0230A0E1 		mov	r3, r2
+ 4890 1608 8331A0E1 		mov	r3, r3, asl #3
+ 4891 160c 033062E0 		rsb	r3, r2, r3
+ 4892 1610 0331A0E1 		mov	r3, r3, asl #2
+ 4893 1614 012063E0 		rsb	r2, r3, r1
+ 4894 1618 012082E2 		add	r2, r2, #1
+ 4895 161c 20319FE5 		ldr	r3, .L88
+ 4896 1620 002083E5 		str	r2, [r3, #0]
+ 263:../snake.c    **** 		frutaY = ( (r + jug1Y + jug2Y) % (COLUMNAS - 2)) + 1;
+ 4897              		.loc 1 263 0 discriminator 1
+ 4898 1624 2C319FE5 		ldr	r3, .L88+20
+ 4899 1628 002093E5 		ldr	r2, [r3, #0]
+ 4900 162c 10301BE5 		ldr	r3, [fp, #-16]
+ 4901 1630 032082E0 		add	r2, r2, r3
+ 4902 1634 20319FE5 		ldr	r3, .L88+24
+ 4903 1638 003093E5 		ldr	r3, [r3, #0]
+ 4904 163c 031082E0 		add	r1, r2, r3
+ 4905 1640 18319FE5 		ldr	r3, .L88+28
+ 4906 1644 9123C3E0 		smull	r2, r3, r1, r3
+ 4907 1648 4322A0E1 		mov	r2, r3, asr #4
+ 4908 164c C13FA0E1 		mov	r3, r1, asr #31
+ 4909 1650 022063E0 		rsb	r2, r3, r2
+ 4910 1654 0230A0E1 		mov	r3, r2
+ 4911 1658 8331A0E1 		mov	r3, r3, asl #3
+ 4912 165c 023083E0 		add	r3, r3, r2
+ 4913 1660 8330A0E1 		mov	r3, r3, asl #1
+ 4914 1664 023083E0 		add	r3, r3, r2
+ 4915 1668 8330A0E1 		mov	r3, r3, asl #1
+ 4916 166c 012063E0 		rsb	r2, r3, r1
+ 4917 1670 012082E2 		add	r2, r2, #1
+ 4918 1674 CC309FE5 		ldr	r3, .L88+4
+ 4919 1678 002083E5 		str	r2, [r3, #0]
+ 4920              	.LBE3:
+ 264:../snake.c    **** 	}while ( tablero[frutaX][frutaY] == MURO || tablero[frutaX][frutaY] == CABEZA_J1 || tablero[frutaX
+ 4921              		.loc 1 264 0 discriminator 1
+ 4922 167c C0309FE5 		ldr	r3, .L88
+ 4923 1680 002093E5 		ldr	r2, [r3, #0]
+ 4924 1684 BC309FE5 		ldr	r3, .L88+4
+ 4925 1688 000093E5 		ldr	r0, [r3, #0]
+ 4926 168c D0109FE5 		ldr	r1, .L88+32
+ 4927 1690 0230A0E1 		mov	r3, r2
+ 4928 1694 0331A0E1 		mov	r3, r3, asl #2
+ 4929 1698 023083E0 		add	r3, r3, r2
+ 4930 169c 8331A0E1 		mov	r3, r3, asl #3
+ 4931 16a0 003083E0 		add	r3, r3, r0
+ 4932 16a4 033191E7 		ldr	r3, [r1, r3, asl #2]
+ 4933 16a8 010053E3 		cmp	r3, #1
+ 4934 16ac C5FFFF0A 		beq	.L87
+ 4935              		.loc 1 264 0 is_stmt 0 discriminator 2
+ 4936 16b0 8C309FE5 		ldr	r3, .L88
+ 4937 16b4 002093E5 		ldr	r2, [r3, #0]
+ 4938 16b8 88309FE5 		ldr	r3, .L88+4
+ 4939 16bc 000093E5 		ldr	r0, [r3, #0]
+ 4940 16c0 9C109FE5 		ldr	r1, .L88+32
+ 4941 16c4 0230A0E1 		mov	r3, r2
+ 4942 16c8 0331A0E1 		mov	r3, r3, asl #2
+ 4943 16cc 023083E0 		add	r3, r3, r2
+ 4944 16d0 8331A0E1 		mov	r3, r3, asl #3
+ 4945 16d4 003083E0 		add	r3, r3, r0
+ 4946 16d8 033191E7 		ldr	r3, [r1, r3, asl #2]
+ 4947 16dc 030053E3 		cmp	r3, #3
+ 4948 16e0 B8FFFF0A 		beq	.L87
+ 4949              		.loc 1 264 0 discriminator 1
+ 4950 16e4 58309FE5 		ldr	r3, .L88
+ 4951 16e8 002093E5 		ldr	r2, [r3, #0]
+ 4952 16ec 54309FE5 		ldr	r3, .L88+4
+ 4953 16f0 000093E5 		ldr	r0, [r3, #0]
+ 4954 16f4 68109FE5 		ldr	r1, .L88+32
+ 4955 16f8 0230A0E1 		mov	r3, r2
+ 4956 16fc 0331A0E1 		mov	r3, r3, asl #2
+ 4957 1700 023083E0 		add	r3, r3, r2
+ 4958 1704 8331A0E1 		mov	r3, r3, asl #3
+ 4959 1708 003083E0 		add	r3, r3, r0
+ 4960 170c 033191E7 		ldr	r3, [r1, r3, asl #2]
+ 4961 1710 040053E3 		cmp	r3, #4
+ 4962 1714 ABFFFF0A 		beq	.L87
+ 265:../snake.c    **** 
+ 266:../snake.c    **** 	actualizar_pos_tablero(frutaX, frutaY, FRUTA);
+ 4963              		.loc 1 266 0 is_stmt 1
+ 4964 1718 24309FE5 		ldr	r3, .L88
+ 4965 171c 002093E5 		ldr	r2, [r3, #0]
+ 4966 1720 20309FE5 		ldr	r3, .L88+4
+ 4967 1724 003093E5 		ldr	r3, [r3, #0]
+ 4968 1728 0200A0E1 		mov	r0, r2
+ 4969 172c 0310A0E1 		mov	r1, r3
+ 4970 1730 0220A0E3 		mov	r2, #2
+ 4971 1734 FEFFFFEB 		bl	actualizar_pos_tablero
+ 267:../snake.c    **** }
+ 4972              		.loc 1 267 0
+ 4973 1738 0CD04BE2 		sub	sp, fp, #12
+ 4974 173c 00689DE8 		ldmfd	sp, {fp, sp, lr}
+ 4975 1740 1EFF2FE1 		bx	lr
+ 4976              	.L89:
+ 4977              		.align	2
+ 4978              	.L88:
+ 4979 1744 00000000 		.word	frutaX
+ 4980 1748 00000000 		.word	frutaY
+ 4981 174c 00000000 		.word	jug1X
+ 4982 1750 00000000 		.word	jug2X
+ 4983 1754 93244992 		.word	-1840700269
+ 4984 1758 00000000 		.word	jug1Y
+ 4985 175c 00000000 		.word	jug2Y
+ 4986 1760 F31ACA6B 		.word	1808407283
+ 4987 1764 00000000 		.word	tablero
+ 4988              		.cfi_endproc
+ 4989              	.LFE9:
+ 4991              		.align	2
+ 4992              		.global	enviar_direccion
+ 4994              	enviar_direccion:
+ 4995              	.LFB10:
+ 268:../snake.c    **** 
+ 269:../snake.c    **** void enviar_direccion(void) {
+ 4996              		.loc 1 269 0
+ 4997              		.cfi_startproc
+ 4998              		@ Function supports interworking.
+ 4999              		@ args = 0, pretend = 0, frame = 0
+ 5000              		@ frame_needed = 1, uses_anonymous_args = 0
+ 5001 1768 0DC0A0E1 		mov	ip, sp
+ 5002              	.LCFI20:
+ 5003              		.cfi_def_cfa_register 12
+ 5004 176c 00D82DE9 		stmfd	sp!, {fp, ip, lr, pc}
+ 5005 1770 04B04CE2 		sub	fp, ip, #4
+ 5006              		.cfi_offset 14, -8
+ 5007              		.cfi_offset 13, -12
+ 5008              		.cfi_offset 11, -16
+ 5009              	.LCFI21:
+ 5010              		.cfi_def_cfa 11, 4
+ 270:../snake.c    **** 	Uart1_SendByte(jug1_dir);
+ 5011              		.loc 1 270 0
+ 5012 1774 14309FE5 		ldr	r3, .L91
+ 5013 1778 0030D3E5 		ldrb	r3, [r3, #0]	@ zero_extendqisi2
+ 5014 177c 0300A0E1 		mov	r0, r3
+ 5015 1780 FEFFFFEB 		bl	Uart1_SendByte
+ 271:../snake.c    **** }
+ 5016              		.loc 1 271 0
+ 5017 1784 0CD04BE2 		sub	sp, fp, #12
+ 5018 1788 00689DE8 		ldmfd	sp, {fp, sp, lr}
+ 5019 178c 1EFF2FE1 		bx	lr
+ 5020              	.L92:
+ 5021              		.align	2
+ 5022              	.L91:
+ 5023 1790 00000000 		.word	jug1_dir
+ 5024              		.cfi_endproc
+ 5025              	.LFE10:
+ 5027              		.align	2
+ 5028              		.global	recibir_direccion
+ 5030              	recibir_direccion:
+ 5031              	.LFB11:
+ 272:../snake.c    **** 
+ 273:../snake.c    **** void recibir_direccion(void) {
+ 5032              		.loc 1 273 0
+ 5033              		.cfi_startproc
+ 5034              		@ Function supports interworking.
+ 5035              		@ args = 0, pretend = 0, frame = 0
+ 5036              		@ frame_needed = 1, uses_anonymous_args = 0
+ 5037 1794 0DC0A0E1 		mov	ip, sp
+ 5038              	.LCFI22:
+ 5039              		.cfi_def_cfa_register 12
+ 5040 1798 00D82DE9 		stmfd	sp!, {fp, ip, lr, pc}
+ 5041 179c 04B04CE2 		sub	fp, ip, #4
+ 5042              		.cfi_offset 14, -8
+ 5043              		.cfi_offset 13, -12
+ 5044              		.cfi_offset 11, -16
+ 5045              	.LCFI23:
+ 5046              		.cfi_def_cfa 11, 4
+ 274:../snake.c    **** 	jug2_dir = Uart1_Getch();
+ 5047              		.loc 1 274 0
+ 5048 17a0 FEFFFFEB 		bl	Uart1_Getch
+ 5049 17a4 0030A0E1 		mov	r3, r0
+ 5050 17a8 0320A0E1 		mov	r2, r3
+ 5051 17ac 0C309FE5 		ldr	r3, .L94
+ 5052 17b0 0020C3E5 		strb	r2, [r3, #0]
+ 275:../snake.c    **** }
+ 5053              		.loc 1 275 0
+ 5054 17b4 0CD04BE2 		sub	sp, fp, #12
+ 5055 17b8 00689DE8 		ldmfd	sp, {fp, sp, lr}
+ 5056 17bc 1EFF2FE1 		bx	lr
+ 5057              	.L95:
+ 5058              		.align	2
+ 5059              	.L94:
+ 5060 17c0 00000000 		.word	jug2_dir
+ 5061              		.cfi_endproc
+ 5062              	.LFE11:
+ 5064              		.align	2
+ 5065              		.global	enviar_perdido
+ 5067              	enviar_perdido:
+ 5068              	.LFB12:
+ 276:../snake.c    **** 
+ 277:../snake.c    **** void enviar_perdido(void) {
+ 5069              		.loc 1 277 0
+ 5070              		.cfi_startproc
+ 5071              		@ Function supports interworking.
+ 5072              		@ args = 0, pretend = 0, frame = 0
+ 5073              		@ frame_needed = 1, uses_anonymous_args = 0
+ 5074 17c4 0DC0A0E1 		mov	ip, sp
+ 5075              	.LCFI24:
+ 5076              		.cfi_def_cfa_register 12
+ 5077 17c8 00D82DE9 		stmfd	sp!, {fp, ip, lr, pc}
+ 5078 17cc 04B04CE2 		sub	fp, ip, #4
+ 5079              		.cfi_offset 14, -8
+ 5080              		.cfi_offset 13, -12
+ 5081              		.cfi_offset 11, -16
+ 5082              	.LCFI25:
+ 5083              		.cfi_def_cfa 11, 4
+ 278:../snake.c    **** 	Uart1_SendByte('F');
+ 5084              		.loc 1 278 0
+ 5085 17d0 4600A0E3 		mov	r0, #70
+ 5086 17d4 FEFFFFEB 		bl	Uart1_SendByte
+ 279:../snake.c    **** }
+ 5087              		.loc 1 279 0
+ 5088 17d8 0CD04BE2 		sub	sp, fp, #12
+ 5089 17dc 00689DE8 		ldmfd	sp, {fp, sp, lr}
+ 5090 17e0 1EFF2FE1 		bx	lr
+ 5091              		.cfi_endproc
+ 5092              	.LFE12:
+ 5094              	.Letext0:
+DEFINED SYMBOLS
+                            *ABS*:00000000 snake.c
+                            *COM*:000012c0 tablero
+                            *COM*:00002580 snake_jug1
+                            *COM*:00002580 snake_jug2
+                            *COM*:00000004 niveljug1
+                            *COM*:00000004 niveljug2
+                            *COM*:00000004 jug1X
+                            *COM*:00000004 jug1Y
+                            *COM*:00000004 jug2X
+                            *COM*:00000004 jug2Y
+                            *COM*:00000001 jug1_dir
+                            *COM*:00000001 jug2_dir
+                            *COM*:00000004 jug1Vivo
+                            *COM*:00000004 jug2Vivo
+                            *COM*:00000004 numAC
+                            *COM*:00000004 frutaX
+                            *COM*:00000004 frutaY
+                            *COM*:00000078 ac
+C:\Users\USUARI~1\AppData\Local\Temp\ccx506sE.s:3014   .text:00000000 $a
+C:\Users\USUARI~1\AppData\Local\Temp\ccx506sE.s:3017   .text:00000000 iniciar_snake
+C:\Users\USUARI~1\AppData\Local\Temp\ccx506sE.s:3091   .text:0000009c crear_tablero
+C:\Users\USUARI~1\AppData\Local\Temp\ccx506sE.s:3217   .text:000001d0 crear_jugadores_tipoA
+C:\Users\USUARI~1\AppData\Local\Temp\ccx506sE.s:3396   .text:000003e4 crear_jugadores_tipoB
+C:\Users\USUARI~1\AppData\Local\Temp\ccx506sE.s:4752   .text:000014a0 actualizar_pos_tablero
+C:\Users\USUARI~1\AppData\Local\Temp\ccx506sE.s:3082   .text:00000090 $d
+C:\Users\USUARI~1\AppData\Local\Temp\ccx506sE.s:3088   .text:0000009c $a
+C:\Users\USUARI~1\AppData\Local\Temp\ccx506sE.s:3210   .text:000001cc $d
+C:\Users\USUARI~1\AppData\Local\Temp\ccx506sE.s:3214   .text:000001d0 $a
+C:\Users\USUARI~1\AppData\Local\Temp\ccx506sE.s:3377   .text:000003b0 $d
+C:\Users\USUARI~1\AppData\Local\Temp\ccx506sE.s:3393   .text:000003e4 $a
+C:\Users\USUARI~1\AppData\Local\Temp\ccx506sE.s:3556   .text:000005c4 $d
+C:\Users\USUARI~1\AppData\Local\Temp\ccx506sE.s:3572   .text:000005f8 $a
+C:\Users\USUARI~1\AppData\Local\Temp\ccx506sE.s:3575   .text:000005f8 pintar
+C:\Users\USUARI~1\AppData\Local\Temp\ccx506sE.s:3664   .text:000006d8 $d
+C:\Users\USUARI~1\AppData\Local\Temp\ccx506sE.s:3668   .text:000006dc $a
+C:\Users\USUARI~1\AppData\Local\Temp\ccx506sE.s:3671   .text:000006dc repintar
+C:\Users\USUARI~1\AppData\Local\Temp\ccx506sE.s:4233   .text:00000eb0 $d
+C:\Users\USUARI~1\AppData\Local\Temp\ccx506sE.s:4239   .text:00000ebc $a
+C:\Users\USUARI~1\AppData\Local\Temp\ccx506sE.s:4242   .text:00000ebc cambiar_direccion_jugador1
+C:\Users\USUARI~1\AppData\Local\Temp\ccx506sE.s:4314   .text:00000f5c $d
+C:\Users\USUARI~1\AppData\Local\Temp\ccx506sE.s:4318   .text:00000f60 $a
+C:\Users\USUARI~1\AppData\Local\Temp\ccx506sE.s:4321   .text:00000f60 actualizar
+C:\Users\USUARI~1\AppData\Local\Temp\ccx506sE.s:4347   .text:00000f88 $d
+C:\Users\USUARI~1\AppData\Local\Temp\ccx506sE.s:4367   .text:00000fd0 $a
+C:\Users\USUARI~1\AppData\Local\Temp\ccx506sE.s:4410   .text:00001048 $d
+C:\Users\USUARI~1\AppData\Local\Temp\ccx506sE.s:4430   .text:00001090 $a
+C:\Users\USUARI~1\AppData\Local\Temp\ccx506sE.s:4733   .text:0000146c $d
+C:\Users\USUARI~1\AppData\Local\Temp\ccx506sE.s:4749   .text:000014a0 $a
+C:\Users\USUARI~1\AppData\Local\Temp\ccx506sE.s:4834   .text:0000158c $d
+C:\Users\USUARI~1\AppData\Local\Temp\ccx506sE.s:4840   .text:00001598 $a
+C:\Users\USUARI~1\AppData\Local\Temp\ccx506sE.s:4843   .text:00001598 generarFruta
+C:\Users\USUARI~1\AppData\Local\Temp\ccx506sE.s:4979   .text:00001744 $d
+C:\Users\USUARI~1\AppData\Local\Temp\ccx506sE.s:4991   .text:00001768 $a
+C:\Users\USUARI~1\AppData\Local\Temp\ccx506sE.s:4994   .text:00001768 enviar_direccion
+C:\Users\USUARI~1\AppData\Local\Temp\ccx506sE.s:5023   .text:00001790 $d
+C:\Users\USUARI~1\AppData\Local\Temp\ccx506sE.s:5027   .text:00001794 $a
+C:\Users\USUARI~1\AppData\Local\Temp\ccx506sE.s:5030   .text:00001794 recibir_direccion
+C:\Users\USUARI~1\AppData\Local\Temp\ccx506sE.s:5060   .text:000017c0 $d
+C:\Users\USUARI~1\AppData\Local\Temp\ccx506sE.s:5064   .text:000017c4 $a
+C:\Users\USUARI~1\AppData\Local\Temp\ccx506sE.s:5067   .text:000017c4 enviar_perdido
+                     .debug_frame:00000010 $d
+
+UNDEFINED SYMBOLS
+lcd_pintar_muro
+lcd_pintar_cabeza_serpiente_arriba
+lcd_pintar_cabeza_serpiente_abajo
+lcd_pintar_cabeza_serpiente_izquierda
+lcd_pintar_cabeza_serpiente_derecha
+lcd_pintar_celda
+lcd_pintar_cuerpo_serpiente1
+lcd_pintar_cuerpo_serpiente2
+lcd_pintar_naranja
+lcd_pintar_platano
+lcd_pintar_cereza
+Uart1_SendByte
+Uart1_Getch

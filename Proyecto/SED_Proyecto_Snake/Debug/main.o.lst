@@ -1,0 +1,358 @@
+   1              		.cpu arm7tdmi
+   2              		.fpu softvfp
+   3              		.eabi_attribute 20, 1
+   4              		.eabi_attribute 21, 1
+   5              		.eabi_attribute 23, 3
+   6              		.eabi_attribute 24, 1
+   7              		.eabi_attribute 25, 1
+   8              		.eabi_attribute 26, 1
+   9              		.eabi_attribute 30, 6
+  10              		.eabi_attribute 18, 4
+  11              		.file	"main.c"
+  21              	.Ltext0:
+  22              		.file 1 "../main.c"
+ 2061              		.align	2
+ 2062              		.global	Main
+ 2064              	Main:
+ 2065              	.LFB0:
+   1:../main.c     **** /*--- ficheros de cabecera ---*/
+   2:../main.c     **** #include "44blib.h"
+   3:../main.c     **** #include "44b.h"
+   4:../main.c     **** #include "uart.h"
+   5:../main.c     **** #include "lcd.h"
+   6:../main.c     **** #include "snake.h"
+   7:../main.c     **** 
+   8:../main.c     **** /*--- Externas ---*/
+   9:../main.c     ****  extern void Eint4567_init(void);
+  10:../main.c     ****  extern void keyboard_init();
+  11:../main.c     ****  extern void D8Led_init(void);
+  12:../main.c     ****  extern void D8Led_symbol(int value);
+  13:../main.c     **** /*--- declaracion de funciones ---*/
+  14:../main.c     **** int Main(void);
+  15:../main.c     **** 
+  16:../main.c     **** 
+  17:../main.c     **** 
+  18:../main.c     **** 
+  19:../main.c     **** /*--- codigo de la funcion ---*/
+  20:../main.c     **** int Main(void){
+ 2066              		.loc 1 20 0
+ 2067              		.cfi_startproc
+ 2068              		@ Function supports interworking.
+ 2069              		@ args = 0, pretend = 0, frame = 8
+ 2070              		@ frame_needed = 1, uses_anonymous_args = 0
+ 2071 0000 0DC0A0E1 		mov	ip, sp
+ 2072              	.LCFI0:
+ 2073              		.cfi_def_cfa_register 12
+ 2074 0004 00D82DE9 		stmfd	sp!, {fp, ip, lr, pc}
+ 2075 0008 04B04CE2 		sub	fp, ip, #4
+ 2076              		.cfi_offset 14, -8
+ 2077              		.cfi_offset 13, -12
+ 2078              		.cfi_offset 11, -16
+ 2079              	.LCFI1:
+ 2080              		.cfi_def_cfa 11, 4
+ 2081 000c 08D04DE2 		sub	sp, sp, #8
+  21:../main.c     **** 
+  22:../main.c     **** 	sys_init(); // inicializacion de la placa, interrupciones, puertos
+ 2082              		.loc 1 22 0
+ 2083 0010 FEFFFFEB 		bl	sys_init
+  23:../main.c     **** 
+  24:../main.c     ****     //Inicializamos los botones
+  25:../main.c     ****     rPCONG = rPCONG & 0xffff0fff;
+ 2084              		.loc 1 25 0
+ 2085 0014 6C319FE5 		ldr	r3, .L14
+ 2086 0018 68219FE5 		ldr	r2, .L14
+ 2087 001c 002092E5 		ldr	r2, [r2, #0]
+ 2088 0020 0F2AC2E3 		bic	r2, r2, #61440
+ 2089 0024 002083E5 		str	r2, [r3, #0]
+  26:../main.c     ****     rPUPG = 0;
+ 2090              		.loc 1 26 0
+ 2091 0028 5C319FE5 		ldr	r3, .L14+4
+ 2092 002c 0020A0E3 		mov	r2, #0
+ 2093 0030 002083E5 		str	r2, [r3, #0]
+  27:../main.c     **** 
+  28:../main.c     ****     lcd_init();
+ 2094              		.loc 1 28 0
+ 2095 0034 FEFFFFEB 		bl	lcd_init
+  29:../main.c     **** 
+  30:../main.c     ****     Eint4567_init();
+ 2096              		.loc 1 30 0
+ 2097 0038 FEFFFFEB 		bl	Eint4567_init
+  31:../main.c     **** 
+  32:../main.c     ****     keyboard_init();
+ 2098              		.loc 1 32 0
+ 2099 003c FEFFFFEB 		bl	keyboard_init
+  33:../main.c     **** 
+  34:../main.c     ****     timer_init(); // Inicializacion del temporizador
+ 2100              		.loc 1 34 0
+ 2101 0040 FEFFFFEB 		bl	timer_init
+  35:../main.c     **** 
+  36:../main.c     ****     D8Led_init();
+ 2102              		.loc 1 36 0
+ 2103 0044 FEFFFFEB 		bl	D8Led_init
+  37:../main.c     ****     D8Led_symbol(0);
+ 2104              		.loc 1 37 0
+ 2105 0048 0000A0E3 		mov	r0, #0
+ 2106 004c FEFFFFEB 		bl	D8Led_symbol
+  38:../main.c     **** 
+  39:../main.c     **** 
+  40:../main.c     **** 	Uart_Init(115200); 		// inicializacion de la Uart
+ 2107              		.loc 1 40 0
+ 2108 0050 38019FE5 		ldr	r0, .L14+8
+ 2109 0054 FEFFFFEB 		bl	Uart_Init
+  41:../main.c     **** 	Uart_Config(); 			// configuración de interrupciones y buffers
+ 2110              		.loc 1 41 0
+ 2111 0058 FEFFFFEB 		bl	Uart_Config
+  42:../main.c     **** 
+  43:../main.c     **** 
+  44:../main.c     **** 	D8Led_symbol(0);
+ 2112              		.loc 1 44 0
+ 2113 005c 0000A0E3 		mov	r0, #0
+ 2114 0060 FEFFFFEB 		bl	D8Led_symbol
+  45:../main.c     **** 	Uart1_TxEmpty();
+ 2115              		.loc 1 45 0
+ 2116 0064 FEFFFFEB 		bl	Uart1_TxEmpty
+  46:../main.c     **** 
+  47:../main.c     **** 	lcd_draw_esperar_otro_jugador();
+ 2117              		.loc 1 47 0
+ 2118 0068 FEFFFFEB 		bl	lcd_draw_esperar_otro_jugador
+  48:../main.c     **** 
+  49:../main.c     **** 	// Esperamos a recibir el id del jugador (1 o 2)
+  50:../main.c     **** 	char id = Uart1_Getch();
+ 2119              		.loc 1 50 0
+ 2120 006c FEFFFFEB 		bl	Uart1_Getch
+ 2121 0070 0030A0E1 		mov	r3, r0
+ 2122 0074 0E304BE5 		strb	r3, [fp, #-14]
+  51:../main.c     **** 	char dir = '\0';
+ 2123              		.loc 1 51 0
+ 2124 0078 0030A0E3 		mov	r3, #0
+ 2125 007c 0D304BE5 		strb	r3, [fp, #-13]
+ 2126              	.L13:
+ 2127              	.LBB2:
+  52:../main.c     **** 
+  53:../main.c     ****     while(1) {
+  54:../main.c     **** 
+  55:../main.c     ****     	lcd_clear();
+ 2128              		.loc 1 55 0
+ 2129 0080 FEFFFFEB 		bl	lcd_clear
+  56:../main.c     **** 
+  57:../main.c     ****     	if ( id == '1' ) {
+ 2130              		.loc 1 57 0
+ 2131 0084 0E305BE5 		ldrb	r3, [fp, #-14]	@ zero_extendqisi2
+ 2132 0088 310053E3 		cmp	r3, #49
+ 2133 008c 0A00001A 		bne	.L2
+  58:../main.c     ****     		D8Led_symbol(1);
+ 2134              		.loc 1 58 0
+ 2135 0090 0100A0E3 		mov	r0, #1
+ 2136 0094 FEFFFFEB 		bl	D8Led_symbol
+  59:../main.c     ****     		while( !(rPDATG & 0x00000040) == 0 ) {}
+ 2137              		.loc 1 59 0
+ 2138 0098 0000A0E1 		mov	r0, r0	@ nop
+ 2139              	.L3:
+ 2140              		.loc 1 59 0 is_stmt 0 discriminator 1
+ 2141 009c F0309FE5 		ldr	r3, .L14+12
+ 2142 00a0 003093E5 		ldr	r3, [r3, #0]
+ 2143 00a4 403003E2 		and	r3, r3, #64
+ 2144 00a8 000053E3 		cmp	r3, #0
+ 2145 00ac FAFFFF1A 		bne	.L3
+  60:../main.c     ****     		Uart1_SendByte('E');
+ 2146              		.loc 1 60 0 is_stmt 1
+ 2147 00b0 4500A0E3 		mov	r0, #69
+ 2148 00b4 FEFFFFEB 		bl	Uart1_SendByte
+ 2149 00b8 0E0000EA 		b	.L4
+ 2150              	.L2:
+  61:../main.c     ****     	}
+  62:../main.c     ****     	else if ( id == '2'){
+ 2151              		.loc 1 62 0
+ 2152 00bc 0E305BE5 		ldrb	r3, [fp, #-14]	@ zero_extendqisi2
+ 2153 00c0 320053E3 		cmp	r3, #50
+ 2154 00c4 0B00001A 		bne	.L4
+  63:../main.c     ****     		D8Led_symbol(2);
+ 2155              		.loc 1 63 0
+ 2156 00c8 0200A0E3 		mov	r0, #2
+ 2157 00cc FEFFFFEB 		bl	D8Led_symbol
+  64:../main.c     **** 
+  65:../main.c     **** //    		lcd_draw_esperar_otro_jugador();
+  66:../main.c     **** 
+  67:../main.c     ****     		dir = Uart1_Getch();
+ 2158              		.loc 1 67 0
+ 2159 00d0 FEFFFFEB 		bl	Uart1_Getch
+ 2160 00d4 0030A0E1 		mov	r3, r0
+ 2161 00d8 0D304BE5 		strb	r3, [fp, #-13]
+  68:../main.c     ****     		while( dir != 'E') {
+ 2162              		.loc 1 68 0
+ 2163 00dc 020000EA 		b	.L5
+ 2164              	.L6:
+  69:../main.c     ****     			dir = Uart1_Getch();
+ 2165              		.loc 1 69 0
+ 2166 00e0 FEFFFFEB 		bl	Uart1_Getch
+ 2167 00e4 0030A0E1 		mov	r3, r0
+ 2168 00e8 0D304BE5 		strb	r3, [fp, #-13]
+ 2169              	.L5:
+  68:../main.c     ****     		while( dir != 'E') {
+ 2170              		.loc 1 68 0 discriminator 1
+ 2171 00ec 0D305BE5 		ldrb	r3, [fp, #-13]	@ zero_extendqisi2
+ 2172 00f0 450053E3 		cmp	r3, #69
+ 2173 00f4 F9FFFF1A 		bne	.L6
+ 2174              	.L4:
+  70:../main.c     ****     		}
+  71:../main.c     ****     	}
+  72:../main.c     **** 
+  73:../main.c     **** 
+  74:../main.c     **** 		iniciar_snake(id);
+ 2175              		.loc 1 74 0
+ 2176 00f8 0E305BE5 		ldrb	r3, [fp, #-14]	@ zero_extendqisi2
+ 2177 00fc 0300A0E1 		mov	r0, r3
+ 2178 0100 FEFFFFEB 		bl	iniciar_snake
+  75:../main.c     **** 		pintar();
+ 2179              		.loc 1 75 0
+ 2180 0104 FEFFFFEB 		bl	pintar
+  76:../main.c     **** 		enciende_timer0();
+ 2181              		.loc 1 76 0
+ 2182 0108 FEFFFFEB 		bl	enciende_timer0
+  77:../main.c     **** 
+  78:../main.c     **** 		while (jug1Vivo && jug2_dir != 'F') {
+ 2183              		.loc 1 78 0
+ 2184 010c 0E0000EA 		b	.L7
+ 2185              	.L11:
+  79:../main.c     **** 
+  80:../main.c     **** 
+  81:../main.c     **** 			if ( id == '1' ) {
+ 2186              		.loc 1 81 0
+ 2187 0110 0E305BE5 		ldrb	r3, [fp, #-14]	@ zero_extendqisi2
+ 2188 0114 310053E3 		cmp	r3, #49
+ 2189 0118 0200001A 		bne	.L8
+  82:../main.c     **** 				enviar_direccion();
+ 2190              		.loc 1 82 0
+ 2191 011c FEFFFFEB 		bl	enviar_direccion
+  83:../main.c     **** 				recibir_direccion();
+ 2192              		.loc 1 83 0
+ 2193 0120 FEFFFFEB 		bl	recibir_direccion
+ 2194 0124 040000EA 		b	.L9
+ 2195              	.L8:
+  84:../main.c     **** 			}
+  85:../main.c     **** 			else if ( id == '2' ) {
+ 2196              		.loc 1 85 0
+ 2197 0128 0E305BE5 		ldrb	r3, [fp, #-14]	@ zero_extendqisi2
+ 2198 012c 320053E3 		cmp	r3, #50
+ 2199 0130 0100001A 		bne	.L9
+  86:../main.c     **** 				recibir_direccion();
+ 2200              		.loc 1 86 0
+ 2201 0134 FEFFFFEB 		bl	recibir_direccion
+  87:../main.c     **** 				enviar_direccion();
+ 2202              		.loc 1 87 0
+ 2203 0138 FEFFFFEB 		bl	enviar_direccion
+ 2204              	.L9:
+  88:../main.c     **** 			}
+  89:../main.c     **** 
+  90:../main.c     **** 
+  91:../main.c     **** 			actualizar();
+ 2205              		.loc 1 91 0
+ 2206 013c FEFFFFEB 		bl	actualizar
+  92:../main.c     **** 
+  93:../main.c     **** 			repintar();
+ 2207              		.loc 1 93 0
+ 2208 0140 FEFFFFEB 		bl	repintar
+  94:../main.c     **** 
+  95:../main.c     **** 			DelayMs(80);
+ 2209              		.loc 1 95 0
+ 2210 0144 5000A0E3 		mov	r0, #80
+ 2211 0148 FEFFFFEB 		bl	DelayMs
+ 2212              	.L7:
+  78:../main.c     **** 		while (jug1Vivo && jug2_dir != 'F') {
+ 2213              		.loc 1 78 0 discriminator 1
+ 2214 014c 44309FE5 		ldr	r3, .L14+16
+ 2215 0150 003093E5 		ldr	r3, [r3, #0]
+ 2216 0154 000053E3 		cmp	r3, #0
+ 2217 0158 0300000A 		beq	.L10
+  78:../main.c     **** 		while (jug1Vivo && jug2_dir != 'F') {
+ 2218              		.loc 1 78 0 is_stmt 0 discriminator 2
+ 2219 015c 38309FE5 		ldr	r3, .L14+20
+ 2220 0160 0030D3E5 		ldrb	r3, [r3, #0]	@ zero_extendqisi2
+ 2221 0164 460053E3 		cmp	r3, #70
+ 2222 0168 E8FFFF1A 		bne	.L11
+ 2223              	.L10:
+  96:../main.c     **** 		}
+  97:../main.c     **** 
+  98:../main.c     **** 		// Si pierde un maletin...
+  99:../main.c     **** 		if (jug1Vivo == 0) {
+ 2224              		.loc 1 99 0 is_stmt 1
+ 2225 016c 24309FE5 		ldr	r3, .L14+16
+ 2226 0170 003093E5 		ldr	r3, [r3, #0]
+ 2227 0174 000053E3 		cmp	r3, #0
+ 2228 0178 0000001A 		bne	.L12
+ 100:../main.c     **** 			enviar_perdido();
+ 2229              		.loc 1 100 0
+ 2230 017c FEFFFFEB 		bl	enviar_perdido
+ 2231              	.L12:
+ 101:../main.c     **** 		}
+ 102:../main.c     **** 
+ 103:../main.c     **** 
+ 104:../main.c     **** 		apagar_timers();
+ 2232              		.loc 1 104 0
+ 2233 0180 FEFFFFEB 		bl	apagar_timers
+ 2234              	.LBE2:
+ 105:../main.c     **** 
+ 106:../main.c     ****     }
+ 2235              		.loc 1 106 0
+ 2236 0184 BDFFFFEA 		b	.L13
+ 2237              	.L15:
+ 2238              		.align	2
+ 2239              	.L14:
+ 2240 0188 4000D201 		.word	30539840
+ 2241 018c 4800D201 		.word	30539848
+ 2242 0190 00C20100 		.word	115200
+ 2243 0194 4400D201 		.word	30539844
+ 2244 0198 00000000 		.word	jug1Vivo
+ 2245 019c 00000000 		.word	jug2_dir
+ 2246              		.cfi_endproc
+ 2247              	.LFE0:
+ 2249              	.Letext0:
+DEFINED SYMBOLS
+                            *ABS*:00000000 main.c
+                            *COM*:000012c0 tablero
+                            *COM*:00002580 snake_jug1
+                            *COM*:00002580 snake_jug2
+                            *COM*:00000004 niveljug1
+                            *COM*:00000004 niveljug2
+                            *COM*:00000004 jug1X
+                            *COM*:00000004 jug1Y
+                            *COM*:00000004 jug2X
+                            *COM*:00000004 jug2Y
+                            *COM*:00000001 jug1_dir
+                            *COM*:00000001 jug2_dir
+                            *COM*:00000004 jug1Vivo
+                            *COM*:00000004 jug2Vivo
+                            *COM*:00000004 numAC
+                            *COM*:00000004 frutaX
+                            *COM*:00000004 frutaY
+                            *COM*:00000078 ac
+C:\Users\USUARI~1\AppData\Local\Temp\ccmxNFO1.s:2061   .text:00000000 $a
+C:\Users\USUARI~1\AppData\Local\Temp\ccmxNFO1.s:2064   .text:00000000 Main
+C:\Users\USUARI~1\AppData\Local\Temp\ccmxNFO1.s:2240   .text:00000188 $d
+                     .debug_frame:00000010 $d
+
+UNDEFINED SYMBOLS
+sys_init
+lcd_init
+Eint4567_init
+keyboard_init
+timer_init
+D8Led_init
+D8Led_symbol
+Uart_Init
+Uart_Config
+Uart1_TxEmpty
+lcd_draw_esperar_otro_jugador
+Uart1_Getch
+lcd_clear
+Uart1_SendByte
+iniciar_snake
+pintar
+enciende_timer0
+enviar_direccion
+recibir_direccion
+actualizar
+repintar
+DelayMs
+enviar_perdido
+apagar_timers

@@ -1,0 +1,4078 @@
+   1              		.cpu arm7tdmi
+   2              		.fpu softvfp
+   3              		.eabi_attribute 20, 1
+   4              		.eabi_attribute 21, 1
+   5              		.eabi_attribute 23, 3
+   6              		.eabi_attribute 24, 1
+   7              		.eabi_attribute 25, 1
+   8              		.eabi_attribute 26, 1
+   9              		.eabi_attribute 30, 6
+  10              		.eabi_attribute 18, 4
+  11              		.file	"lcd.c"
+  21              	.Ltext0:
+  22              		.file 1 "../lcd.c"
+ 2915              		.align	2
+ 2916              	buffer:
+ 2917 0000 00000000 		.space	38400
+ 2917      00000000 
+ 2917      00000000 
+ 2917      00000000 
+ 2917      00000000 
+ 2918              		.text
+ 2919              		.align	2
+ 2920              		.global	lcd_init
+ 2922              	lcd_init:
+ 2923              	.LFB0:
+   1:../lcd.c      **** #include "lcd.h"
+   2:../lcd.c      **** #include <stdarg.h>
+   3:../lcd.c      **** #include <stdio.h>
+   4:../lcd.c      **** 
+   5:../lcd.c      **** static uint8 buffer[320*240/2];
+   6:../lcd.c      **** void lcd_init( void ){
+ 2924              		.loc 1 6 0
+ 2925              		.cfi_startproc
+ 2926              		@ Function supports interworking.
+ 2927              		@ args = 0, pretend = 0, frame = 0
+ 2928              		@ frame_needed = 1, uses_anonymous_args = 0
+ 2929 0000 0DC0A0E1 		mov	ip, sp
+ 2930              	.LCFI0:
+ 2931              		.cfi_def_cfa_register 12
+ 2932 0004 00D82DE9 		stmfd	sp!, {fp, ip, lr, pc}
+ 2933 0008 04B04CE2 		sub	fp, ip, #4
+ 2934              		.cfi_offset 14, -8
+ 2935              		.cfi_offset 13, -12
+ 2936              		.cfi_offset 11, -16
+ 2937              	.LCFI1:
+ 2938              		.cfi_def_cfa 11, 4
+   7:../lcd.c      **** 	rLCDCON1 	= 0x1C021;//
+ 2939              		.loc 1 7 0
+ 2940 000c 1F36A0E3 		mov	r3, #32505856
+ 2941 0010 F4209FE5 		ldr	r2, .L2
+ 2942 0014 002083E5 		str	r2, [r3, #0]
+   8:../lcd.c      **** 	rLCDCON2 	= 0x13CEF;//
+ 2943              		.loc 1 8 0
+ 2944 0018 F0309FE5 		ldr	r3, .L2+4
+ 2945 001c F0209FE5 		ldr	r2, .L2+8
+ 2946 0020 002083E5 		str	r2, [r3, #0]
+   9:../lcd.c      **** 	rLCDSADDR1 	= (2<<27) | ((uint32) buffer >> 1);
+ 2947              		.loc 1 9 0
+ 2948 0024 EC309FE5 		ldr	r3, .L2+12
+ 2949 0028 EC209FE5 		ldr	r2, .L2+16
+ 2950 002c A220A0E1 		mov	r2, r2, lsr #1
+ 2951 0030 012282E3 		orr	r2, r2, #268435456
+ 2952 0034 002083E5 		str	r2, [r3, #0]
+  10:../lcd.c      **** 	rLCDSADDR2 	= (1<<29) | (((uint32) buffer + LCD_BUFFER_SIZE) & 0x3FFFFF) >> 1;
+ 2953              		.loc 1 10 0
+ 2954 0038 E0209FE5 		ldr	r2, .L2+20
+ 2955 003c D8309FE5 		ldr	r3, .L2+16
+ 2956 0040 963C83E2 		add	r3, r3, #38400
+ 2957 0044 FF34C3E3 		bic	r3, r3, #-16777216
+ 2958 0048 0335C3E3 		bic	r3, r3, #12582912
+ 2959 004c A330A0E1 		mov	r3, r3, lsr #1
+ 2960 0050 023283E3 		orr	r3, r3, #536870912
+ 2961 0054 003082E5 		str	r3, [r2, #0]
+  11:../lcd.c      **** 	rLCDSADDR3 	= 0x50;
+ 2962              		.loc 1 11 0
+ 2963 0058 C4309FE5 		ldr	r3, .L2+24
+ 2964 005c 5020A0E3 		mov	r2, #80
+ 2965 0060 002083E5 		str	r2, [r3, #0]
+  12:../lcd.c      **** 	rLCDCON3	= 0x0;
+ 2966              		.loc 1 12 0
+ 2967 0064 BC309FE5 		ldr	r3, .L2+28
+ 2968 0068 0020A0E3 		mov	r2, #0
+ 2969 006c 002083E5 		str	r2, [r3, #0]
+  13:../lcd.c      **** 	rREDLUT 	= 0x0;
+ 2970              		.loc 1 13 0
+ 2971 0070 B4309FE5 		ldr	r3, .L2+32
+ 2972 0074 0020A0E3 		mov	r2, #0
+ 2973 0078 002083E5 		str	r2, [r3, #0]
+  14:../lcd.c      **** 	rBLUELUT 	= 0x0;
+ 2974              		.loc 1 14 0
+ 2975 007c AC309FE5 		ldr	r3, .L2+36
+ 2976 0080 0020A0E3 		mov	r2, #0
+ 2977 0084 002083E5 		str	r2, [r3, #0]
+  15:../lcd.c      **** 	rGREENLUT 	= 0x0;
+ 2978              		.loc 1 15 0
+ 2979 0088 A4309FE5 		ldr	r3, .L2+40
+ 2980 008c 0020A0E3 		mov	r2, #0
+ 2981 0090 002083E5 		str	r2, [r3, #0]
+  16:../lcd.c      **** 	rDITHMODE 	= 0x12210;
+ 2982              		.loc 1 16 0
+ 2983 0094 9C309FE5 		ldr	r3, .L2+44
+ 2984 0098 9C209FE5 		ldr	r2, .L2+48
+ 2985 009c 002083E5 		str	r2, [r3, #0]
+  17:../lcd.c      **** 	rDP1_2 		= 0xA5A5;
+ 2986              		.loc 1 17 0
+ 2987 00a0 98309FE5 		ldr	r3, .L2+52
+ 2988 00a4 98209FE5 		ldr	r2, .L2+56
+ 2989 00a8 002083E5 		str	r2, [r3, #0]
+  18:../lcd.c      **** 	rDP4_7 		= 0xBA5DA65;
+ 2990              		.loc 1 18 0
+ 2991 00ac 94309FE5 		ldr	r3, .L2+60
+ 2992 00b0 94209FE5 		ldr	r2, .L2+64
+ 2993 00b4 002083E5 		str	r2, [r3, #0]
+  19:../lcd.c      **** 	rDP3_5 		= 0xA5A5F;
+ 2994              		.loc 1 19 0
+ 2995 00b8 90309FE5 		ldr	r3, .L2+68
+ 2996 00bc 90209FE5 		ldr	r2, .L2+72
+ 2997 00c0 002083E5 		str	r2, [r3, #0]
+  20:../lcd.c      **** 	rDP2_3 		= 0xD6B;
+ 2998              		.loc 1 20 0
+ 2999 00c4 8C309FE5 		ldr	r3, .L2+76
+ 3000 00c8 8C209FE5 		ldr	r2, .L2+80
+ 3001 00cc 002083E5 		str	r2, [r3, #0]
+  21:../lcd.c      **** 	rDP5_7 		= 0xEB7B5ED;
+ 3002              		.loc 1 21 0
+ 3003 00d0 88309FE5 		ldr	r3, .L2+84
+ 3004 00d4 88209FE5 		ldr	r2, .L2+88
+ 3005 00d8 002083E5 		str	r2, [r3, #0]
+  22:../lcd.c      **** 	rDP3_4 		= 0x77DBE;//
+ 3006              		.loc 1 22 0
+ 3007 00dc 84309FE5 		ldr	r3, .L2+92
+ 3008 00e0 84209FE5 		ldr	r2, .L2+96
+ 3009 00e4 002083E5 		str	r2, [r3, #0]
+  23:../lcd.c      **** 	rDP4_5 		= 0x7EBDF;
+ 3010              		.loc 1 23 0
+ 3011 00e8 80309FE5 		ldr	r3, .L2+100
+ 3012 00ec 80209FE5 		ldr	r2, .L2+104
+ 3013 00f0 002083E5 		str	r2, [r3, #0]
+  24:../lcd.c      **** 	rDP6_7 		= 0x7FDFBFE;
+ 3014              		.loc 1 24 0
+ 3015 00f4 7C309FE5 		ldr	r3, .L2+108
+ 3016 00f8 7C209FE5 		ldr	r2, .L2+112
+ 3017 00fc 002083E5 		str	r2, [r3, #0]
+  25:../lcd.c      **** }
+ 3018              		.loc 1 25 0
+ 3019 0100 0CD04BE2 		sub	sp, fp, #12
+ 3020 0104 00689DE8 		ldmfd	sp, {fp, sp, lr}
+ 3021 0108 1EFF2FE1 		bx	lr
+ 3022              	.L3:
+ 3023              		.align	2
+ 3024              	.L2:
+ 3025 010c 21C00100 		.word	114721
+ 3026 0110 0400F001 		.word	32505860
+ 3027 0114 EF3C0100 		.word	81135
+ 3028 0118 0800F001 		.word	32505864
+ 3029 011c 00000000 		.word	buffer
+ 3030 0120 0C00F001 		.word	32505868
+ 3031 0124 1000F001 		.word	32505872
+ 3032 0128 4000F001 		.word	32505920
+ 3033 012c 1400F001 		.word	32505876
+ 3034 0130 1C00F001 		.word	32505884
+ 3035 0134 1800F001 		.word	32505880
+ 3036 0138 4400F001 		.word	32505924
+ 3037 013c 10220100 		.word	74256
+ 3038 0140 2000F001 		.word	32505888
+ 3039 0144 A5A50000 		.word	42405
+ 3040 0148 2400F001 		.word	32505892
+ 3041 014c 65DAA50B 		.word	195418725
+ 3042 0150 2800F001 		.word	32505896
+ 3043 0154 5F5A0A00 		.word	678495
+ 3044 0158 2C00F001 		.word	32505900
+ 3045 015c 6B0D0000 		.word	3435
+ 3046 0160 3000F001 		.word	32505904
+ 3047 0164 EDB5B70E 		.word	246920685
+ 3048 0168 3400F001 		.word	32505908
+ 3049 016c BE7D0700 		.word	490942
+ 3050 0170 3800F001 		.word	32505912
+ 3051 0174 DFEB0700 		.word	519135
+ 3052 0178 3C00F001 		.word	32505916
+ 3053 017c FEFBFD07 		.word	134085630
+ 3054              		.cfi_endproc
+ 3055              	.LFE0:
+ 3057              		.align	2
+ 3058              		.global	lcd_clear
+ 3060              	lcd_clear:
+ 3061              	.LFB1:
+  26:../lcd.c      **** 
+  27:../lcd.c      **** /*
+  28:../lcd.c      **** ** Borra el lcd
+  29:../lcd.c      **** */
+  30:../lcd.c      **** void lcd_clear( void ){
+ 3062              		.loc 1 30 0
+ 3063              		.cfi_startproc
+ 3064              		@ Function supports interworking.
+ 3065              		@ args = 0, pretend = 0, frame = 8
+ 3066              		@ frame_needed = 1, uses_anonymous_args = 0
+ 3067 0180 0DC0A0E1 		mov	ip, sp
+ 3068              	.LCFI2:
+ 3069              		.cfi_def_cfa_register 12
+ 3070 0184 00D82DE9 		stmfd	sp!, {fp, ip, lr, pc}
+ 3071 0188 04B04CE2 		sub	fp, ip, #4
+ 3072              		.cfi_offset 14, -8
+ 3073              		.cfi_offset 13, -12
+ 3074              		.cfi_offset 11, -16
+ 3075              	.LCFI3:
+ 3076              		.cfi_def_cfa 11, 4
+ 3077 018c 08D04DE2 		sub	sp, sp, #8
+  31:../lcd.c      **** 	int i;
+  32:../lcd.c      **** 	int j;
+  33:../lcd.c      **** 	for(i = 0; i < 240; i++)
+ 3078              		.loc 1 33 0
+ 3079 0190 0030A0E3 		mov	r3, #0
+ 3080 0194 10300BE5 		str	r3, [fp, #-16]
+ 3081 0198 160000EA 		b	.L5
+ 3082              	.L8:
+  34:../lcd.c      **** 		for(j = 0; j < 320; j++)
+ 3083              		.loc 1 34 0
+ 3084 019c 0030A0E3 		mov	r3, #0
+ 3085 01a0 14300BE5 		str	r3, [fp, #-20]
+ 3086 01a4 0C0000EA 		b	.L6
+ 3087              	.L7:
+  35:../lcd.c      **** 			lcd_putpixel(i, j, LCD_WHITE);
+ 3088              		.loc 1 35 0 discriminator 2
+ 3089 01a8 10301BE5 		ldr	r3, [fp, #-16]
+ 3090 01ac 0338A0E1 		mov	r3, r3, asl #16
+ 3091 01b0 2328A0E1 		mov	r2, r3, lsr #16
+ 3092 01b4 14301BE5 		ldr	r3, [fp, #-20]
+ 3093 01b8 0338A0E1 		mov	r3, r3, asl #16
+ 3094 01bc 2338A0E1 		mov	r3, r3, lsr #16
+ 3095 01c0 0200A0E1 		mov	r0, r2
+ 3096 01c4 0310A0E1 		mov	r1, r3
+ 3097 01c8 0020A0E3 		mov	r2, #0
+ 3098 01cc FEFFFFEB 		bl	lcd_putpixel
+  34:../lcd.c      **** 		for(j = 0; j < 320; j++)
+ 3099              		.loc 1 34 0 discriminator 2
+ 3100 01d0 14301BE5 		ldr	r3, [fp, #-20]
+ 3101 01d4 013083E2 		add	r3, r3, #1
+ 3102 01d8 14300BE5 		str	r3, [fp, #-20]
+ 3103              	.L6:
+  34:../lcd.c      **** 		for(j = 0; j < 320; j++)
+ 3104              		.loc 1 34 0 is_stmt 0 discriminator 1
+ 3105 01dc 14201BE5 		ldr	r2, [fp, #-20]
+ 3106 01e0 28309FE5 		ldr	r3, .L9
+ 3107 01e4 030052E1 		cmp	r2, r3
+ 3108 01e8 EEFFFFDA 		ble	.L7
+  33:../lcd.c      **** 	for(i = 0; i < 240; i++)
+ 3109              		.loc 1 33 0 is_stmt 1
+ 3110 01ec 10301BE5 		ldr	r3, [fp, #-16]
+ 3111 01f0 013083E2 		add	r3, r3, #1
+ 3112 01f4 10300BE5 		str	r3, [fp, #-16]
+ 3113              	.L5:
+  33:../lcd.c      **** 	for(i = 0; i < 240; i++)
+ 3114              		.loc 1 33 0 is_stmt 0 discriminator 1
+ 3115 01f8 10301BE5 		ldr	r3, [fp, #-16]
+ 3116 01fc EF0053E3 		cmp	r3, #239
+ 3117 0200 E5FFFFDA 		ble	.L8
+  36:../lcd.c      **** }
+ 3118              		.loc 1 36 0 is_stmt 1
+ 3119 0204 0CD04BE2 		sub	sp, fp, #12
+ 3120 0208 00689DE8 		ldmfd	sp, {fp, sp, lr}
+ 3121 020c 1EFF2FE1 		bx	lr
+ 3122              	.L10:
+ 3123              		.align	2
+ 3124              	.L9:
+ 3125 0210 3F010000 		.word	319
+ 3126              		.cfi_endproc
+ 3127              	.LFE1:
+ 3129              		.align	2
+ 3130              		.global	lcd_putpixel
+ 3132              	lcd_putpixel:
+ 3133              	.LFB2:
+  37:../lcd.c      **** 
+  38:../lcd.c      **** /*
+  39:../lcd.c      **** ** Pone el pixel (x,y) en el color indicado
+  40:../lcd.c      **** */
+  41:../lcd.c      **** void lcd_putpixel( uint16 x, uint16 y, uint8 color){
+ 3134              		.loc 1 41 0
+ 3135              		.cfi_startproc
+ 3136              		@ Function supports interworking.
+ 3137              		@ args = 0, pretend = 0, frame = 16
+ 3138              		@ frame_needed = 1, uses_anonymous_args = 0
+ 3139 0214 0DC0A0E1 		mov	ip, sp
+ 3140              	.LCFI4:
+ 3141              		.cfi_def_cfa_register 12
+ 3142 0218 00D82DE9 		stmfd	sp!, {fp, ip, lr, pc}
+ 3143 021c 04B04CE2 		sub	fp, ip, #4
+ 3144              		.cfi_offset 14, -8
+ 3145              		.cfi_offset 13, -12
+ 3146              		.cfi_offset 11, -16
+ 3147              	.LCFI5:
+ 3148              		.cfi_def_cfa 11, 4
+ 3149 0220 10D04DE2 		sub	sp, sp, #16
+ 3150 0224 0230A0E1 		mov	r3, r2
+ 3151 0228 B6014BE1 		strh	r0, [fp, #-22]	@ movhi
+ 3152 022c B8114BE1 		strh	r1, [fp, #-24]	@ movhi
+ 3153 0230 19304BE5 		strb	r3, [fp, #-25]
+  42:../lcd.c      **** 	uint8 byte, bit;
+  43:../lcd.c      **** 	uint16 i;
+  44:../lcd.c      **** 
+  45:../lcd.c      **** 	i = y/2 + x*(320/2);
+ 3154              		.loc 1 45 0
+ 3155 0234 B8315BE1 		ldrh	r3, [fp, #-24]
+ 3156 0238 A330A0E1 		mov	r3, r3, lsr #1
+ 3157 023c 0338A0E1 		mov	r3, r3, asl #16
+ 3158 0240 2328A0E1 		mov	r2, r3, lsr #16
+ 3159 0244 B6315BE1 		ldrh	r3, [fp, #-22]	@ movhi
+ 3160 0248 0310A0E1 		mov	r1, r3	@ movhi
+ 3161 024c 0111A0E1 		mov	r1, r1, asl #2
+ 3162 0250 033081E0 		add	r3, r1, r3
+ 3163 0254 8332A0E1 		mov	r3, r3, asl #5
+ 3164 0258 0338A0E1 		mov	r3, r3, asl #16
+ 3165 025c 2338A0E1 		mov	r3, r3, lsr #16
+ 3166 0260 033082E0 		add	r3, r2, r3
+ 3167 0264 BE304BE1 		strh	r3, [fp, #-14]	@ movhi
+  46:../lcd.c      **** 	bit = (1-y%2)*4;
+ 3168              		.loc 1 46 0
+ 3169 0268 B8315BE1 		ldrh	r3, [fp, #-24]
+ 3170 026c 013003E2 		and	r3, r3, #1
+ 3171 0270 000053E3 		cmp	r3, #0
+ 3172 0274 0100001A 		bne	.L12
+ 3173              		.loc 1 46 0 is_stmt 0 discriminator 1
+ 3174 0278 0430A0E3 		mov	r3, #4
+ 3175 027c 000000EA 		b	.L13
+ 3176              	.L12:
+ 3177              		.loc 1 46 0 discriminator 2
+ 3178 0280 0030A0E3 		mov	r3, #0
+ 3179              	.L13:
+ 3180              		.loc 1 46 0 discriminator 3
+ 3181 0284 0F304BE5 		strb	r3, [fp, #-15]
+  47:../lcd.c      **** 	byte = buffer[i];
+ 3182              		.loc 1 47 0 is_stmt 1 discriminator 3
+ 3183 0288 BE305BE1 		ldrh	r3, [fp, #-14]
+ 3184 028c 68209FE5 		ldr	r2, .L14
+ 3185 0290 0330D2E7 		ldrb	r3, [r2, r3]
+ 3186 0294 10304BE5 		strb	r3, [fp, #-16]
+  48:../lcd.c      **** 	byte &= ~(0xF << bit);
+ 3187              		.loc 1 48 0 discriminator 3
+ 3188 0298 0F305BE5 		ldrb	r3, [fp, #-15]	@ zero_extendqisi2
+ 3189 029c 0F20A0E3 		mov	r2, #15
+ 3190 02a0 1233A0E1 		mov	r3, r2, asl r3
+ 3191 02a4 FF3003E2 		and	r3, r3, #255
+ 3192 02a8 0330E0E1 		mvn	r3, r3
+ 3193 02ac FF2003E2 		and	r2, r3, #255
+ 3194 02b0 10305BE5 		ldrb	r3, [fp, #-16]	@ zero_extendqisi2
+ 3195 02b4 033002E0 		and	r3, r2, r3
+ 3196 02b8 FF3003E2 		and	r3, r3, #255
+ 3197 02bc 10304BE5 		strb	r3, [fp, #-16]
+  49:../lcd.c      **** 	byte |= color << bit;
+ 3198              		.loc 1 49 0 discriminator 3
+ 3199 02c0 19205BE5 		ldrb	r2, [fp, #-25]	@ zero_extendqisi2
+ 3200 02c4 0F305BE5 		ldrb	r3, [fp, #-15]	@ zero_extendqisi2
+ 3201 02c8 1233A0E1 		mov	r3, r2, asl r3
+ 3202 02cc FF2003E2 		and	r2, r3, #255
+ 3203 02d0 10305BE5 		ldrb	r3, [fp, #-16]	@ zero_extendqisi2
+ 3204 02d4 033082E1 		orr	r3, r2, r3
+ 3205 02d8 FF3003E2 		and	r3, r3, #255
+ 3206 02dc 10304BE5 		strb	r3, [fp, #-16]
+  50:../lcd.c      **** 	buffer[i] = byte;
+ 3207              		.loc 1 50 0 discriminator 3
+ 3208 02e0 BE305BE1 		ldrh	r3, [fp, #-14]
+ 3209 02e4 10209FE5 		ldr	r2, .L14
+ 3210 02e8 10105BE5 		ldrb	r1, [fp, #-16]
+ 3211 02ec 0310C2E7 		strb	r1, [r2, r3]
+  51:../lcd.c      **** }
+ 3212              		.loc 1 51 0 discriminator 3
+ 3213 02f0 0CD04BE2 		sub	sp, fp, #12
+ 3214 02f4 00689DE8 		ldmfd	sp, {fp, sp, lr}
+ 3215 02f8 1EFF2FE1 		bx	lr
+ 3216              	.L15:
+ 3217              		.align	2
+ 3218              	.L14:
+ 3219 02fc 00000000 		.word	buffer
+ 3220              		.cfi_endproc
+ 3221              	.LFE2:
+ 3223              		.align	2
+ 3224              		.global	lcd_getpixel
+ 3226              	lcd_getpixel:
+ 3227              	.LFB3:
+  52:../lcd.c      **** 
+  53:../lcd.c      **** /*
+  54:../lcd.c      **** ** Devuelve el color al que está el pixel (x,y)
+  55:../lcd.c      **** */
+  56:../lcd.c      **** uint8 lcd_getpixel( uint16 x, uint16 y ){
+ 3228              		.loc 1 56 0
+ 3229              		.cfi_startproc
+ 3230              		@ Function supports interworking.
+ 3231              		@ args = 0, pretend = 0, frame = 16
+ 3232              		@ frame_needed = 1, uses_anonymous_args = 0
+ 3233 0300 0DC0A0E1 		mov	ip, sp
+ 3234              	.LCFI6:
+ 3235              		.cfi_def_cfa_register 12
+ 3236 0304 00D82DE9 		stmfd	sp!, {fp, ip, lr, pc}
+ 3237 0308 04B04CE2 		sub	fp, ip, #4
+ 3238              		.cfi_offset 14, -8
+ 3239              		.cfi_offset 13, -12
+ 3240              		.cfi_offset 11, -16
+ 3241              	.LCFI7:
+ 3242              		.cfi_def_cfa 11, 4
+ 3243 030c 10D04DE2 		sub	sp, sp, #16
+ 3244 0310 0020A0E1 		mov	r2, r0
+ 3245 0314 0130A0E1 		mov	r3, r1
+ 3246 0318 B6214BE1 		strh	r2, [fp, #-22]	@ movhi
+ 3247 031c B8314BE1 		strh	r3, [fp, #-24]	@ movhi
+  57:../lcd.c      **** 	uint8 color;
+  58:../lcd.c      **** 	uint32 word;
+  59:../lcd.c      **** 	word = buffer[x/8 + y*(320/8)];
+ 3248              		.loc 1 59 0
+ 3249 0320 B6315BE1 		ldrh	r3, [fp, #-22]
+ 3250 0324 A331A0E1 		mov	r3, r3, lsr #3
+ 3251 0328 0338A0E1 		mov	r3, r3, asl #16
+ 3252 032c 2338A0E1 		mov	r3, r3, lsr #16
+ 3253 0330 0310A0E1 		mov	r1, r3
+ 3254 0334 B8215BE1 		ldrh	r2, [fp, #-24]
+ 3255 0338 0230A0E1 		mov	r3, r2
+ 3256 033c 0331A0E1 		mov	r3, r3, asl #2
+ 3257 0340 023083E0 		add	r3, r3, r2
+ 3258 0344 8331A0E1 		mov	r3, r3, asl #3
+ 3259 0348 033081E0 		add	r3, r1, r3
+ 3260 034c 54209FE5 		ldr	r2, .L17
+ 3261 0350 0330D2E7 		ldrb	r3, [r2, r3]	@ zero_extendqisi2
+ 3262 0354 10300BE5 		str	r3, [fp, #-16]
+  60:../lcd.c      **** 	word &= (0xf0000000 >> (x%8)*4);		
+ 3263              		.loc 1 60 0
+ 3264 0358 B6315BE1 		ldrh	r3, [fp, #-22]
+ 3265 035c 073003E2 		and	r3, r3, #7
+ 3266 0360 0331A0E1 		mov	r3, r3, asl #2
+ 3267 0364 0F22A0E3 		mov	r2, #-268435456
+ 3268 0368 3233A0E1 		mov	r3, r2, lsr r3
+ 3269 036c 10201BE5 		ldr	r2, [fp, #-16]
+ 3270 0370 033002E0 		and	r3, r2, r3
+ 3271 0374 10300BE5 		str	r3, [fp, #-16]
+  61:../lcd.c      **** 	color = (uint32) word >> (7 - x%8)*4; // ver cuanto calcular
+ 3272              		.loc 1 61 0
+ 3273 0378 B6315BE1 		ldrh	r3, [fp, #-22]
+ 3274 037c 0330E0E1 		mvn	r3, r3
+ 3275 0380 073003E2 		and	r3, r3, #7
+ 3276 0384 0331A0E1 		mov	r3, r3, asl #2
+ 3277 0388 10201BE5 		ldr	r2, [fp, #-16]
+ 3278 038c 3233A0E1 		mov	r3, r2, lsr r3
+ 3279 0390 11304BE5 		strb	r3, [fp, #-17]
+  62:../lcd.c      **** 	
+  63:../lcd.c      **** 	return color;
+ 3280              		.loc 1 63 0
+ 3281 0394 11305BE5 		ldrb	r3, [fp, #-17]	@ zero_extendqisi2
+  64:../lcd.c      **** }
+ 3282              		.loc 1 64 0
+ 3283 0398 0300A0E1 		mov	r0, r3
+ 3284 039c 0CD04BE2 		sub	sp, fp, #12
+ 3285 03a0 00689DE8 		ldmfd	sp, {fp, sp, lr}
+ 3286 03a4 1EFF2FE1 		bx	lr
+ 3287              	.L18:
+ 3288              		.align	2
+ 3289              	.L17:
+ 3290 03a8 00000000 		.word	buffer
+ 3291              		.cfi_endproc
+ 3292              	.LFE3:
+ 3294              		.align	2
+ 3295              		.global	lcd_draw_hline
+ 3297              	lcd_draw_hline:
+ 3298              	.LFB4:
+  65:../lcd.c      **** 
+  66:../lcd.c      **** /*
+  67:../lcd.c      **** ** Dibuja una línea horizontal desde el pixel (xleft,y) hasta el pixel (xright,y) del color y gros
+  68:../lcd.c      **** */
+  69:../lcd.c      **** void lcd_draw_hline( uint16 xleft, uint16 xright, uint16 y, uint8 color, uint16 width ){	
+ 3299              		.loc 1 69 0
+ 3300              		.cfi_startproc
+ 3301              		@ Function supports interworking.
+ 3302              		@ args = 4, pretend = 0, frame = 16
+ 3303              		@ frame_needed = 1, uses_anonymous_args = 0
+ 3304 03ac 0DC0A0E1 		mov	ip, sp
+ 3305              	.LCFI8:
+ 3306              		.cfi_def_cfa_register 12
+ 3307 03b0 00D82DE9 		stmfd	sp!, {fp, ip, lr, pc}
+ 3308 03b4 04B04CE2 		sub	fp, ip, #4
+ 3309              		.cfi_offset 14, -8
+ 3310              		.cfi_offset 13, -12
+ 3311              		.cfi_offset 11, -16
+ 3312              	.LCFI9:
+ 3313              		.cfi_def_cfa 11, 4
+ 3314 03b8 10D04DE2 		sub	sp, sp, #16
+ 3315 03bc B6014BE1 		strh	r0, [fp, #-22]	@ movhi
+ 3316 03c0 B8114BE1 		strh	r1, [fp, #-24]	@ movhi
+ 3317 03c4 BA214BE1 		strh	r2, [fp, #-26]	@ movhi
+ 3318 03c8 1B304BE5 		strb	r3, [fp, #-27]
+  70:../lcd.c      **** 	int i;
+  71:../lcd.c      **** 	int tam;
+  72:../lcd.c      **** 	for(tam = 0; tam < width; tam++)
+ 3319              		.loc 1 72 0
+ 3320 03cc 0030A0E3 		mov	r3, #0
+ 3321 03d0 14300BE5 		str	r3, [fp, #-20]
+ 3322 03d4 1B0000EA 		b	.L20
+ 3323              	.L23:
+  73:../lcd.c      **** 		for(i = xleft; i < xright; i++)
+ 3324              		.loc 1 73 0
+ 3325 03d8 B6315BE1 		ldrh	r3, [fp, #-22]
+ 3326 03dc 10300BE5 		str	r3, [fp, #-16]
+ 3327 03e0 110000EA 		b	.L21
+ 3328              	.L22:
+  74:../lcd.c      **** 				lcd_putpixel(i, y + tam, color);	
+ 3329              		.loc 1 74 0 discriminator 2
+ 3330 03e4 10301BE5 		ldr	r3, [fp, #-16]
+ 3331 03e8 0338A0E1 		mov	r3, r3, asl #16
+ 3332 03ec 2318A0E1 		mov	r1, r3, lsr #16
+ 3333 03f0 14301BE5 		ldr	r3, [fp, #-20]
+ 3334 03f4 0338A0E1 		mov	r3, r3, asl #16
+ 3335 03f8 2328A0E1 		mov	r2, r3, lsr #16
+ 3336 03fc BA315BE1 		ldrh	r3, [fp, #-26]	@ movhi
+ 3337 0400 033082E0 		add	r3, r2, r3
+ 3338 0404 0338A0E1 		mov	r3, r3, asl #16
+ 3339 0408 2328A0E1 		mov	r2, r3, lsr #16
+ 3340 040c 1B305BE5 		ldrb	r3, [fp, #-27]	@ zero_extendqisi2
+ 3341 0410 0100A0E1 		mov	r0, r1
+ 3342 0414 0210A0E1 		mov	r1, r2
+ 3343 0418 0320A0E1 		mov	r2, r3
+ 3344 041c FEFFFFEB 		bl	lcd_putpixel
+  73:../lcd.c      **** 		for(i = xleft; i < xright; i++)
+ 3345              		.loc 1 73 0 discriminator 2
+ 3346 0420 10301BE5 		ldr	r3, [fp, #-16]
+ 3347 0424 013083E2 		add	r3, r3, #1
+ 3348 0428 10300BE5 		str	r3, [fp, #-16]
+ 3349              	.L21:
+  73:../lcd.c      **** 		for(i = xleft; i < xright; i++)
+ 3350              		.loc 1 73 0 is_stmt 0 discriminator 1
+ 3351 042c B8215BE1 		ldrh	r2, [fp, #-24]
+ 3352 0430 10301BE5 		ldr	r3, [fp, #-16]
+ 3353 0434 030052E1 		cmp	r2, r3
+ 3354 0438 E9FFFFCA 		bgt	.L22
+  72:../lcd.c      **** 	for(tam = 0; tam < width; tam++)
+ 3355              		.loc 1 72 0 is_stmt 1
+ 3356 043c 14301BE5 		ldr	r3, [fp, #-20]
+ 3357 0440 013083E2 		add	r3, r3, #1
+ 3358 0444 14300BE5 		str	r3, [fp, #-20]
+ 3359              	.L20:
+  72:../lcd.c      **** 	for(tam = 0; tam < width; tam++)
+ 3360              		.loc 1 72 0 is_stmt 0 discriminator 1
+ 3361 0448 B420DBE1 		ldrh	r2, [fp, #4]
+ 3362 044c 14301BE5 		ldr	r3, [fp, #-20]
+ 3363 0450 030052E1 		cmp	r2, r3
+ 3364 0454 DFFFFFCA 		bgt	.L23
+  75:../lcd.c      **** }
+ 3365              		.loc 1 75 0 is_stmt 1
+ 3366 0458 0CD04BE2 		sub	sp, fp, #12
+ 3367 045c 00689DE8 		ldmfd	sp, {fp, sp, lr}
+ 3368 0460 1EFF2FE1 		bx	lr
+ 3369              		.cfi_endproc
+ 3370              	.LFE4:
+ 3372              		.align	2
+ 3373              		.global	lcd_draw_vline
+ 3375              	lcd_draw_vline:
+ 3376              	.LFB5:
+  76:../lcd.c      **** 
+  77:../lcd.c      **** /*
+  78:../lcd.c      **** ** Dibuja una línea vertical desde el pixel (x,yup) hasta el pixel (x,ydown) del color y grosor in
+  79:../lcd.c      **** */
+  80:../lcd.c      **** void lcd_draw_vline( uint16 yup, uint16 ydown, uint16 x, uint8 color, uint16 width ){
+ 3377              		.loc 1 80 0
+ 3378              		.cfi_startproc
+ 3379              		@ Function supports interworking.
+ 3380              		@ args = 4, pretend = 0, frame = 16
+ 3381              		@ frame_needed = 1, uses_anonymous_args = 0
+ 3382 0464 0DC0A0E1 		mov	ip, sp
+ 3383              	.LCFI10:
+ 3384              		.cfi_def_cfa_register 12
+ 3385 0468 00D82DE9 		stmfd	sp!, {fp, ip, lr, pc}
+ 3386 046c 04B04CE2 		sub	fp, ip, #4
+ 3387              		.cfi_offset 14, -8
+ 3388              		.cfi_offset 13, -12
+ 3389              		.cfi_offset 11, -16
+ 3390              	.LCFI11:
+ 3391              		.cfi_def_cfa 11, 4
+ 3392 0470 10D04DE2 		sub	sp, sp, #16
+ 3393 0474 B6014BE1 		strh	r0, [fp, #-22]	@ movhi
+ 3394 0478 B8114BE1 		strh	r1, [fp, #-24]	@ movhi
+ 3395 047c BA214BE1 		strh	r2, [fp, #-26]	@ movhi
+ 3396 0480 1B304BE5 		strb	r3, [fp, #-27]
+  81:../lcd.c      **** 	int j;
+  82:../lcd.c      **** 	int tam;
+  83:../lcd.c      **** 	for(tam = 0; tam < width; tam++)
+ 3397              		.loc 1 83 0
+ 3398 0484 0030A0E3 		mov	r3, #0
+ 3399 0488 14300BE5 		str	r3, [fp, #-20]
+ 3400 048c 1B0000EA 		b	.L25
+ 3401              	.L28:
+  84:../lcd.c      **** 		for(j = ydown; j < yup; j++)
+ 3402              		.loc 1 84 0
+ 3403 0490 B8315BE1 		ldrh	r3, [fp, #-24]
+ 3404 0494 10300BE5 		str	r3, [fp, #-16]
+ 3405 0498 110000EA 		b	.L26
+ 3406              	.L27:
+  85:../lcd.c      **** 				lcd_putpixel(x + tam, j, color);
+ 3407              		.loc 1 85 0 discriminator 2
+ 3408 049c 14301BE5 		ldr	r3, [fp, #-20]
+ 3409 04a0 0338A0E1 		mov	r3, r3, asl #16
+ 3410 04a4 2328A0E1 		mov	r2, r3, lsr #16
+ 3411 04a8 BA315BE1 		ldrh	r3, [fp, #-26]	@ movhi
+ 3412 04ac 033082E0 		add	r3, r2, r3
+ 3413 04b0 0338A0E1 		mov	r3, r3, asl #16
+ 3414 04b4 2318A0E1 		mov	r1, r3, lsr #16
+ 3415 04b8 10301BE5 		ldr	r3, [fp, #-16]
+ 3416 04bc 0338A0E1 		mov	r3, r3, asl #16
+ 3417 04c0 2328A0E1 		mov	r2, r3, lsr #16
+ 3418 04c4 1B305BE5 		ldrb	r3, [fp, #-27]	@ zero_extendqisi2
+ 3419 04c8 0100A0E1 		mov	r0, r1
+ 3420 04cc 0210A0E1 		mov	r1, r2
+ 3421 04d0 0320A0E1 		mov	r2, r3
+ 3422 04d4 FEFFFFEB 		bl	lcd_putpixel
+  84:../lcd.c      **** 		for(j = ydown; j < yup; j++)
+ 3423              		.loc 1 84 0 discriminator 2
+ 3424 04d8 10301BE5 		ldr	r3, [fp, #-16]
+ 3425 04dc 013083E2 		add	r3, r3, #1
+ 3426 04e0 10300BE5 		str	r3, [fp, #-16]
+ 3427              	.L26:
+  84:../lcd.c      **** 		for(j = ydown; j < yup; j++)
+ 3428              		.loc 1 84 0 is_stmt 0 discriminator 1
+ 3429 04e4 B6215BE1 		ldrh	r2, [fp, #-22]
+ 3430 04e8 10301BE5 		ldr	r3, [fp, #-16]
+ 3431 04ec 030052E1 		cmp	r2, r3
+ 3432 04f0 E9FFFFCA 		bgt	.L27
+  83:../lcd.c      **** 	for(tam = 0; tam < width; tam++)
+ 3433              		.loc 1 83 0 is_stmt 1
+ 3434 04f4 14301BE5 		ldr	r3, [fp, #-20]
+ 3435 04f8 013083E2 		add	r3, r3, #1
+ 3436 04fc 14300BE5 		str	r3, [fp, #-20]
+ 3437              	.L25:
+  83:../lcd.c      **** 	for(tam = 0; tam < width; tam++)
+ 3438              		.loc 1 83 0 is_stmt 0 discriminator 1
+ 3439 0500 B420DBE1 		ldrh	r2, [fp, #4]
+ 3440 0504 14301BE5 		ldr	r3, [fp, #-20]
+ 3441 0508 030052E1 		cmp	r2, r3
+ 3442 050c DFFFFFCA 		bgt	.L28
+  86:../lcd.c      **** }
+ 3443              		.loc 1 86 0 is_stmt 1
+ 3444 0510 0CD04BE2 		sub	sp, fp, #12
+ 3445 0514 00689DE8 		ldmfd	sp, {fp, sp, lr}
+ 3446 0518 1EFF2FE1 		bx	lr
+ 3447              		.cfi_endproc
+ 3448              	.LFE5:
+ 3450              		.align	2
+ 3451              		.global	lcd_draw_box
+ 3453              	lcd_draw_box:
+ 3454              	.LFB6:
+  87:../lcd.c      **** 
+  88:../lcd.c      **** /*
+  89:../lcd.c      **** ** Dibuja un rectángulo cuya esquina superior izquierda está en el pixel (xleft,yup) y cuya esqui
+  90:../lcd.c      **** */
+  91:../lcd.c      **** void lcd_draw_box( uint16 xleft, uint16 yup, uint16 xright, uint16 ydown, uint8 color, uint16 width
+ 3455              		.loc 1 91 0
+ 3456              		.cfi_startproc
+ 3457              		@ Function supports interworking.
+ 3458              		@ args = 8, pretend = 0, frame = 8
+ 3459              		@ frame_needed = 1, uses_anonymous_args = 0
+ 3460 051c 0DC0A0E1 		mov	ip, sp
+ 3461              	.LCFI12:
+ 3462              		.cfi_def_cfa_register 12
+ 3463 0520 00D82DE9 		stmfd	sp!, {fp, ip, lr, pc}
+ 3464 0524 04B04CE2 		sub	fp, ip, #4
+ 3465              		.cfi_offset 14, -8
+ 3466              		.cfi_offset 13, -12
+ 3467              		.cfi_offset 11, -16
+ 3468              	.LCFI13:
+ 3469              		.cfi_def_cfa 11, 4
+ 3470 0528 10D04DE2 		sub	sp, sp, #16
+ 3471 052c BE004BE1 		strh	r0, [fp, #-14]	@ movhi
+ 3472 0530 B0114BE1 		strh	r1, [fp, #-16]	@ movhi
+ 3473 0534 B2214BE1 		strh	r2, [fp, #-18]	@ movhi
+ 3474 0538 B4314BE1 		strh	r3, [fp, #-20]	@ movhi
+  92:../lcd.c      **** 	lcd_draw_hline(xleft+width, xright+width, ydown, color, width);
+ 3475              		.loc 1 92 0
+ 3476 053c BE205BE1 		ldrh	r2, [fp, #-14]	@ movhi
+ 3477 0540 B830DBE1 		ldrh	r3, [fp, #8]	@ movhi
+ 3478 0544 033082E0 		add	r3, r2, r3
+ 3479 0548 0338A0E1 		mov	r3, r3, asl #16
+ 3480 054c 2308A0E1 		mov	r0, r3, lsr #16
+ 3481 0550 B2215BE1 		ldrh	r2, [fp, #-18]	@ movhi
+ 3482 0554 B830DBE1 		ldrh	r3, [fp, #8]	@ movhi
+ 3483 0558 033082E0 		add	r3, r2, r3
+ 3484 055c 0338A0E1 		mov	r3, r3, asl #16
+ 3485 0560 2318A0E1 		mov	r1, r3, lsr #16
+ 3486 0564 B4215BE1 		ldrh	r2, [fp, #-20]
+ 3487 0568 0430DBE5 		ldrb	r3, [fp, #4]	@ zero_extendqisi2
+ 3488 056c B8C0DBE1 		ldrh	ip, [fp, #8]
+ 3489 0570 00C08DE5 		str	ip, [sp, #0]
+ 3490 0574 FEFFFFEB 		bl	lcd_draw_hline
+  93:../lcd.c      **** 	lcd_draw_vline(ydown, yup, xright, color, width);
+ 3491              		.loc 1 93 0
+ 3492 0578 B4015BE1 		ldrh	r0, [fp, #-20]
+ 3493 057c B0115BE1 		ldrh	r1, [fp, #-16]
+ 3494 0580 B2215BE1 		ldrh	r2, [fp, #-18]
+ 3495 0584 0430DBE5 		ldrb	r3, [fp, #4]	@ zero_extendqisi2
+ 3496 0588 B8C0DBE1 		ldrh	ip, [fp, #8]
+ 3497 058c 00C08DE5 		str	ip, [sp, #0]
+ 3498 0590 FEFFFFEB 		bl	lcd_draw_vline
+  94:../lcd.c      **** 	lcd_draw_hline(xleft, xright, yup, color, width);
+ 3499              		.loc 1 94 0
+ 3500 0594 BE005BE1 		ldrh	r0, [fp, #-14]
+ 3501 0598 B2115BE1 		ldrh	r1, [fp, #-18]
+ 3502 059c B0215BE1 		ldrh	r2, [fp, #-16]
+ 3503 05a0 0430DBE5 		ldrb	r3, [fp, #4]	@ zero_extendqisi2
+ 3504 05a4 B8C0DBE1 		ldrh	ip, [fp, #8]
+ 3505 05a8 00C08DE5 		str	ip, [sp, #0]
+ 3506 05ac FEFFFFEB 		bl	lcd_draw_hline
+  95:../lcd.c      **** 	lcd_draw_vline(ydown+width, yup+width, xleft, color, width);
+ 3507              		.loc 1 95 0
+ 3508 05b0 B4215BE1 		ldrh	r2, [fp, #-20]	@ movhi
+ 3509 05b4 B830DBE1 		ldrh	r3, [fp, #8]	@ movhi
+ 3510 05b8 033082E0 		add	r3, r2, r3
+ 3511 05bc 0338A0E1 		mov	r3, r3, asl #16
+ 3512 05c0 2308A0E1 		mov	r0, r3, lsr #16
+ 3513 05c4 B0215BE1 		ldrh	r2, [fp, #-16]	@ movhi
+ 3514 05c8 B830DBE1 		ldrh	r3, [fp, #8]	@ movhi
+ 3515 05cc 033082E0 		add	r3, r2, r3
+ 3516 05d0 0338A0E1 		mov	r3, r3, asl #16
+ 3517 05d4 2318A0E1 		mov	r1, r3, lsr #16
+ 3518 05d8 BE205BE1 		ldrh	r2, [fp, #-14]
+ 3519 05dc 0430DBE5 		ldrb	r3, [fp, #4]	@ zero_extendqisi2
+ 3520 05e0 B8C0DBE1 		ldrh	ip, [fp, #8]
+ 3521 05e4 00C08DE5 		str	ip, [sp, #0]
+ 3522 05e8 FEFFFFEB 		bl	lcd_draw_vline
+  96:../lcd.c      **** }
+ 3523              		.loc 1 96 0
+ 3524 05ec 0CD04BE2 		sub	sp, fp, #12
+ 3525 05f0 00689DE8 		ldmfd	sp, {fp, sp, lr}
+ 3526 05f4 1EFF2FE1 		bx	lr
+ 3527              		.cfi_endproc
+ 3528              	.LFE6:
+ 3530              		.align	2
+ 3531              		.global	lcd_pintar_celda
+ 3533              	lcd_pintar_celda:
+ 3534              	.LFB7:
+  97:../lcd.c      **** 
+  98:../lcd.c      **** void lcd_pintar_celda(uint16 x, uint16 y, uint8 tam_celda, uint8 color) {
+ 3535              		.loc 1 98 0
+ 3536              		.cfi_startproc
+ 3537              		@ Function supports interworking.
+ 3538              		@ args = 0, pretend = 0, frame = 16
+ 3539              		@ frame_needed = 1, uses_anonymous_args = 0
+ 3540 05f8 0DC0A0E1 		mov	ip, sp
+ 3541              	.LCFI14:
+ 3542              		.cfi_def_cfa_register 12
+ 3543 05fc 00D82DE9 		stmfd	sp!, {fp, ip, lr, pc}
+ 3544 0600 04B04CE2 		sub	fp, ip, #4
+ 3545              		.cfi_offset 14, -8
+ 3546              		.cfi_offset 13, -12
+ 3547              		.cfi_offset 11, -16
+ 3548              	.LCFI15:
+ 3549              		.cfi_def_cfa 11, 4
+ 3550 0604 10D04DE2 		sub	sp, sp, #16
+ 3551 0608 B6014BE1 		strh	r0, [fp, #-22]	@ movhi
+ 3552 060c B8114BE1 		strh	r1, [fp, #-24]	@ movhi
+ 3553 0610 19204BE5 		strb	r2, [fp, #-25]
+ 3554 0614 1A304BE5 		strb	r3, [fp, #-26]
+  99:../lcd.c      **** 	uint16 i, j;
+ 100:../lcd.c      **** 	for (i = x; i < x + tam_celda; ++i)
+ 3555              		.loc 1 100 0
+ 3556 0618 B6315BE1 		ldrh	r3, [fp, #-22]	@ movhi
+ 3557 061c BE304BE1 		strh	r3, [fp, #-14]	@ movhi
+ 3558 0620 150000EA 		b	.L31
+ 3559              	.L34:
+ 101:../lcd.c      **** 		for (j = y; j < y + tam_celda; ++j)
+ 3560              		.loc 1 101 0
+ 3561 0624 B8315BE1 		ldrh	r3, [fp, #-24]	@ movhi
+ 3562 0628 B0314BE1 		strh	r3, [fp, #-16]	@ movhi
+ 3563 062c 090000EA 		b	.L32
+ 3564              	.L33:
+ 102:../lcd.c      **** 			lcd_putpixel( i, j, color);
+ 3565              		.loc 1 102 0 discriminator 2
+ 3566 0630 BE105BE1 		ldrh	r1, [fp, #-14]
+ 3567 0634 B0215BE1 		ldrh	r2, [fp, #-16]
+ 3568 0638 1A305BE5 		ldrb	r3, [fp, #-26]	@ zero_extendqisi2
+ 3569 063c 0100A0E1 		mov	r0, r1
+ 3570 0640 0210A0E1 		mov	r1, r2
+ 3571 0644 0320A0E1 		mov	r2, r3
+ 3572 0648 FEFFFFEB 		bl	lcd_putpixel
+ 101:../lcd.c      **** 		for (j = y; j < y + tam_celda; ++j)
+ 3573              		.loc 1 101 0 discriminator 2
+ 3574 064c B0315BE1 		ldrh	r3, [fp, #-16]	@ movhi
+ 3575 0650 013083E2 		add	r3, r3, #1
+ 3576 0654 B0314BE1 		strh	r3, [fp, #-16]	@ movhi
+ 3577              	.L32:
+ 101:../lcd.c      **** 		for (j = y; j < y + tam_celda; ++j)
+ 3578              		.loc 1 101 0 is_stmt 0 discriminator 1
+ 3579 0658 B0215BE1 		ldrh	r2, [fp, #-16]
+ 3580 065c B8115BE1 		ldrh	r1, [fp, #-24]
+ 3581 0660 19305BE5 		ldrb	r3, [fp, #-25]	@ zero_extendqisi2
+ 3582 0664 033081E0 		add	r3, r1, r3
+ 3583 0668 030052E1 		cmp	r2, r3
+ 3584 066c EFFFFFBA 		blt	.L33
+ 100:../lcd.c      **** 	for (i = x; i < x + tam_celda; ++i)
+ 3585              		.loc 1 100 0 is_stmt 1
+ 3586 0670 BE305BE1 		ldrh	r3, [fp, #-14]	@ movhi
+ 3587 0674 013083E2 		add	r3, r3, #1
+ 3588 0678 BE304BE1 		strh	r3, [fp, #-14]	@ movhi
+ 3589              	.L31:
+ 100:../lcd.c      **** 	for (i = x; i < x + tam_celda; ++i)
+ 3590              		.loc 1 100 0 is_stmt 0 discriminator 1
+ 3591 067c BE205BE1 		ldrh	r2, [fp, #-14]
+ 3592 0680 B6115BE1 		ldrh	r1, [fp, #-22]
+ 3593 0684 19305BE5 		ldrb	r3, [fp, #-25]	@ zero_extendqisi2
+ 3594 0688 033081E0 		add	r3, r1, r3
+ 3595 068c 030052E1 		cmp	r2, r3
+ 3596 0690 E3FFFFBA 		blt	.L34
+ 103:../lcd.c      **** }
+ 3597              		.loc 1 103 0 is_stmt 1
+ 3598 0694 0CD04BE2 		sub	sp, fp, #12
+ 3599 0698 00689DE8 		ldmfd	sp, {fp, sp, lr}
+ 3600 069c 1EFF2FE1 		bx	lr
+ 3601              		.cfi_endproc
+ 3602              	.LFE7:
+ 3604              		.align	2
+ 3605              		.global	lcd_pintar_cabeza_serpiente_arriba
+ 3607              	lcd_pintar_cabeza_serpiente_arriba:
+ 3608              	.LFB8:
+ 104:../lcd.c      **** 
+ 105:../lcd.c      **** void lcd_pintar_cabeza_serpiente_arriba(uint16 x, uint16 y) {
+ 3609              		.loc 1 105 0
+ 3610              		.cfi_startproc
+ 3611              		@ Function supports interworking.
+ 3612              		@ args = 0, pretend = 0, frame = 8
+ 3613              		@ frame_needed = 1, uses_anonymous_args = 0
+ 3614 06a0 0DC0A0E1 		mov	ip, sp
+ 3615              	.LCFI16:
+ 3616              		.cfi_def_cfa_register 12
+ 3617 06a4 00D82DE9 		stmfd	sp!, {fp, ip, lr, pc}
+ 3618 06a8 04B04CE2 		sub	fp, ip, #4
+ 3619              		.cfi_offset 14, -8
+ 3620              		.cfi_offset 13, -12
+ 3621              		.cfi_offset 11, -16
+ 3622              	.LCFI17:
+ 3623              		.cfi_def_cfa 11, 4
+ 3624 06ac 08D04DE2 		sub	sp, sp, #8
+ 3625 06b0 0020A0E1 		mov	r2, r0
+ 3626 06b4 0130A0E1 		mov	r3, r1
+ 3627 06b8 BE204BE1 		strh	r2, [fp, #-14]	@ movhi
+ 3628 06bc B0314BE1 		strh	r3, [fp, #-16]	@ movhi
+ 106:../lcd.c      **** 		lcd_putpixel(x + 0, y + 3, LCD_BLACK);
+ 3629              		.loc 1 106 0
+ 3630 06c0 B0315BE1 		ldrh	r3, [fp, #-16]	@ movhi
+ 3631 06c4 033083E2 		add	r3, r3, #3
+ 3632 06c8 0338A0E1 		mov	r3, r3, asl #16
+ 3633 06cc 2338A0E1 		mov	r3, r3, lsr #16
+ 3634 06d0 BE205BE1 		ldrh	r2, [fp, #-14]
+ 3635 06d4 0200A0E1 		mov	r0, r2
+ 3636 06d8 0310A0E1 		mov	r1, r3
+ 3637 06dc 0F20A0E3 		mov	r2, #15
+ 3638 06e0 FEFFFFEB 		bl	lcd_putpixel
+ 107:../lcd.c      **** 		lcd_putpixel(x + 0, y + 4, LCD_BLACK);
+ 3639              		.loc 1 107 0
+ 3640 06e4 B0315BE1 		ldrh	r3, [fp, #-16]	@ movhi
+ 3641 06e8 043083E2 		add	r3, r3, #4
+ 3642 06ec 0338A0E1 		mov	r3, r3, asl #16
+ 3643 06f0 2338A0E1 		mov	r3, r3, lsr #16
+ 3644 06f4 BE205BE1 		ldrh	r2, [fp, #-14]
+ 3645 06f8 0200A0E1 		mov	r0, r2
+ 3646 06fc 0310A0E1 		mov	r1, r3
+ 3647 0700 0F20A0E3 		mov	r2, #15
+ 3648 0704 FEFFFFEB 		bl	lcd_putpixel
+ 108:../lcd.c      **** 		lcd_putpixel(x + 1, y + 2, LCD_BLACK);
+ 3649              		.loc 1 108 0
+ 3650 0708 BE305BE1 		ldrh	r3, [fp, #-14]	@ movhi
+ 3651 070c 013083E2 		add	r3, r3, #1
+ 3652 0710 0338A0E1 		mov	r3, r3, asl #16
+ 3653 0714 2328A0E1 		mov	r2, r3, lsr #16
+ 3654 0718 B0315BE1 		ldrh	r3, [fp, #-16]	@ movhi
+ 3655 071c 023083E2 		add	r3, r3, #2
+ 3656 0720 0338A0E1 		mov	r3, r3, asl #16
+ 3657 0724 2338A0E1 		mov	r3, r3, lsr #16
+ 3658 0728 0200A0E1 		mov	r0, r2
+ 3659 072c 0310A0E1 		mov	r1, r3
+ 3660 0730 0F20A0E3 		mov	r2, #15
+ 3661 0734 FEFFFFEB 		bl	lcd_putpixel
+ 109:../lcd.c      **** 		lcd_putpixel(x + 1, y + 5, LCD_BLACK);
+ 3662              		.loc 1 109 0
+ 3663 0738 BE305BE1 		ldrh	r3, [fp, #-14]	@ movhi
+ 3664 073c 013083E2 		add	r3, r3, #1
+ 3665 0740 0338A0E1 		mov	r3, r3, asl #16
+ 3666 0744 2328A0E1 		mov	r2, r3, lsr #16
+ 3667 0748 B0315BE1 		ldrh	r3, [fp, #-16]	@ movhi
+ 3668 074c 053083E2 		add	r3, r3, #5
+ 3669 0750 0338A0E1 		mov	r3, r3, asl #16
+ 3670 0754 2338A0E1 		mov	r3, r3, lsr #16
+ 3671 0758 0200A0E1 		mov	r0, r2
+ 3672 075c 0310A0E1 		mov	r1, r3
+ 3673 0760 0F20A0E3 		mov	r2, #15
+ 3674 0764 FEFFFFEB 		bl	lcd_putpixel
+ 110:../lcd.c      **** 		lcd_putpixel(x + 2, y + 1, LCD_BLACK);
+ 3675              		.loc 1 110 0
+ 3676 0768 BE305BE1 		ldrh	r3, [fp, #-14]	@ movhi
+ 3677 076c 023083E2 		add	r3, r3, #2
+ 3678 0770 0338A0E1 		mov	r3, r3, asl #16
+ 3679 0774 2328A0E1 		mov	r2, r3, lsr #16
+ 3680 0778 B0315BE1 		ldrh	r3, [fp, #-16]	@ movhi
+ 3681 077c 013083E2 		add	r3, r3, #1
+ 3682 0780 0338A0E1 		mov	r3, r3, asl #16
+ 3683 0784 2338A0E1 		mov	r3, r3, lsr #16
+ 3684 0788 0200A0E1 		mov	r0, r2
+ 3685 078c 0310A0E1 		mov	r1, r3
+ 3686 0790 0F20A0E3 		mov	r2, #15
+ 3687 0794 FEFFFFEB 		bl	lcd_putpixel
+ 111:../lcd.c      **** 		lcd_putpixel(x + 2, y + 6, LCD_BLACK);
+ 3688              		.loc 1 111 0
+ 3689 0798 BE305BE1 		ldrh	r3, [fp, #-14]	@ movhi
+ 3690 079c 023083E2 		add	r3, r3, #2
+ 3691 07a0 0338A0E1 		mov	r3, r3, asl #16
+ 3692 07a4 2328A0E1 		mov	r2, r3, lsr #16
+ 3693 07a8 B0315BE1 		ldrh	r3, [fp, #-16]	@ movhi
+ 3694 07ac 063083E2 		add	r3, r3, #6
+ 3695 07b0 0338A0E1 		mov	r3, r3, asl #16
+ 3696 07b4 2338A0E1 		mov	r3, r3, lsr #16
+ 3697 07b8 0200A0E1 		mov	r0, r2
+ 3698 07bc 0310A0E1 		mov	r1, r3
+ 3699 07c0 0F20A0E3 		mov	r2, #15
+ 3700 07c4 FEFFFFEB 		bl	lcd_putpixel
+ 112:../lcd.c      **** 		lcd_putpixel(x + 3, y + 0, LCD_BLACK);
+ 3701              		.loc 1 112 0
+ 3702 07c8 BE305BE1 		ldrh	r3, [fp, #-14]	@ movhi
+ 3703 07cc 033083E2 		add	r3, r3, #3
+ 3704 07d0 0338A0E1 		mov	r3, r3, asl #16
+ 3705 07d4 2328A0E1 		mov	r2, r3, lsr #16
+ 3706 07d8 B0315BE1 		ldrh	r3, [fp, #-16]
+ 3707 07dc 0200A0E1 		mov	r0, r2
+ 3708 07e0 0310A0E1 		mov	r1, r3
+ 3709 07e4 0F20A0E3 		mov	r2, #15
+ 3710 07e8 FEFFFFEB 		bl	lcd_putpixel
+ 113:../lcd.c      **** 		lcd_putpixel(x + 3, y + 7, LCD_BLACK);
+ 3711              		.loc 1 113 0
+ 3712 07ec BE305BE1 		ldrh	r3, [fp, #-14]	@ movhi
+ 3713 07f0 033083E2 		add	r3, r3, #3
+ 3714 07f4 0338A0E1 		mov	r3, r3, asl #16
+ 3715 07f8 2328A0E1 		mov	r2, r3, lsr #16
+ 3716 07fc B0315BE1 		ldrh	r3, [fp, #-16]	@ movhi
+ 3717 0800 073083E2 		add	r3, r3, #7
+ 3718 0804 0338A0E1 		mov	r3, r3, asl #16
+ 3719 0808 2338A0E1 		mov	r3, r3, lsr #16
+ 3720 080c 0200A0E1 		mov	r0, r2
+ 3721 0810 0310A0E1 		mov	r1, r3
+ 3722 0814 0F20A0E3 		mov	r2, #15
+ 3723 0818 FEFFFFEB 		bl	lcd_putpixel
+ 114:../lcd.c      **** 		lcd_putpixel(x + 4, y + 0, LCD_BLACK);
+ 3724              		.loc 1 114 0
+ 3725 081c BE305BE1 		ldrh	r3, [fp, #-14]	@ movhi
+ 3726 0820 043083E2 		add	r3, r3, #4
+ 3727 0824 0338A0E1 		mov	r3, r3, asl #16
+ 3728 0828 2328A0E1 		mov	r2, r3, lsr #16
+ 3729 082c B0315BE1 		ldrh	r3, [fp, #-16]
+ 3730 0830 0200A0E1 		mov	r0, r2
+ 3731 0834 0310A0E1 		mov	r1, r3
+ 3732 0838 0F20A0E3 		mov	r2, #15
+ 3733 083c FEFFFFEB 		bl	lcd_putpixel
+ 115:../lcd.c      **** 		lcd_putpixel(x + 4, y + 1, LCD_BLACK);
+ 3734              		.loc 1 115 0
+ 3735 0840 BE305BE1 		ldrh	r3, [fp, #-14]	@ movhi
+ 3736 0844 043083E2 		add	r3, r3, #4
+ 3737 0848 0338A0E1 		mov	r3, r3, asl #16
+ 3738 084c 2328A0E1 		mov	r2, r3, lsr #16
+ 3739 0850 B0315BE1 		ldrh	r3, [fp, #-16]	@ movhi
+ 3740 0854 013083E2 		add	r3, r3, #1
+ 3741 0858 0338A0E1 		mov	r3, r3, asl #16
+ 3742 085c 2338A0E1 		mov	r3, r3, lsr #16
+ 3743 0860 0200A0E1 		mov	r0, r2
+ 3744 0864 0310A0E1 		mov	r1, r3
+ 3745 0868 0F20A0E3 		mov	r2, #15
+ 3746 086c FEFFFFEB 		bl	lcd_putpixel
+ 116:../lcd.c      **** 		lcd_putpixel(x + 4, y + 2, LCD_BLACK);
+ 3747              		.loc 1 116 0
+ 3748 0870 BE305BE1 		ldrh	r3, [fp, #-14]	@ movhi
+ 3749 0874 043083E2 		add	r3, r3, #4
+ 3750 0878 0338A0E1 		mov	r3, r3, asl #16
+ 3751 087c 2328A0E1 		mov	r2, r3, lsr #16
+ 3752 0880 B0315BE1 		ldrh	r3, [fp, #-16]	@ movhi
+ 3753 0884 023083E2 		add	r3, r3, #2
+ 3754 0888 0338A0E1 		mov	r3, r3, asl #16
+ 3755 088c 2338A0E1 		mov	r3, r3, lsr #16
+ 3756 0890 0200A0E1 		mov	r0, r2
+ 3757 0894 0310A0E1 		mov	r1, r3
+ 3758 0898 0F20A0E3 		mov	r2, #15
+ 3759 089c FEFFFFEB 		bl	lcd_putpixel
+ 117:../lcd.c      **** 		lcd_putpixel(x + 4, y + 5, LCD_BLACK);
+ 3760              		.loc 1 117 0
+ 3761 08a0 BE305BE1 		ldrh	r3, [fp, #-14]	@ movhi
+ 3762 08a4 043083E2 		add	r3, r3, #4
+ 3763 08a8 0338A0E1 		mov	r3, r3, asl #16
+ 3764 08ac 2328A0E1 		mov	r2, r3, lsr #16
+ 3765 08b0 B0315BE1 		ldrh	r3, [fp, #-16]	@ movhi
+ 3766 08b4 053083E2 		add	r3, r3, #5
+ 3767 08b8 0338A0E1 		mov	r3, r3, asl #16
+ 3768 08bc 2338A0E1 		mov	r3, r3, lsr #16
+ 3769 08c0 0200A0E1 		mov	r0, r2
+ 3770 08c4 0310A0E1 		mov	r1, r3
+ 3771 08c8 0F20A0E3 		mov	r2, #15
+ 3772 08cc FEFFFFEB 		bl	lcd_putpixel
+ 118:../lcd.c      **** 		lcd_putpixel(x + 4, y + 6, LCD_BLACK);
+ 3773              		.loc 1 118 0
+ 3774 08d0 BE305BE1 		ldrh	r3, [fp, #-14]	@ movhi
+ 3775 08d4 043083E2 		add	r3, r3, #4
+ 3776 08d8 0338A0E1 		mov	r3, r3, asl #16
+ 3777 08dc 2328A0E1 		mov	r2, r3, lsr #16
+ 3778 08e0 B0315BE1 		ldrh	r3, [fp, #-16]	@ movhi
+ 3779 08e4 063083E2 		add	r3, r3, #6
+ 3780 08e8 0338A0E1 		mov	r3, r3, asl #16
+ 3781 08ec 2338A0E1 		mov	r3, r3, lsr #16
+ 3782 08f0 0200A0E1 		mov	r0, r2
+ 3783 08f4 0310A0E1 		mov	r1, r3
+ 3784 08f8 0F20A0E3 		mov	r2, #15
+ 3785 08fc FEFFFFEB 		bl	lcd_putpixel
+ 119:../lcd.c      **** 		lcd_putpixel(x + 4, y + 7, LCD_BLACK);
+ 3786              		.loc 1 119 0
+ 3787 0900 BE305BE1 		ldrh	r3, [fp, #-14]	@ movhi
+ 3788 0904 043083E2 		add	r3, r3, #4
+ 3789 0908 0338A0E1 		mov	r3, r3, asl #16
+ 3790 090c 2328A0E1 		mov	r2, r3, lsr #16
+ 3791 0910 B0315BE1 		ldrh	r3, [fp, #-16]	@ movhi
+ 3792 0914 073083E2 		add	r3, r3, #7
+ 3793 0918 0338A0E1 		mov	r3, r3, asl #16
+ 3794 091c 2338A0E1 		mov	r3, r3, lsr #16
+ 3795 0920 0200A0E1 		mov	r0, r2
+ 3796 0924 0310A0E1 		mov	r1, r3
+ 3797 0928 0F20A0E3 		mov	r2, #15
+ 3798 092c FEFFFFEB 		bl	lcd_putpixel
+ 120:../lcd.c      **** 		lcd_putpixel(x + 5, y + 0, LCD_BLACK);
+ 3799              		.loc 1 120 0
+ 3800 0930 BE305BE1 		ldrh	r3, [fp, #-14]	@ movhi
+ 3801 0934 053083E2 		add	r3, r3, #5
+ 3802 0938 0338A0E1 		mov	r3, r3, asl #16
+ 3803 093c 2328A0E1 		mov	r2, r3, lsr #16
+ 3804 0940 B0315BE1 		ldrh	r3, [fp, #-16]
+ 3805 0944 0200A0E1 		mov	r0, r2
+ 3806 0948 0310A0E1 		mov	r1, r3
+ 3807 094c 0F20A0E3 		mov	r2, #15
+ 3808 0950 FEFFFFEB 		bl	lcd_putpixel
+ 121:../lcd.c      **** 		lcd_putpixel(x + 5, y + 1, LCD_BLACK);
+ 3809              		.loc 1 121 0
+ 3810 0954 BE305BE1 		ldrh	r3, [fp, #-14]	@ movhi
+ 3811 0958 053083E2 		add	r3, r3, #5
+ 3812 095c 0338A0E1 		mov	r3, r3, asl #16
+ 3813 0960 2328A0E1 		mov	r2, r3, lsr #16
+ 3814 0964 B0315BE1 		ldrh	r3, [fp, #-16]	@ movhi
+ 3815 0968 013083E2 		add	r3, r3, #1
+ 3816 096c 0338A0E1 		mov	r3, r3, asl #16
+ 3817 0970 2338A0E1 		mov	r3, r3, lsr #16
+ 3818 0974 0200A0E1 		mov	r0, r2
+ 3819 0978 0310A0E1 		mov	r1, r3
+ 3820 097c 0F20A0E3 		mov	r2, #15
+ 3821 0980 FEFFFFEB 		bl	lcd_putpixel
+ 122:../lcd.c      **** 		lcd_putpixel(x + 5, y + 2, LCD_BLACK);
+ 3822              		.loc 1 122 0
+ 3823 0984 BE305BE1 		ldrh	r3, [fp, #-14]	@ movhi
+ 3824 0988 053083E2 		add	r3, r3, #5
+ 3825 098c 0338A0E1 		mov	r3, r3, asl #16
+ 3826 0990 2328A0E1 		mov	r2, r3, lsr #16
+ 3827 0994 B0315BE1 		ldrh	r3, [fp, #-16]	@ movhi
+ 3828 0998 023083E2 		add	r3, r3, #2
+ 3829 099c 0338A0E1 		mov	r3, r3, asl #16
+ 3830 09a0 2338A0E1 		mov	r3, r3, lsr #16
+ 3831 09a4 0200A0E1 		mov	r0, r2
+ 3832 09a8 0310A0E1 		mov	r1, r3
+ 3833 09ac 0F20A0E3 		mov	r2, #15
+ 3834 09b0 FEFFFFEB 		bl	lcd_putpixel
+ 123:../lcd.c      **** 		lcd_putpixel(x + 5, y + 5, LCD_BLACK);
+ 3835              		.loc 1 123 0
+ 3836 09b4 BE305BE1 		ldrh	r3, [fp, #-14]	@ movhi
+ 3837 09b8 053083E2 		add	r3, r3, #5
+ 3838 09bc 0338A0E1 		mov	r3, r3, asl #16
+ 3839 09c0 2328A0E1 		mov	r2, r3, lsr #16
+ 3840 09c4 B0315BE1 		ldrh	r3, [fp, #-16]	@ movhi
+ 3841 09c8 053083E2 		add	r3, r3, #5
+ 3842 09cc 0338A0E1 		mov	r3, r3, asl #16
+ 3843 09d0 2338A0E1 		mov	r3, r3, lsr #16
+ 3844 09d4 0200A0E1 		mov	r0, r2
+ 3845 09d8 0310A0E1 		mov	r1, r3
+ 3846 09dc 0F20A0E3 		mov	r2, #15
+ 3847 09e0 FEFFFFEB 		bl	lcd_putpixel
+ 124:../lcd.c      **** 		lcd_putpixel(x + 5, y + 6, LCD_BLACK);
+ 3848              		.loc 1 124 0
+ 3849 09e4 BE305BE1 		ldrh	r3, [fp, #-14]	@ movhi
+ 3850 09e8 053083E2 		add	r3, r3, #5
+ 3851 09ec 0338A0E1 		mov	r3, r3, asl #16
+ 3852 09f0 2328A0E1 		mov	r2, r3, lsr #16
+ 3853 09f4 B0315BE1 		ldrh	r3, [fp, #-16]	@ movhi
+ 3854 09f8 063083E2 		add	r3, r3, #6
+ 3855 09fc 0338A0E1 		mov	r3, r3, asl #16
+ 3856 0a00 2338A0E1 		mov	r3, r3, lsr #16
+ 3857 0a04 0200A0E1 		mov	r0, r2
+ 3858 0a08 0310A0E1 		mov	r1, r3
+ 3859 0a0c 0F20A0E3 		mov	r2, #15
+ 3860 0a10 FEFFFFEB 		bl	lcd_putpixel
+ 125:../lcd.c      **** 		lcd_putpixel(x + 5, y + 7, LCD_BLACK);
+ 3861              		.loc 1 125 0
+ 3862 0a14 BE305BE1 		ldrh	r3, [fp, #-14]	@ movhi
+ 3863 0a18 053083E2 		add	r3, r3, #5
+ 3864 0a1c 0338A0E1 		mov	r3, r3, asl #16
+ 3865 0a20 2328A0E1 		mov	r2, r3, lsr #16
+ 3866 0a24 B0315BE1 		ldrh	r3, [fp, #-16]	@ movhi
+ 3867 0a28 073083E2 		add	r3, r3, #7
+ 3868 0a2c 0338A0E1 		mov	r3, r3, asl #16
+ 3869 0a30 2338A0E1 		mov	r3, r3, lsr #16
+ 3870 0a34 0200A0E1 		mov	r0, r2
+ 3871 0a38 0310A0E1 		mov	r1, r3
+ 3872 0a3c 0F20A0E3 		mov	r2, #15
+ 3873 0a40 FEFFFFEB 		bl	lcd_putpixel
+ 126:../lcd.c      **** 		lcd_putpixel(x + 6, y + 0, LCD_BLACK);
+ 3874              		.loc 1 126 0
+ 3875 0a44 BE305BE1 		ldrh	r3, [fp, #-14]	@ movhi
+ 3876 0a48 063083E2 		add	r3, r3, #6
+ 3877 0a4c 0338A0E1 		mov	r3, r3, asl #16
+ 3878 0a50 2328A0E1 		mov	r2, r3, lsr #16
+ 3879 0a54 B0315BE1 		ldrh	r3, [fp, #-16]
+ 3880 0a58 0200A0E1 		mov	r0, r2
+ 3881 0a5c 0310A0E1 		mov	r1, r3
+ 3882 0a60 0F20A0E3 		mov	r2, #15
+ 3883 0a64 FEFFFFEB 		bl	lcd_putpixel
+ 127:../lcd.c      **** 		lcd_putpixel(x + 6, y + 7, LCD_BLACK);
+ 3884              		.loc 1 127 0
+ 3885 0a68 BE305BE1 		ldrh	r3, [fp, #-14]	@ movhi
+ 3886 0a6c 063083E2 		add	r3, r3, #6
+ 3887 0a70 0338A0E1 		mov	r3, r3, asl #16
+ 3888 0a74 2328A0E1 		mov	r2, r3, lsr #16
+ 3889 0a78 B0315BE1 		ldrh	r3, [fp, #-16]	@ movhi
+ 3890 0a7c 073083E2 		add	r3, r3, #7
+ 3891 0a80 0338A0E1 		mov	r3, r3, asl #16
+ 3892 0a84 2338A0E1 		mov	r3, r3, lsr #16
+ 3893 0a88 0200A0E1 		mov	r0, r2
+ 3894 0a8c 0310A0E1 		mov	r1, r3
+ 3895 0a90 0F20A0E3 		mov	r2, #15
+ 3896 0a94 FEFFFFEB 		bl	lcd_putpixel
+ 128:../lcd.c      **** 		lcd_putpixel(x + 7, y + 0, LCD_BLACK);
+ 3897              		.loc 1 128 0
+ 3898 0a98 BE305BE1 		ldrh	r3, [fp, #-14]	@ movhi
+ 3899 0a9c 073083E2 		add	r3, r3, #7
+ 3900 0aa0 0338A0E1 		mov	r3, r3, asl #16
+ 3901 0aa4 2328A0E1 		mov	r2, r3, lsr #16
+ 3902 0aa8 B0315BE1 		ldrh	r3, [fp, #-16]
+ 3903 0aac 0200A0E1 		mov	r0, r2
+ 3904 0ab0 0310A0E1 		mov	r1, r3
+ 3905 0ab4 0F20A0E3 		mov	r2, #15
+ 3906 0ab8 FEFFFFEB 		bl	lcd_putpixel
+ 129:../lcd.c      **** 		lcd_putpixel(x + 7, y + 1, LCD_BLACK);
+ 3907              		.loc 1 129 0
+ 3908 0abc BE305BE1 		ldrh	r3, [fp, #-14]	@ movhi
+ 3909 0ac0 073083E2 		add	r3, r3, #7
+ 3910 0ac4 0338A0E1 		mov	r3, r3, asl #16
+ 3911 0ac8 2328A0E1 		mov	r2, r3, lsr #16
+ 3912 0acc B0315BE1 		ldrh	r3, [fp, #-16]	@ movhi
+ 3913 0ad0 013083E2 		add	r3, r3, #1
+ 3914 0ad4 0338A0E1 		mov	r3, r3, asl #16
+ 3915 0ad8 2338A0E1 		mov	r3, r3, lsr #16
+ 3916 0adc 0200A0E1 		mov	r0, r2
+ 3917 0ae0 0310A0E1 		mov	r1, r3
+ 3918 0ae4 0F20A0E3 		mov	r2, #15
+ 3919 0ae8 FEFFFFEB 		bl	lcd_putpixel
+ 130:../lcd.c      **** 		lcd_putpixel(x + 7, y + 2, LCD_BLACK);
+ 3920              		.loc 1 130 0
+ 3921 0aec BE305BE1 		ldrh	r3, [fp, #-14]	@ movhi
+ 3922 0af0 073083E2 		add	r3, r3, #7
+ 3923 0af4 0338A0E1 		mov	r3, r3, asl #16
+ 3924 0af8 2328A0E1 		mov	r2, r3, lsr #16
+ 3925 0afc B0315BE1 		ldrh	r3, [fp, #-16]	@ movhi
+ 3926 0b00 023083E2 		add	r3, r3, #2
+ 3927 0b04 0338A0E1 		mov	r3, r3, asl #16
+ 3928 0b08 2338A0E1 		mov	r3, r3, lsr #16
+ 3929 0b0c 0200A0E1 		mov	r0, r2
+ 3930 0b10 0310A0E1 		mov	r1, r3
+ 3931 0b14 0F20A0E3 		mov	r2, #15
+ 3932 0b18 FEFFFFEB 		bl	lcd_putpixel
+ 131:../lcd.c      **** 		lcd_putpixel(x + 7, y + 3, LCD_BLACK);
+ 3933              		.loc 1 131 0
+ 3934 0b1c BE305BE1 		ldrh	r3, [fp, #-14]	@ movhi
+ 3935 0b20 073083E2 		add	r3, r3, #7
+ 3936 0b24 0338A0E1 		mov	r3, r3, asl #16
+ 3937 0b28 2328A0E1 		mov	r2, r3, lsr #16
+ 3938 0b2c B0315BE1 		ldrh	r3, [fp, #-16]	@ movhi
+ 3939 0b30 033083E2 		add	r3, r3, #3
+ 3940 0b34 0338A0E1 		mov	r3, r3, asl #16
+ 3941 0b38 2338A0E1 		mov	r3, r3, lsr #16
+ 3942 0b3c 0200A0E1 		mov	r0, r2
+ 3943 0b40 0310A0E1 		mov	r1, r3
+ 3944 0b44 0F20A0E3 		mov	r2, #15
+ 3945 0b48 FEFFFFEB 		bl	lcd_putpixel
+ 132:../lcd.c      **** 		lcd_putpixel(x + 7, y + 4, LCD_BLACK);
+ 3946              		.loc 1 132 0
+ 3947 0b4c BE305BE1 		ldrh	r3, [fp, #-14]	@ movhi
+ 3948 0b50 073083E2 		add	r3, r3, #7
+ 3949 0b54 0338A0E1 		mov	r3, r3, asl #16
+ 3950 0b58 2328A0E1 		mov	r2, r3, lsr #16
+ 3951 0b5c B0315BE1 		ldrh	r3, [fp, #-16]	@ movhi
+ 3952 0b60 043083E2 		add	r3, r3, #4
+ 3953 0b64 0338A0E1 		mov	r3, r3, asl #16
+ 3954 0b68 2338A0E1 		mov	r3, r3, lsr #16
+ 3955 0b6c 0200A0E1 		mov	r0, r2
+ 3956 0b70 0310A0E1 		mov	r1, r3
+ 3957 0b74 0F20A0E3 		mov	r2, #15
+ 3958 0b78 FEFFFFEB 		bl	lcd_putpixel
+ 133:../lcd.c      **** 		lcd_putpixel(x + 7, y + 5, LCD_BLACK);
+ 3959              		.loc 1 133 0
+ 3960 0b7c BE305BE1 		ldrh	r3, [fp, #-14]	@ movhi
+ 3961 0b80 073083E2 		add	r3, r3, #7
+ 3962 0b84 0338A0E1 		mov	r3, r3, asl #16
+ 3963 0b88 2328A0E1 		mov	r2, r3, lsr #16
+ 3964 0b8c B0315BE1 		ldrh	r3, [fp, #-16]	@ movhi
+ 3965 0b90 053083E2 		add	r3, r3, #5
+ 3966 0b94 0338A0E1 		mov	r3, r3, asl #16
+ 3967 0b98 2338A0E1 		mov	r3, r3, lsr #16
+ 3968 0b9c 0200A0E1 		mov	r0, r2
+ 3969 0ba0 0310A0E1 		mov	r1, r3
+ 3970 0ba4 0F20A0E3 		mov	r2, #15
+ 3971 0ba8 FEFFFFEB 		bl	lcd_putpixel
+ 134:../lcd.c      **** 		lcd_putpixel(x + 7, y + 6, LCD_BLACK);
+ 3972              		.loc 1 134 0
+ 3973 0bac BE305BE1 		ldrh	r3, [fp, #-14]	@ movhi
+ 3974 0bb0 073083E2 		add	r3, r3, #7
+ 3975 0bb4 0338A0E1 		mov	r3, r3, asl #16
+ 3976 0bb8 2328A0E1 		mov	r2, r3, lsr #16
+ 3977 0bbc B0315BE1 		ldrh	r3, [fp, #-16]	@ movhi
+ 3978 0bc0 063083E2 		add	r3, r3, #6
+ 3979 0bc4 0338A0E1 		mov	r3, r3, asl #16
+ 3980 0bc8 2338A0E1 		mov	r3, r3, lsr #16
+ 3981 0bcc 0200A0E1 		mov	r0, r2
+ 3982 0bd0 0310A0E1 		mov	r1, r3
+ 3983 0bd4 0F20A0E3 		mov	r2, #15
+ 3984 0bd8 FEFFFFEB 		bl	lcd_putpixel
+ 135:../lcd.c      **** 		lcd_putpixel(x + 7, y + 7, LCD_BLACK);
+ 3985              		.loc 1 135 0
+ 3986 0bdc BE305BE1 		ldrh	r3, [fp, #-14]	@ movhi
+ 3987 0be0 073083E2 		add	r3, r3, #7
+ 3988 0be4 0338A0E1 		mov	r3, r3, asl #16
+ 3989 0be8 2328A0E1 		mov	r2, r3, lsr #16
+ 3990 0bec B0315BE1 		ldrh	r3, [fp, #-16]	@ movhi
+ 3991 0bf0 073083E2 		add	r3, r3, #7
+ 3992 0bf4 0338A0E1 		mov	r3, r3, asl #16
+ 3993 0bf8 2338A0E1 		mov	r3, r3, lsr #16
+ 3994 0bfc 0200A0E1 		mov	r0, r2
+ 3995 0c00 0310A0E1 		mov	r1, r3
+ 3996 0c04 0F20A0E3 		mov	r2, #15
+ 3997 0c08 FEFFFFEB 		bl	lcd_putpixel
+ 136:../lcd.c      **** }
+ 3998              		.loc 1 136 0
+ 3999 0c0c 0CD04BE2 		sub	sp, fp, #12
+ 4000 0c10 00689DE8 		ldmfd	sp, {fp, sp, lr}
+ 4001 0c14 1EFF2FE1 		bx	lr
+ 4002              		.cfi_endproc
+ 4003              	.LFE8:
+ 4005              		.align	2
+ 4006              		.global	lcd_pintar_cabeza_serpiente_abajo
+ 4008              	lcd_pintar_cabeza_serpiente_abajo:
+ 4009              	.LFB9:
+ 137:../lcd.c      **** 
+ 138:../lcd.c      **** void lcd_pintar_cabeza_serpiente_abajo(uint16 x, uint16 y) {
+ 4010              		.loc 1 138 0
+ 4011              		.cfi_startproc
+ 4012              		@ Function supports interworking.
+ 4013              		@ args = 0, pretend = 0, frame = 8
+ 4014              		@ frame_needed = 1, uses_anonymous_args = 0
+ 4015 0c18 0DC0A0E1 		mov	ip, sp
+ 4016              	.LCFI18:
+ 4017              		.cfi_def_cfa_register 12
+ 4018 0c1c 00D82DE9 		stmfd	sp!, {fp, ip, lr, pc}
+ 4019 0c20 04B04CE2 		sub	fp, ip, #4
+ 4020              		.cfi_offset 14, -8
+ 4021              		.cfi_offset 13, -12
+ 4022              		.cfi_offset 11, -16
+ 4023              	.LCFI19:
+ 4024              		.cfi_def_cfa 11, 4
+ 4025 0c24 08D04DE2 		sub	sp, sp, #8
+ 4026 0c28 0020A0E1 		mov	r2, r0
+ 4027 0c2c 0130A0E1 		mov	r3, r1
+ 4028 0c30 BE204BE1 		strh	r2, [fp, #-14]	@ movhi
+ 4029 0c34 B0314BE1 		strh	r3, [fp, #-16]	@ movhi
+ 139:../lcd.c      **** 		lcd_putpixel(x + 0, y + 0, LCD_BLACK);
+ 4030              		.loc 1 139 0
+ 4031 0c38 BE205BE1 		ldrh	r2, [fp, #-14]
+ 4032 0c3c B0315BE1 		ldrh	r3, [fp, #-16]
+ 4033 0c40 0200A0E1 		mov	r0, r2
+ 4034 0c44 0310A0E1 		mov	r1, r3
+ 4035 0c48 0F20A0E3 		mov	r2, #15
+ 4036 0c4c FEFFFFEB 		bl	lcd_putpixel
+ 140:../lcd.c      **** 		lcd_putpixel(x + 0, y + 1, LCD_BLACK);
+ 4037              		.loc 1 140 0
+ 4038 0c50 B0315BE1 		ldrh	r3, [fp, #-16]	@ movhi
+ 4039 0c54 013083E2 		add	r3, r3, #1
+ 4040 0c58 0338A0E1 		mov	r3, r3, asl #16
+ 4041 0c5c 2338A0E1 		mov	r3, r3, lsr #16
+ 4042 0c60 BE205BE1 		ldrh	r2, [fp, #-14]
+ 4043 0c64 0200A0E1 		mov	r0, r2
+ 4044 0c68 0310A0E1 		mov	r1, r3
+ 4045 0c6c 0F20A0E3 		mov	r2, #15
+ 4046 0c70 FEFFFFEB 		bl	lcd_putpixel
+ 141:../lcd.c      **** 		lcd_putpixel(x + 0, y + 2, LCD_BLACK);
+ 4047              		.loc 1 141 0
+ 4048 0c74 B0315BE1 		ldrh	r3, [fp, #-16]	@ movhi
+ 4049 0c78 023083E2 		add	r3, r3, #2
+ 4050 0c7c 0338A0E1 		mov	r3, r3, asl #16
+ 4051 0c80 2338A0E1 		mov	r3, r3, lsr #16
+ 4052 0c84 BE205BE1 		ldrh	r2, [fp, #-14]
+ 4053 0c88 0200A0E1 		mov	r0, r2
+ 4054 0c8c 0310A0E1 		mov	r1, r3
+ 4055 0c90 0F20A0E3 		mov	r2, #15
+ 4056 0c94 FEFFFFEB 		bl	lcd_putpixel
+ 142:../lcd.c      **** 		lcd_putpixel(x + 0, y + 3, LCD_BLACK);
+ 4057              		.loc 1 142 0
+ 4058 0c98 B0315BE1 		ldrh	r3, [fp, #-16]	@ movhi
+ 4059 0c9c 033083E2 		add	r3, r3, #3
+ 4060 0ca0 0338A0E1 		mov	r3, r3, asl #16
+ 4061 0ca4 2338A0E1 		mov	r3, r3, lsr #16
+ 4062 0ca8 BE205BE1 		ldrh	r2, [fp, #-14]
+ 4063 0cac 0200A0E1 		mov	r0, r2
+ 4064 0cb0 0310A0E1 		mov	r1, r3
+ 4065 0cb4 0F20A0E3 		mov	r2, #15
+ 4066 0cb8 FEFFFFEB 		bl	lcd_putpixel
+ 143:../lcd.c      **** 		lcd_putpixel(x + 0, y + 4, LCD_BLACK);
+ 4067              		.loc 1 143 0
+ 4068 0cbc B0315BE1 		ldrh	r3, [fp, #-16]	@ movhi
+ 4069 0cc0 043083E2 		add	r3, r3, #4
+ 4070 0cc4 0338A0E1 		mov	r3, r3, asl #16
+ 4071 0cc8 2338A0E1 		mov	r3, r3, lsr #16
+ 4072 0ccc BE205BE1 		ldrh	r2, [fp, #-14]
+ 4073 0cd0 0200A0E1 		mov	r0, r2
+ 4074 0cd4 0310A0E1 		mov	r1, r3
+ 4075 0cd8 0F20A0E3 		mov	r2, #15
+ 4076 0cdc FEFFFFEB 		bl	lcd_putpixel
+ 144:../lcd.c      **** 		lcd_putpixel(x + 0, y + 5, LCD_BLACK);
+ 4077              		.loc 1 144 0
+ 4078 0ce0 B0315BE1 		ldrh	r3, [fp, #-16]	@ movhi
+ 4079 0ce4 053083E2 		add	r3, r3, #5
+ 4080 0ce8 0338A0E1 		mov	r3, r3, asl #16
+ 4081 0cec 2338A0E1 		mov	r3, r3, lsr #16
+ 4082 0cf0 BE205BE1 		ldrh	r2, [fp, #-14]
+ 4083 0cf4 0200A0E1 		mov	r0, r2
+ 4084 0cf8 0310A0E1 		mov	r1, r3
+ 4085 0cfc 0F20A0E3 		mov	r2, #15
+ 4086 0d00 FEFFFFEB 		bl	lcd_putpixel
+ 145:../lcd.c      **** 		lcd_putpixel(x + 0, y + 6, LCD_BLACK);
+ 4087              		.loc 1 145 0
+ 4088 0d04 B0315BE1 		ldrh	r3, [fp, #-16]	@ movhi
+ 4089 0d08 063083E2 		add	r3, r3, #6
+ 4090 0d0c 0338A0E1 		mov	r3, r3, asl #16
+ 4091 0d10 2338A0E1 		mov	r3, r3, lsr #16
+ 4092 0d14 BE205BE1 		ldrh	r2, [fp, #-14]
+ 4093 0d18 0200A0E1 		mov	r0, r2
+ 4094 0d1c 0310A0E1 		mov	r1, r3
+ 4095 0d20 0F20A0E3 		mov	r2, #15
+ 4096 0d24 FEFFFFEB 		bl	lcd_putpixel
+ 146:../lcd.c      **** 		lcd_putpixel(x + 0, y + 7, LCD_BLACK);
+ 4097              		.loc 1 146 0
+ 4098 0d28 B0315BE1 		ldrh	r3, [fp, #-16]	@ movhi
+ 4099 0d2c 073083E2 		add	r3, r3, #7
+ 4100 0d30 0338A0E1 		mov	r3, r3, asl #16
+ 4101 0d34 2338A0E1 		mov	r3, r3, lsr #16
+ 4102 0d38 BE205BE1 		ldrh	r2, [fp, #-14]
+ 4103 0d3c 0200A0E1 		mov	r0, r2
+ 4104 0d40 0310A0E1 		mov	r1, r3
+ 4105 0d44 0F20A0E3 		mov	r2, #15
+ 4106 0d48 FEFFFFEB 		bl	lcd_putpixel
+ 147:../lcd.c      **** 		lcd_putpixel(x + 1, y + 0, LCD_BLACK);
+ 4107              		.loc 1 147 0
+ 4108 0d4c BE305BE1 		ldrh	r3, [fp, #-14]	@ movhi
+ 4109 0d50 013083E2 		add	r3, r3, #1
+ 4110 0d54 0338A0E1 		mov	r3, r3, asl #16
+ 4111 0d58 2328A0E1 		mov	r2, r3, lsr #16
+ 4112 0d5c B0315BE1 		ldrh	r3, [fp, #-16]
+ 4113 0d60 0200A0E1 		mov	r0, r2
+ 4114 0d64 0310A0E1 		mov	r1, r3
+ 4115 0d68 0F20A0E3 		mov	r2, #15
+ 4116 0d6c FEFFFFEB 		bl	lcd_putpixel
+ 148:../lcd.c      **** 		lcd_putpixel(x + 1, y + 7, LCD_BLACK);
+ 4117              		.loc 1 148 0
+ 4118 0d70 BE305BE1 		ldrh	r3, [fp, #-14]	@ movhi
+ 4119 0d74 013083E2 		add	r3, r3, #1
+ 4120 0d78 0338A0E1 		mov	r3, r3, asl #16
+ 4121 0d7c 2328A0E1 		mov	r2, r3, lsr #16
+ 4122 0d80 B0315BE1 		ldrh	r3, [fp, #-16]	@ movhi
+ 4123 0d84 073083E2 		add	r3, r3, #7
+ 4124 0d88 0338A0E1 		mov	r3, r3, asl #16
+ 4125 0d8c 2338A0E1 		mov	r3, r3, lsr #16
+ 4126 0d90 0200A0E1 		mov	r0, r2
+ 4127 0d94 0310A0E1 		mov	r1, r3
+ 4128 0d98 0F20A0E3 		mov	r2, #15
+ 4129 0d9c FEFFFFEB 		bl	lcd_putpixel
+ 149:../lcd.c      **** 		lcd_putpixel(x + 2, y + 0, LCD_BLACK);
+ 4130              		.loc 1 149 0
+ 4131 0da0 BE305BE1 		ldrh	r3, [fp, #-14]	@ movhi
+ 4132 0da4 023083E2 		add	r3, r3, #2
+ 4133 0da8 0338A0E1 		mov	r3, r3, asl #16
+ 4134 0dac 2328A0E1 		mov	r2, r3, lsr #16
+ 4135 0db0 B0315BE1 		ldrh	r3, [fp, #-16]
+ 4136 0db4 0200A0E1 		mov	r0, r2
+ 4137 0db8 0310A0E1 		mov	r1, r3
+ 4138 0dbc 0F20A0E3 		mov	r2, #15
+ 4139 0dc0 FEFFFFEB 		bl	lcd_putpixel
+ 150:../lcd.c      **** 		lcd_putpixel(x + 2, y + 1, LCD_BLACK);
+ 4140              		.loc 1 150 0
+ 4141 0dc4 BE305BE1 		ldrh	r3, [fp, #-14]	@ movhi
+ 4142 0dc8 023083E2 		add	r3, r3, #2
+ 4143 0dcc 0338A0E1 		mov	r3, r3, asl #16
+ 4144 0dd0 2328A0E1 		mov	r2, r3, lsr #16
+ 4145 0dd4 B0315BE1 		ldrh	r3, [fp, #-16]	@ movhi
+ 4146 0dd8 013083E2 		add	r3, r3, #1
+ 4147 0ddc 0338A0E1 		mov	r3, r3, asl #16
+ 4148 0de0 2338A0E1 		mov	r3, r3, lsr #16
+ 4149 0de4 0200A0E1 		mov	r0, r2
+ 4150 0de8 0310A0E1 		mov	r1, r3
+ 4151 0dec 0F20A0E3 		mov	r2, #15
+ 4152 0df0 FEFFFFEB 		bl	lcd_putpixel
+ 151:../lcd.c      **** 		lcd_putpixel(x + 2, y + 2, LCD_BLACK);
+ 4153              		.loc 1 151 0
+ 4154 0df4 BE305BE1 		ldrh	r3, [fp, #-14]	@ movhi
+ 4155 0df8 023083E2 		add	r3, r3, #2
+ 4156 0dfc 0338A0E1 		mov	r3, r3, asl #16
+ 4157 0e00 2328A0E1 		mov	r2, r3, lsr #16
+ 4158 0e04 B0315BE1 		ldrh	r3, [fp, #-16]	@ movhi
+ 4159 0e08 023083E2 		add	r3, r3, #2
+ 4160 0e0c 0338A0E1 		mov	r3, r3, asl #16
+ 4161 0e10 2338A0E1 		mov	r3, r3, lsr #16
+ 4162 0e14 0200A0E1 		mov	r0, r2
+ 4163 0e18 0310A0E1 		mov	r1, r3
+ 4164 0e1c 0F20A0E3 		mov	r2, #15
+ 4165 0e20 FEFFFFEB 		bl	lcd_putpixel
+ 152:../lcd.c      **** 		lcd_putpixel(x + 2, y + 5, LCD_BLACK);
+ 4166              		.loc 1 152 0
+ 4167 0e24 BE305BE1 		ldrh	r3, [fp, #-14]	@ movhi
+ 4168 0e28 023083E2 		add	r3, r3, #2
+ 4169 0e2c 0338A0E1 		mov	r3, r3, asl #16
+ 4170 0e30 2328A0E1 		mov	r2, r3, lsr #16
+ 4171 0e34 B0315BE1 		ldrh	r3, [fp, #-16]	@ movhi
+ 4172 0e38 053083E2 		add	r3, r3, #5
+ 4173 0e3c 0338A0E1 		mov	r3, r3, asl #16
+ 4174 0e40 2338A0E1 		mov	r3, r3, lsr #16
+ 4175 0e44 0200A0E1 		mov	r0, r2
+ 4176 0e48 0310A0E1 		mov	r1, r3
+ 4177 0e4c 0F20A0E3 		mov	r2, #15
+ 4178 0e50 FEFFFFEB 		bl	lcd_putpixel
+ 153:../lcd.c      **** 		lcd_putpixel(x + 2, y + 6, LCD_BLACK);
+ 4179              		.loc 1 153 0
+ 4180 0e54 BE305BE1 		ldrh	r3, [fp, #-14]	@ movhi
+ 4181 0e58 023083E2 		add	r3, r3, #2
+ 4182 0e5c 0338A0E1 		mov	r3, r3, asl #16
+ 4183 0e60 2328A0E1 		mov	r2, r3, lsr #16
+ 4184 0e64 B0315BE1 		ldrh	r3, [fp, #-16]	@ movhi
+ 4185 0e68 063083E2 		add	r3, r3, #6
+ 4186 0e6c 0338A0E1 		mov	r3, r3, asl #16
+ 4187 0e70 2338A0E1 		mov	r3, r3, lsr #16
+ 4188 0e74 0200A0E1 		mov	r0, r2
+ 4189 0e78 0310A0E1 		mov	r1, r3
+ 4190 0e7c 0F20A0E3 		mov	r2, #15
+ 4191 0e80 FEFFFFEB 		bl	lcd_putpixel
+ 154:../lcd.c      **** 		lcd_putpixel(x + 2, y + 7, LCD_BLACK);
+ 4192              		.loc 1 154 0
+ 4193 0e84 BE305BE1 		ldrh	r3, [fp, #-14]	@ movhi
+ 4194 0e88 023083E2 		add	r3, r3, #2
+ 4195 0e8c 0338A0E1 		mov	r3, r3, asl #16
+ 4196 0e90 2328A0E1 		mov	r2, r3, lsr #16
+ 4197 0e94 B0315BE1 		ldrh	r3, [fp, #-16]	@ movhi
+ 4198 0e98 073083E2 		add	r3, r3, #7
+ 4199 0e9c 0338A0E1 		mov	r3, r3, asl #16
+ 4200 0ea0 2338A0E1 		mov	r3, r3, lsr #16
+ 4201 0ea4 0200A0E1 		mov	r0, r2
+ 4202 0ea8 0310A0E1 		mov	r1, r3
+ 4203 0eac 0F20A0E3 		mov	r2, #15
+ 4204 0eb0 FEFFFFEB 		bl	lcd_putpixel
+ 155:../lcd.c      **** 		lcd_putpixel(x + 3, y + 0, LCD_BLACK);
+ 4205              		.loc 1 155 0
+ 4206 0eb4 BE305BE1 		ldrh	r3, [fp, #-14]	@ movhi
+ 4207 0eb8 033083E2 		add	r3, r3, #3
+ 4208 0ebc 0338A0E1 		mov	r3, r3, asl #16
+ 4209 0ec0 2328A0E1 		mov	r2, r3, lsr #16
+ 4210 0ec4 B0315BE1 		ldrh	r3, [fp, #-16]
+ 4211 0ec8 0200A0E1 		mov	r0, r2
+ 4212 0ecc 0310A0E1 		mov	r1, r3
+ 4213 0ed0 0F20A0E3 		mov	r2, #15
+ 4214 0ed4 FEFFFFEB 		bl	lcd_putpixel
+ 156:../lcd.c      **** 		lcd_putpixel(x + 3, y + 1, LCD_BLACK);
+ 4215              		.loc 1 156 0
+ 4216 0ed8 BE305BE1 		ldrh	r3, [fp, #-14]	@ movhi
+ 4217 0edc 033083E2 		add	r3, r3, #3
+ 4218 0ee0 0338A0E1 		mov	r3, r3, asl #16
+ 4219 0ee4 2328A0E1 		mov	r2, r3, lsr #16
+ 4220 0ee8 B0315BE1 		ldrh	r3, [fp, #-16]	@ movhi
+ 4221 0eec 013083E2 		add	r3, r3, #1
+ 4222 0ef0 0338A0E1 		mov	r3, r3, asl #16
+ 4223 0ef4 2338A0E1 		mov	r3, r3, lsr #16
+ 4224 0ef8 0200A0E1 		mov	r0, r2
+ 4225 0efc 0310A0E1 		mov	r1, r3
+ 4226 0f00 0F20A0E3 		mov	r2, #15
+ 4227 0f04 FEFFFFEB 		bl	lcd_putpixel
+ 157:../lcd.c      **** 		lcd_putpixel(x + 3, y + 2, LCD_BLACK);
+ 4228              		.loc 1 157 0
+ 4229 0f08 BE305BE1 		ldrh	r3, [fp, #-14]	@ movhi
+ 4230 0f0c 033083E2 		add	r3, r3, #3
+ 4231 0f10 0338A0E1 		mov	r3, r3, asl #16
+ 4232 0f14 2328A0E1 		mov	r2, r3, lsr #16
+ 4233 0f18 B0315BE1 		ldrh	r3, [fp, #-16]	@ movhi
+ 4234 0f1c 023083E2 		add	r3, r3, #2
+ 4235 0f20 0338A0E1 		mov	r3, r3, asl #16
+ 4236 0f24 2338A0E1 		mov	r3, r3, lsr #16
+ 4237 0f28 0200A0E1 		mov	r0, r2
+ 4238 0f2c 0310A0E1 		mov	r1, r3
+ 4239 0f30 0F20A0E3 		mov	r2, #15
+ 4240 0f34 FEFFFFEB 		bl	lcd_putpixel
+ 158:../lcd.c      **** 		lcd_putpixel(x + 3, y + 5, LCD_BLACK);
+ 4241              		.loc 1 158 0
+ 4242 0f38 BE305BE1 		ldrh	r3, [fp, #-14]	@ movhi
+ 4243 0f3c 033083E2 		add	r3, r3, #3
+ 4244 0f40 0338A0E1 		mov	r3, r3, asl #16
+ 4245 0f44 2328A0E1 		mov	r2, r3, lsr #16
+ 4246 0f48 B0315BE1 		ldrh	r3, [fp, #-16]	@ movhi
+ 4247 0f4c 053083E2 		add	r3, r3, #5
+ 4248 0f50 0338A0E1 		mov	r3, r3, asl #16
+ 4249 0f54 2338A0E1 		mov	r3, r3, lsr #16
+ 4250 0f58 0200A0E1 		mov	r0, r2
+ 4251 0f5c 0310A0E1 		mov	r1, r3
+ 4252 0f60 0F20A0E3 		mov	r2, #15
+ 4253 0f64 FEFFFFEB 		bl	lcd_putpixel
+ 159:../lcd.c      **** 		lcd_putpixel(x + 3, y + 6, LCD_BLACK);
+ 4254              		.loc 1 159 0
+ 4255 0f68 BE305BE1 		ldrh	r3, [fp, #-14]	@ movhi
+ 4256 0f6c 033083E2 		add	r3, r3, #3
+ 4257 0f70 0338A0E1 		mov	r3, r3, asl #16
+ 4258 0f74 2328A0E1 		mov	r2, r3, lsr #16
+ 4259 0f78 B0315BE1 		ldrh	r3, [fp, #-16]	@ movhi
+ 4260 0f7c 063083E2 		add	r3, r3, #6
+ 4261 0f80 0338A0E1 		mov	r3, r3, asl #16
+ 4262 0f84 2338A0E1 		mov	r3, r3, lsr #16
+ 4263 0f88 0200A0E1 		mov	r0, r2
+ 4264 0f8c 0310A0E1 		mov	r1, r3
+ 4265 0f90 0F20A0E3 		mov	r2, #15
+ 4266 0f94 FEFFFFEB 		bl	lcd_putpixel
+ 160:../lcd.c      **** 		lcd_putpixel(x + 3, y + 7, LCD_BLACK);
+ 4267              		.loc 1 160 0
+ 4268 0f98 BE305BE1 		ldrh	r3, [fp, #-14]	@ movhi
+ 4269 0f9c 033083E2 		add	r3, r3, #3
+ 4270 0fa0 0338A0E1 		mov	r3, r3, asl #16
+ 4271 0fa4 2328A0E1 		mov	r2, r3, lsr #16
+ 4272 0fa8 B0315BE1 		ldrh	r3, [fp, #-16]	@ movhi
+ 4273 0fac 073083E2 		add	r3, r3, #7
+ 4274 0fb0 0338A0E1 		mov	r3, r3, asl #16
+ 4275 0fb4 2338A0E1 		mov	r3, r3, lsr #16
+ 4276 0fb8 0200A0E1 		mov	r0, r2
+ 4277 0fbc 0310A0E1 		mov	r1, r3
+ 4278 0fc0 0F20A0E3 		mov	r2, #15
+ 4279 0fc4 FEFFFFEB 		bl	lcd_putpixel
+ 161:../lcd.c      **** 		lcd_putpixel(x + 4, y + 0, LCD_BLACK);
+ 4280              		.loc 1 161 0
+ 4281 0fc8 BE305BE1 		ldrh	r3, [fp, #-14]	@ movhi
+ 4282 0fcc 043083E2 		add	r3, r3, #4
+ 4283 0fd0 0338A0E1 		mov	r3, r3, asl #16
+ 4284 0fd4 2328A0E1 		mov	r2, r3, lsr #16
+ 4285 0fd8 B0315BE1 		ldrh	r3, [fp, #-16]
+ 4286 0fdc 0200A0E1 		mov	r0, r2
+ 4287 0fe0 0310A0E1 		mov	r1, r3
+ 4288 0fe4 0F20A0E3 		mov	r2, #15
+ 4289 0fe8 FEFFFFEB 		bl	lcd_putpixel
+ 162:../lcd.c      **** 		lcd_putpixel(x + 4, y + 7, LCD_BLACK);
+ 4290              		.loc 1 162 0
+ 4291 0fec BE305BE1 		ldrh	r3, [fp, #-14]	@ movhi
+ 4292 0ff0 043083E2 		add	r3, r3, #4
+ 4293 0ff4 0338A0E1 		mov	r3, r3, asl #16
+ 4294 0ff8 2328A0E1 		mov	r2, r3, lsr #16
+ 4295 0ffc B0315BE1 		ldrh	r3, [fp, #-16]	@ movhi
+ 4296 1000 073083E2 		add	r3, r3, #7
+ 4297 1004 0338A0E1 		mov	r3, r3, asl #16
+ 4298 1008 2338A0E1 		mov	r3, r3, lsr #16
+ 4299 100c 0200A0E1 		mov	r0, r2
+ 4300 1010 0310A0E1 		mov	r1, r3
+ 4301 1014 0F20A0E3 		mov	r2, #15
+ 4302 1018 FEFFFFEB 		bl	lcd_putpixel
+ 163:../lcd.c      **** 		lcd_putpixel(x + 5, y + 1, LCD_BLACK);
+ 4303              		.loc 1 163 0
+ 4304 101c BE305BE1 		ldrh	r3, [fp, #-14]	@ movhi
+ 4305 1020 053083E2 		add	r3, r3, #5
+ 4306 1024 0338A0E1 		mov	r3, r3, asl #16
+ 4307 1028 2328A0E1 		mov	r2, r3, lsr #16
+ 4308 102c B0315BE1 		ldrh	r3, [fp, #-16]	@ movhi
+ 4309 1030 013083E2 		add	r3, r3, #1
+ 4310 1034 0338A0E1 		mov	r3, r3, asl #16
+ 4311 1038 2338A0E1 		mov	r3, r3, lsr #16
+ 4312 103c 0200A0E1 		mov	r0, r2
+ 4313 1040 0310A0E1 		mov	r1, r3
+ 4314 1044 0F20A0E3 		mov	r2, #15
+ 4315 1048 FEFFFFEB 		bl	lcd_putpixel
+ 164:../lcd.c      **** 		lcd_putpixel(x + 5, y + 6, LCD_BLACK);
+ 4316              		.loc 1 164 0
+ 4317 104c BE305BE1 		ldrh	r3, [fp, #-14]	@ movhi
+ 4318 1050 053083E2 		add	r3, r3, #5
+ 4319 1054 0338A0E1 		mov	r3, r3, asl #16
+ 4320 1058 2328A0E1 		mov	r2, r3, lsr #16
+ 4321 105c B0315BE1 		ldrh	r3, [fp, #-16]	@ movhi
+ 4322 1060 063083E2 		add	r3, r3, #6
+ 4323 1064 0338A0E1 		mov	r3, r3, asl #16
+ 4324 1068 2338A0E1 		mov	r3, r3, lsr #16
+ 4325 106c 0200A0E1 		mov	r0, r2
+ 4326 1070 0310A0E1 		mov	r1, r3
+ 4327 1074 0F20A0E3 		mov	r2, #15
+ 4328 1078 FEFFFFEB 		bl	lcd_putpixel
+ 165:../lcd.c      **** 		lcd_putpixel(x + 6, y + 2, LCD_BLACK);
+ 4329              		.loc 1 165 0
+ 4330 107c BE305BE1 		ldrh	r3, [fp, #-14]	@ movhi
+ 4331 1080 063083E2 		add	r3, r3, #6
+ 4332 1084 0338A0E1 		mov	r3, r3, asl #16
+ 4333 1088 2328A0E1 		mov	r2, r3, lsr #16
+ 4334 108c B0315BE1 		ldrh	r3, [fp, #-16]	@ movhi
+ 4335 1090 023083E2 		add	r3, r3, #2
+ 4336 1094 0338A0E1 		mov	r3, r3, asl #16
+ 4337 1098 2338A0E1 		mov	r3, r3, lsr #16
+ 4338 109c 0200A0E1 		mov	r0, r2
+ 4339 10a0 0310A0E1 		mov	r1, r3
+ 4340 10a4 0F20A0E3 		mov	r2, #15
+ 4341 10a8 FEFFFFEB 		bl	lcd_putpixel
+ 166:../lcd.c      **** 		lcd_putpixel(x + 6, y + 5, LCD_BLACK);
+ 4342              		.loc 1 166 0
+ 4343 10ac BE305BE1 		ldrh	r3, [fp, #-14]	@ movhi
+ 4344 10b0 063083E2 		add	r3, r3, #6
+ 4345 10b4 0338A0E1 		mov	r3, r3, asl #16
+ 4346 10b8 2328A0E1 		mov	r2, r3, lsr #16
+ 4347 10bc B0315BE1 		ldrh	r3, [fp, #-16]	@ movhi
+ 4348 10c0 053083E2 		add	r3, r3, #5
+ 4349 10c4 0338A0E1 		mov	r3, r3, asl #16
+ 4350 10c8 2338A0E1 		mov	r3, r3, lsr #16
+ 4351 10cc 0200A0E1 		mov	r0, r2
+ 4352 10d0 0310A0E1 		mov	r1, r3
+ 4353 10d4 0F20A0E3 		mov	r2, #15
+ 4354 10d8 FEFFFFEB 		bl	lcd_putpixel
+ 167:../lcd.c      **** 		lcd_putpixel(x + 7, y + 3, LCD_BLACK);
+ 4355              		.loc 1 167 0
+ 4356 10dc BE305BE1 		ldrh	r3, [fp, #-14]	@ movhi
+ 4357 10e0 073083E2 		add	r3, r3, #7
+ 4358 10e4 0338A0E1 		mov	r3, r3, asl #16
+ 4359 10e8 2328A0E1 		mov	r2, r3, lsr #16
+ 4360 10ec B0315BE1 		ldrh	r3, [fp, #-16]	@ movhi
+ 4361 10f0 033083E2 		add	r3, r3, #3
+ 4362 10f4 0338A0E1 		mov	r3, r3, asl #16
+ 4363 10f8 2338A0E1 		mov	r3, r3, lsr #16
+ 4364 10fc 0200A0E1 		mov	r0, r2
+ 4365 1100 0310A0E1 		mov	r1, r3
+ 4366 1104 0F20A0E3 		mov	r2, #15
+ 4367 1108 FEFFFFEB 		bl	lcd_putpixel
+ 168:../lcd.c      **** 		lcd_putpixel(x + 7, y + 4, LCD_BLACK);
+ 4368              		.loc 1 168 0
+ 4369 110c BE305BE1 		ldrh	r3, [fp, #-14]	@ movhi
+ 4370 1110 073083E2 		add	r3, r3, #7
+ 4371 1114 0338A0E1 		mov	r3, r3, asl #16
+ 4372 1118 2328A0E1 		mov	r2, r3, lsr #16
+ 4373 111c B0315BE1 		ldrh	r3, [fp, #-16]	@ movhi
+ 4374 1120 043083E2 		add	r3, r3, #4
+ 4375 1124 0338A0E1 		mov	r3, r3, asl #16
+ 4376 1128 2338A0E1 		mov	r3, r3, lsr #16
+ 4377 112c 0200A0E1 		mov	r0, r2
+ 4378 1130 0310A0E1 		mov	r1, r3
+ 4379 1134 0F20A0E3 		mov	r2, #15
+ 4380 1138 FEFFFFEB 		bl	lcd_putpixel
+ 169:../lcd.c      **** }
+ 4381              		.loc 1 169 0
+ 4382 113c 0CD04BE2 		sub	sp, fp, #12
+ 4383 1140 00689DE8 		ldmfd	sp, {fp, sp, lr}
+ 4384 1144 1EFF2FE1 		bx	lr
+ 4385              		.cfi_endproc
+ 4386              	.LFE9:
+ 4388              		.align	2
+ 4389              		.global	lcd_pintar_cabeza_serpiente_derecha
+ 4391              	lcd_pintar_cabeza_serpiente_derecha:
+ 4392              	.LFB10:
+ 170:../lcd.c      **** 
+ 171:../lcd.c      **** void lcd_pintar_cabeza_serpiente_derecha(uint16 x, uint16 y) {
+ 4393              		.loc 1 171 0
+ 4394              		.cfi_startproc
+ 4395              		@ Function supports interworking.
+ 4396              		@ args = 0, pretend = 0, frame = 8
+ 4397              		@ frame_needed = 1, uses_anonymous_args = 0
+ 4398 1148 0DC0A0E1 		mov	ip, sp
+ 4399              	.LCFI20:
+ 4400              		.cfi_def_cfa_register 12
+ 4401 114c 00D82DE9 		stmfd	sp!, {fp, ip, lr, pc}
+ 4402 1150 04B04CE2 		sub	fp, ip, #4
+ 4403              		.cfi_offset 14, -8
+ 4404              		.cfi_offset 13, -12
+ 4405              		.cfi_offset 11, -16
+ 4406              	.LCFI21:
+ 4407              		.cfi_def_cfa 11, 4
+ 4408 1154 08D04DE2 		sub	sp, sp, #8
+ 4409 1158 0020A0E1 		mov	r2, r0
+ 4410 115c 0130A0E1 		mov	r3, r1
+ 4411 1160 BE204BE1 		strh	r2, [fp, #-14]	@ movhi
+ 4412 1164 B0314BE1 		strh	r3, [fp, #-16]	@ movhi
+ 172:../lcd.c      **** 		lcd_putpixel(x + 0, y + 0, LCD_BLACK);
+ 4413              		.loc 1 172 0
+ 4414 1168 BE205BE1 		ldrh	r2, [fp, #-14]
+ 4415 116c B0315BE1 		ldrh	r3, [fp, #-16]
+ 4416 1170 0200A0E1 		mov	r0, r2
+ 4417 1174 0310A0E1 		mov	r1, r3
+ 4418 1178 0F20A0E3 		mov	r2, #15
+ 4419 117c FEFFFFEB 		bl	lcd_putpixel
+ 173:../lcd.c      **** 		lcd_putpixel(x + 1, y + 0, LCD_BLACK);
+ 4420              		.loc 1 173 0
+ 4421 1180 BE305BE1 		ldrh	r3, [fp, #-14]	@ movhi
+ 4422 1184 013083E2 		add	r3, r3, #1
+ 4423 1188 0338A0E1 		mov	r3, r3, asl #16
+ 4424 118c 2328A0E1 		mov	r2, r3, lsr #16
+ 4425 1190 B0315BE1 		ldrh	r3, [fp, #-16]
+ 4426 1194 0200A0E1 		mov	r0, r2
+ 4427 1198 0310A0E1 		mov	r1, r3
+ 4428 119c 0F20A0E3 		mov	r2, #15
+ 4429 11a0 FEFFFFEB 		bl	lcd_putpixel
+ 174:../lcd.c      **** 		lcd_putpixel(x + 2, y + 0, LCD_BLACK);
+ 4430              		.loc 1 174 0
+ 4431 11a4 BE305BE1 		ldrh	r3, [fp, #-14]	@ movhi
+ 4432 11a8 023083E2 		add	r3, r3, #2
+ 4433 11ac 0338A0E1 		mov	r3, r3, asl #16
+ 4434 11b0 2328A0E1 		mov	r2, r3, lsr #16
+ 4435 11b4 B0315BE1 		ldrh	r3, [fp, #-16]
+ 4436 11b8 0200A0E1 		mov	r0, r2
+ 4437 11bc 0310A0E1 		mov	r1, r3
+ 4438 11c0 0F20A0E3 		mov	r2, #15
+ 4439 11c4 FEFFFFEB 		bl	lcd_putpixel
+ 175:../lcd.c      **** 		lcd_putpixel(x + 3, y + 0, LCD_BLACK);
+ 4440              		.loc 1 175 0
+ 4441 11c8 BE305BE1 		ldrh	r3, [fp, #-14]	@ movhi
+ 4442 11cc 033083E2 		add	r3, r3, #3
+ 4443 11d0 0338A0E1 		mov	r3, r3, asl #16
+ 4444 11d4 2328A0E1 		mov	r2, r3, lsr #16
+ 4445 11d8 B0315BE1 		ldrh	r3, [fp, #-16]
+ 4446 11dc 0200A0E1 		mov	r0, r2
+ 4447 11e0 0310A0E1 		mov	r1, r3
+ 4448 11e4 0F20A0E3 		mov	r2, #15
+ 4449 11e8 FEFFFFEB 		bl	lcd_putpixel
+ 176:../lcd.c      **** 		lcd_putpixel(x + 4, y + 0, LCD_BLACK);
+ 4450              		.loc 1 176 0
+ 4451 11ec BE305BE1 		ldrh	r3, [fp, #-14]	@ movhi
+ 4452 11f0 043083E2 		add	r3, r3, #4
+ 4453 11f4 0338A0E1 		mov	r3, r3, asl #16
+ 4454 11f8 2328A0E1 		mov	r2, r3, lsr #16
+ 4455 11fc B0315BE1 		ldrh	r3, [fp, #-16]
+ 4456 1200 0200A0E1 		mov	r0, r2
+ 4457 1204 0310A0E1 		mov	r1, r3
+ 4458 1208 0F20A0E3 		mov	r2, #15
+ 4459 120c FEFFFFEB 		bl	lcd_putpixel
+ 177:../lcd.c      **** 		lcd_putpixel(x + 5, y + 0, LCD_BLACK);
+ 4460              		.loc 1 177 0
+ 4461 1210 BE305BE1 		ldrh	r3, [fp, #-14]	@ movhi
+ 4462 1214 053083E2 		add	r3, r3, #5
+ 4463 1218 0338A0E1 		mov	r3, r3, asl #16
+ 4464 121c 2328A0E1 		mov	r2, r3, lsr #16
+ 4465 1220 B0315BE1 		ldrh	r3, [fp, #-16]
+ 4466 1224 0200A0E1 		mov	r0, r2
+ 4467 1228 0310A0E1 		mov	r1, r3
+ 4468 122c 0F20A0E3 		mov	r2, #15
+ 4469 1230 FEFFFFEB 		bl	lcd_putpixel
+ 178:../lcd.c      **** 		lcd_putpixel(x + 6, y + 0, LCD_BLACK);
+ 4470              		.loc 1 178 0
+ 4471 1234 BE305BE1 		ldrh	r3, [fp, #-14]	@ movhi
+ 4472 1238 063083E2 		add	r3, r3, #6
+ 4473 123c 0338A0E1 		mov	r3, r3, asl #16
+ 4474 1240 2328A0E1 		mov	r2, r3, lsr #16
+ 4475 1244 B0315BE1 		ldrh	r3, [fp, #-16]
+ 4476 1248 0200A0E1 		mov	r0, r2
+ 4477 124c 0310A0E1 		mov	r1, r3
+ 4478 1250 0F20A0E3 		mov	r2, #15
+ 4479 1254 FEFFFFEB 		bl	lcd_putpixel
+ 179:../lcd.c      **** 		lcd_putpixel(x + 7, y + 0, LCD_BLACK);
+ 4480              		.loc 1 179 0
+ 4481 1258 BE305BE1 		ldrh	r3, [fp, #-14]	@ movhi
+ 4482 125c 073083E2 		add	r3, r3, #7
+ 4483 1260 0338A0E1 		mov	r3, r3, asl #16
+ 4484 1264 2328A0E1 		mov	r2, r3, lsr #16
+ 4485 1268 B0315BE1 		ldrh	r3, [fp, #-16]
+ 4486 126c 0200A0E1 		mov	r0, r2
+ 4487 1270 0310A0E1 		mov	r1, r3
+ 4488 1274 0F20A0E3 		mov	r2, #15
+ 4489 1278 FEFFFFEB 		bl	lcd_putpixel
+ 180:../lcd.c      **** 		lcd_putpixel(x + 0, y + 1, LCD_BLACK);
+ 4490              		.loc 1 180 0
+ 4491 127c B0315BE1 		ldrh	r3, [fp, #-16]	@ movhi
+ 4492 1280 013083E2 		add	r3, r3, #1
+ 4493 1284 0338A0E1 		mov	r3, r3, asl #16
+ 4494 1288 2338A0E1 		mov	r3, r3, lsr #16
+ 4495 128c BE205BE1 		ldrh	r2, [fp, #-14]
+ 4496 1290 0200A0E1 		mov	r0, r2
+ 4497 1294 0310A0E1 		mov	r1, r3
+ 4498 1298 0F20A0E3 		mov	r2, #15
+ 4499 129c FEFFFFEB 		bl	lcd_putpixel
+ 181:../lcd.c      **** 		lcd_putpixel(x + 7, y + 1, LCD_BLACK);
+ 4500              		.loc 1 181 0
+ 4501 12a0 BE305BE1 		ldrh	r3, [fp, #-14]	@ movhi
+ 4502 12a4 073083E2 		add	r3, r3, #7
+ 4503 12a8 0338A0E1 		mov	r3, r3, asl #16
+ 4504 12ac 2328A0E1 		mov	r2, r3, lsr #16
+ 4505 12b0 B0315BE1 		ldrh	r3, [fp, #-16]	@ movhi
+ 4506 12b4 013083E2 		add	r3, r3, #1
+ 4507 12b8 0338A0E1 		mov	r3, r3, asl #16
+ 4508 12bc 2338A0E1 		mov	r3, r3, lsr #16
+ 4509 12c0 0200A0E1 		mov	r0, r2
+ 4510 12c4 0310A0E1 		mov	r1, r3
+ 4511 12c8 0F20A0E3 		mov	r2, #15
+ 4512 12cc FEFFFFEB 		bl	lcd_putpixel
+ 182:../lcd.c      **** 		lcd_putpixel(x + 0, y + 2, LCD_BLACK);
+ 4513              		.loc 1 182 0
+ 4514 12d0 B0315BE1 		ldrh	r3, [fp, #-16]	@ movhi
+ 4515 12d4 023083E2 		add	r3, r3, #2
+ 4516 12d8 0338A0E1 		mov	r3, r3, asl #16
+ 4517 12dc 2338A0E1 		mov	r3, r3, lsr #16
+ 4518 12e0 BE205BE1 		ldrh	r2, [fp, #-14]
+ 4519 12e4 0200A0E1 		mov	r0, r2
+ 4520 12e8 0310A0E1 		mov	r1, r3
+ 4521 12ec 0F20A0E3 		mov	r2, #15
+ 4522 12f0 FEFFFFEB 		bl	lcd_putpixel
+ 183:../lcd.c      **** 		lcd_putpixel(x + 1, y + 2, LCD_BLACK);
+ 4523              		.loc 1 183 0
+ 4524 12f4 BE305BE1 		ldrh	r3, [fp, #-14]	@ movhi
+ 4525 12f8 013083E2 		add	r3, r3, #1
+ 4526 12fc 0338A0E1 		mov	r3, r3, asl #16
+ 4527 1300 2328A0E1 		mov	r2, r3, lsr #16
+ 4528 1304 B0315BE1 		ldrh	r3, [fp, #-16]	@ movhi
+ 4529 1308 023083E2 		add	r3, r3, #2
+ 4530 130c 0338A0E1 		mov	r3, r3, asl #16
+ 4531 1310 2338A0E1 		mov	r3, r3, lsr #16
+ 4532 1314 0200A0E1 		mov	r0, r2
+ 4533 1318 0310A0E1 		mov	r1, r3
+ 4534 131c 0F20A0E3 		mov	r2, #15
+ 4535 1320 FEFFFFEB 		bl	lcd_putpixel
+ 184:../lcd.c      **** 		lcd_putpixel(x + 2, y + 2, LCD_BLACK);
+ 4536              		.loc 1 184 0
+ 4537 1324 BE305BE1 		ldrh	r3, [fp, #-14]	@ movhi
+ 4538 1328 023083E2 		add	r3, r3, #2
+ 4539 132c 0338A0E1 		mov	r3, r3, asl #16
+ 4540 1330 2328A0E1 		mov	r2, r3, lsr #16
+ 4541 1334 B0315BE1 		ldrh	r3, [fp, #-16]	@ movhi
+ 4542 1338 023083E2 		add	r3, r3, #2
+ 4543 133c 0338A0E1 		mov	r3, r3, asl #16
+ 4544 1340 2338A0E1 		mov	r3, r3, lsr #16
+ 4545 1344 0200A0E1 		mov	r0, r2
+ 4546 1348 0310A0E1 		mov	r1, r3
+ 4547 134c 0F20A0E3 		mov	r2, #15
+ 4548 1350 FEFFFFEB 		bl	lcd_putpixel
+ 185:../lcd.c      **** 		lcd_putpixel(x + 5, y + 2, LCD_BLACK);
+ 4549              		.loc 1 185 0
+ 4550 1354 BE305BE1 		ldrh	r3, [fp, #-14]	@ movhi
+ 4551 1358 053083E2 		add	r3, r3, #5
+ 4552 135c 0338A0E1 		mov	r3, r3, asl #16
+ 4553 1360 2328A0E1 		mov	r2, r3, lsr #16
+ 4554 1364 B0315BE1 		ldrh	r3, [fp, #-16]	@ movhi
+ 4555 1368 023083E2 		add	r3, r3, #2
+ 4556 136c 0338A0E1 		mov	r3, r3, asl #16
+ 4557 1370 2338A0E1 		mov	r3, r3, lsr #16
+ 4558 1374 0200A0E1 		mov	r0, r2
+ 4559 1378 0310A0E1 		mov	r1, r3
+ 4560 137c 0F20A0E3 		mov	r2, #15
+ 4561 1380 FEFFFFEB 		bl	lcd_putpixel
+ 186:../lcd.c      **** 		lcd_putpixel(x + 6, y + 2, LCD_BLACK);
+ 4562              		.loc 1 186 0
+ 4563 1384 BE305BE1 		ldrh	r3, [fp, #-14]	@ movhi
+ 4564 1388 063083E2 		add	r3, r3, #6
+ 4565 138c 0338A0E1 		mov	r3, r3, asl #16
+ 4566 1390 2328A0E1 		mov	r2, r3, lsr #16
+ 4567 1394 B0315BE1 		ldrh	r3, [fp, #-16]	@ movhi
+ 4568 1398 023083E2 		add	r3, r3, #2
+ 4569 139c 0338A0E1 		mov	r3, r3, asl #16
+ 4570 13a0 2338A0E1 		mov	r3, r3, lsr #16
+ 4571 13a4 0200A0E1 		mov	r0, r2
+ 4572 13a8 0310A0E1 		mov	r1, r3
+ 4573 13ac 0F20A0E3 		mov	r2, #15
+ 4574 13b0 FEFFFFEB 		bl	lcd_putpixel
+ 187:../lcd.c      **** 		lcd_putpixel(x + 7, y + 2, LCD_BLACK);
+ 4575              		.loc 1 187 0
+ 4576 13b4 BE305BE1 		ldrh	r3, [fp, #-14]	@ movhi
+ 4577 13b8 073083E2 		add	r3, r3, #7
+ 4578 13bc 0338A0E1 		mov	r3, r3, asl #16
+ 4579 13c0 2328A0E1 		mov	r2, r3, lsr #16
+ 4580 13c4 B0315BE1 		ldrh	r3, [fp, #-16]	@ movhi
+ 4581 13c8 023083E2 		add	r3, r3, #2
+ 4582 13cc 0338A0E1 		mov	r3, r3, asl #16
+ 4583 13d0 2338A0E1 		mov	r3, r3, lsr #16
+ 4584 13d4 0200A0E1 		mov	r0, r2
+ 4585 13d8 0310A0E1 		mov	r1, r3
+ 4586 13dc 0F20A0E3 		mov	r2, #15
+ 4587 13e0 FEFFFFEB 		bl	lcd_putpixel
+ 188:../lcd.c      **** 		lcd_putpixel(x + 0, y + 3, LCD_BLACK);
+ 4588              		.loc 1 188 0
+ 4589 13e4 B0315BE1 		ldrh	r3, [fp, #-16]	@ movhi
+ 4590 13e8 033083E2 		add	r3, r3, #3
+ 4591 13ec 0338A0E1 		mov	r3, r3, asl #16
+ 4592 13f0 2338A0E1 		mov	r3, r3, lsr #16
+ 4593 13f4 BE205BE1 		ldrh	r2, [fp, #-14]
+ 4594 13f8 0200A0E1 		mov	r0, r2
+ 4595 13fc 0310A0E1 		mov	r1, r3
+ 4596 1400 0F20A0E3 		mov	r2, #15
+ 4597 1404 FEFFFFEB 		bl	lcd_putpixel
+ 189:../lcd.c      **** 		lcd_putpixel(x + 1, y + 3, LCD_BLACK);
+ 4598              		.loc 1 189 0
+ 4599 1408 BE305BE1 		ldrh	r3, [fp, #-14]	@ movhi
+ 4600 140c 013083E2 		add	r3, r3, #1
+ 4601 1410 0338A0E1 		mov	r3, r3, asl #16
+ 4602 1414 2328A0E1 		mov	r2, r3, lsr #16
+ 4603 1418 B0315BE1 		ldrh	r3, [fp, #-16]	@ movhi
+ 4604 141c 033083E2 		add	r3, r3, #3
+ 4605 1420 0338A0E1 		mov	r3, r3, asl #16
+ 4606 1424 2338A0E1 		mov	r3, r3, lsr #16
+ 4607 1428 0200A0E1 		mov	r0, r2
+ 4608 142c 0310A0E1 		mov	r1, r3
+ 4609 1430 0F20A0E3 		mov	r2, #15
+ 4610 1434 FEFFFFEB 		bl	lcd_putpixel
+ 190:../lcd.c      **** 		lcd_putpixel(x + 2, y + 3, LCD_BLACK);
+ 4611              		.loc 1 190 0
+ 4612 1438 BE305BE1 		ldrh	r3, [fp, #-14]	@ movhi
+ 4613 143c 023083E2 		add	r3, r3, #2
+ 4614 1440 0338A0E1 		mov	r3, r3, asl #16
+ 4615 1444 2328A0E1 		mov	r2, r3, lsr #16
+ 4616 1448 B0315BE1 		ldrh	r3, [fp, #-16]	@ movhi
+ 4617 144c 033083E2 		add	r3, r3, #3
+ 4618 1450 0338A0E1 		mov	r3, r3, asl #16
+ 4619 1454 2338A0E1 		mov	r3, r3, lsr #16
+ 4620 1458 0200A0E1 		mov	r0, r2
+ 4621 145c 0310A0E1 		mov	r1, r3
+ 4622 1460 0F20A0E3 		mov	r2, #15
+ 4623 1464 FEFFFFEB 		bl	lcd_putpixel
+ 191:../lcd.c      **** 		lcd_putpixel(x + 5, y + 3, LCD_BLACK);
+ 4624              		.loc 1 191 0
+ 4625 1468 BE305BE1 		ldrh	r3, [fp, #-14]	@ movhi
+ 4626 146c 053083E2 		add	r3, r3, #5
+ 4627 1470 0338A0E1 		mov	r3, r3, asl #16
+ 4628 1474 2328A0E1 		mov	r2, r3, lsr #16
+ 4629 1478 B0315BE1 		ldrh	r3, [fp, #-16]	@ movhi
+ 4630 147c 033083E2 		add	r3, r3, #3
+ 4631 1480 0338A0E1 		mov	r3, r3, asl #16
+ 4632 1484 2338A0E1 		mov	r3, r3, lsr #16
+ 4633 1488 0200A0E1 		mov	r0, r2
+ 4634 148c 0310A0E1 		mov	r1, r3
+ 4635 1490 0F20A0E3 		mov	r2, #15
+ 4636 1494 FEFFFFEB 		bl	lcd_putpixel
+ 192:../lcd.c      **** 		lcd_putpixel(x + 6, y + 3, LCD_BLACK);
+ 4637              		.loc 1 192 0
+ 4638 1498 BE305BE1 		ldrh	r3, [fp, #-14]	@ movhi
+ 4639 149c 063083E2 		add	r3, r3, #6
+ 4640 14a0 0338A0E1 		mov	r3, r3, asl #16
+ 4641 14a4 2328A0E1 		mov	r2, r3, lsr #16
+ 4642 14a8 B0315BE1 		ldrh	r3, [fp, #-16]	@ movhi
+ 4643 14ac 033083E2 		add	r3, r3, #3
+ 4644 14b0 0338A0E1 		mov	r3, r3, asl #16
+ 4645 14b4 2338A0E1 		mov	r3, r3, lsr #16
+ 4646 14b8 0200A0E1 		mov	r0, r2
+ 4647 14bc 0310A0E1 		mov	r1, r3
+ 4648 14c0 0F20A0E3 		mov	r2, #15
+ 4649 14c4 FEFFFFEB 		bl	lcd_putpixel
+ 193:../lcd.c      **** 		lcd_putpixel(x + 7, y + 3, LCD_BLACK);
+ 4650              		.loc 1 193 0
+ 4651 14c8 BE305BE1 		ldrh	r3, [fp, #-14]	@ movhi
+ 4652 14cc 073083E2 		add	r3, r3, #7
+ 4653 14d0 0338A0E1 		mov	r3, r3, asl #16
+ 4654 14d4 2328A0E1 		mov	r2, r3, lsr #16
+ 4655 14d8 B0315BE1 		ldrh	r3, [fp, #-16]	@ movhi
+ 4656 14dc 033083E2 		add	r3, r3, #3
+ 4657 14e0 0338A0E1 		mov	r3, r3, asl #16
+ 4658 14e4 2338A0E1 		mov	r3, r3, lsr #16
+ 4659 14e8 0200A0E1 		mov	r0, r2
+ 4660 14ec 0310A0E1 		mov	r1, r3
+ 4661 14f0 0F20A0E3 		mov	r2, #15
+ 4662 14f4 FEFFFFEB 		bl	lcd_putpixel
+ 194:../lcd.c      **** 		lcd_putpixel(x + 0, y + 4, LCD_BLACK);
+ 4663              		.loc 1 194 0
+ 4664 14f8 B0315BE1 		ldrh	r3, [fp, #-16]	@ movhi
+ 4665 14fc 043083E2 		add	r3, r3, #4
+ 4666 1500 0338A0E1 		mov	r3, r3, asl #16
+ 4667 1504 2338A0E1 		mov	r3, r3, lsr #16
+ 4668 1508 BE205BE1 		ldrh	r2, [fp, #-14]
+ 4669 150c 0200A0E1 		mov	r0, r2
+ 4670 1510 0310A0E1 		mov	r1, r3
+ 4671 1514 0F20A0E3 		mov	r2, #15
+ 4672 1518 FEFFFFEB 		bl	lcd_putpixel
+ 195:../lcd.c      **** 		lcd_putpixel(x + 7, y + 4, LCD_BLACK);
+ 4673              		.loc 1 195 0
+ 4674 151c BE305BE1 		ldrh	r3, [fp, #-14]	@ movhi
+ 4675 1520 073083E2 		add	r3, r3, #7
+ 4676 1524 0338A0E1 		mov	r3, r3, asl #16
+ 4677 1528 2328A0E1 		mov	r2, r3, lsr #16
+ 4678 152c B0315BE1 		ldrh	r3, [fp, #-16]	@ movhi
+ 4679 1530 043083E2 		add	r3, r3, #4
+ 4680 1534 0338A0E1 		mov	r3, r3, asl #16
+ 4681 1538 2338A0E1 		mov	r3, r3, lsr #16
+ 4682 153c 0200A0E1 		mov	r0, r2
+ 4683 1540 0310A0E1 		mov	r1, r3
+ 4684 1544 0F20A0E3 		mov	r2, #15
+ 4685 1548 FEFFFFEB 		bl	lcd_putpixel
+ 196:../lcd.c      **** 		lcd_putpixel(x + 1, y + 5, LCD_BLACK);
+ 4686              		.loc 1 196 0
+ 4687 154c BE305BE1 		ldrh	r3, [fp, #-14]	@ movhi
+ 4688 1550 013083E2 		add	r3, r3, #1
+ 4689 1554 0338A0E1 		mov	r3, r3, asl #16
+ 4690 1558 2328A0E1 		mov	r2, r3, lsr #16
+ 4691 155c B0315BE1 		ldrh	r3, [fp, #-16]	@ movhi
+ 4692 1560 053083E2 		add	r3, r3, #5
+ 4693 1564 0338A0E1 		mov	r3, r3, asl #16
+ 4694 1568 2338A0E1 		mov	r3, r3, lsr #16
+ 4695 156c 0200A0E1 		mov	r0, r2
+ 4696 1570 0310A0E1 		mov	r1, r3
+ 4697 1574 0F20A0E3 		mov	r2, #15
+ 4698 1578 FEFFFFEB 		bl	lcd_putpixel
+ 197:../lcd.c      **** 		lcd_putpixel(x + 6, y + 5, LCD_BLACK);
+ 4699              		.loc 1 197 0
+ 4700 157c BE305BE1 		ldrh	r3, [fp, #-14]	@ movhi
+ 4701 1580 063083E2 		add	r3, r3, #6
+ 4702 1584 0338A0E1 		mov	r3, r3, asl #16
+ 4703 1588 2328A0E1 		mov	r2, r3, lsr #16
+ 4704 158c B0315BE1 		ldrh	r3, [fp, #-16]	@ movhi
+ 4705 1590 053083E2 		add	r3, r3, #5
+ 4706 1594 0338A0E1 		mov	r3, r3, asl #16
+ 4707 1598 2338A0E1 		mov	r3, r3, lsr #16
+ 4708 159c 0200A0E1 		mov	r0, r2
+ 4709 15a0 0310A0E1 		mov	r1, r3
+ 4710 15a4 0F20A0E3 		mov	r2, #15
+ 4711 15a8 FEFFFFEB 		bl	lcd_putpixel
+ 198:../lcd.c      **** 		lcd_putpixel(x + 2, y + 6, LCD_BLACK);
+ 4712              		.loc 1 198 0
+ 4713 15ac BE305BE1 		ldrh	r3, [fp, #-14]	@ movhi
+ 4714 15b0 023083E2 		add	r3, r3, #2
+ 4715 15b4 0338A0E1 		mov	r3, r3, asl #16
+ 4716 15b8 2328A0E1 		mov	r2, r3, lsr #16
+ 4717 15bc B0315BE1 		ldrh	r3, [fp, #-16]	@ movhi
+ 4718 15c0 063083E2 		add	r3, r3, #6
+ 4719 15c4 0338A0E1 		mov	r3, r3, asl #16
+ 4720 15c8 2338A0E1 		mov	r3, r3, lsr #16
+ 4721 15cc 0200A0E1 		mov	r0, r2
+ 4722 15d0 0310A0E1 		mov	r1, r3
+ 4723 15d4 0F20A0E3 		mov	r2, #15
+ 4724 15d8 FEFFFFEB 		bl	lcd_putpixel
+ 199:../lcd.c      **** 		lcd_putpixel(x + 5, y + 6, LCD_BLACK);
+ 4725              		.loc 1 199 0
+ 4726 15dc BE305BE1 		ldrh	r3, [fp, #-14]	@ movhi
+ 4727 15e0 053083E2 		add	r3, r3, #5
+ 4728 15e4 0338A0E1 		mov	r3, r3, asl #16
+ 4729 15e8 2328A0E1 		mov	r2, r3, lsr #16
+ 4730 15ec B0315BE1 		ldrh	r3, [fp, #-16]	@ movhi
+ 4731 15f0 063083E2 		add	r3, r3, #6
+ 4732 15f4 0338A0E1 		mov	r3, r3, asl #16
+ 4733 15f8 2338A0E1 		mov	r3, r3, lsr #16
+ 4734 15fc 0200A0E1 		mov	r0, r2
+ 4735 1600 0310A0E1 		mov	r1, r3
+ 4736 1604 0F20A0E3 		mov	r2, #15
+ 4737 1608 FEFFFFEB 		bl	lcd_putpixel
+ 200:../lcd.c      **** 		lcd_putpixel(x + 3, y + 7, LCD_BLACK);
+ 4738              		.loc 1 200 0
+ 4739 160c BE305BE1 		ldrh	r3, [fp, #-14]	@ movhi
+ 4740 1610 033083E2 		add	r3, r3, #3
+ 4741 1614 0338A0E1 		mov	r3, r3, asl #16
+ 4742 1618 2328A0E1 		mov	r2, r3, lsr #16
+ 4743 161c B0315BE1 		ldrh	r3, [fp, #-16]	@ movhi
+ 4744 1620 073083E2 		add	r3, r3, #7
+ 4745 1624 0338A0E1 		mov	r3, r3, asl #16
+ 4746 1628 2338A0E1 		mov	r3, r3, lsr #16
+ 4747 162c 0200A0E1 		mov	r0, r2
+ 4748 1630 0310A0E1 		mov	r1, r3
+ 4749 1634 0F20A0E3 		mov	r2, #15
+ 4750 1638 FEFFFFEB 		bl	lcd_putpixel
+ 201:../lcd.c      **** 		lcd_putpixel(x + 4, y + 7, LCD_BLACK);
+ 4751              		.loc 1 201 0
+ 4752 163c BE305BE1 		ldrh	r3, [fp, #-14]	@ movhi
+ 4753 1640 043083E2 		add	r3, r3, #4
+ 4754 1644 0338A0E1 		mov	r3, r3, asl #16
+ 4755 1648 2328A0E1 		mov	r2, r3, lsr #16
+ 4756 164c B0315BE1 		ldrh	r3, [fp, #-16]	@ movhi
+ 4757 1650 073083E2 		add	r3, r3, #7
+ 4758 1654 0338A0E1 		mov	r3, r3, asl #16
+ 4759 1658 2338A0E1 		mov	r3, r3, lsr #16
+ 4760 165c 0200A0E1 		mov	r0, r2
+ 4761 1660 0310A0E1 		mov	r1, r3
+ 4762 1664 0F20A0E3 		mov	r2, #15
+ 4763 1668 FEFFFFEB 		bl	lcd_putpixel
+ 202:../lcd.c      **** }
+ 4764              		.loc 1 202 0
+ 4765 166c 0CD04BE2 		sub	sp, fp, #12
+ 4766 1670 00689DE8 		ldmfd	sp, {fp, sp, lr}
+ 4767 1674 1EFF2FE1 		bx	lr
+ 4768              		.cfi_endproc
+ 4769              	.LFE10:
+ 4771              		.align	2
+ 4772              		.global	lcd_pintar_cabeza_serpiente_izquierda
+ 4774              	lcd_pintar_cabeza_serpiente_izquierda:
+ 4775              	.LFB11:
+ 203:../lcd.c      **** 
+ 204:../lcd.c      **** void lcd_pintar_cabeza_serpiente_izquierda(uint16 x, uint16 y) {
+ 4776              		.loc 1 204 0
+ 4777              		.cfi_startproc
+ 4778              		@ Function supports interworking.
+ 4779              		@ args = 0, pretend = 0, frame = 8
+ 4780              		@ frame_needed = 1, uses_anonymous_args = 0
+ 4781 1678 0DC0A0E1 		mov	ip, sp
+ 4782              	.LCFI22:
+ 4783              		.cfi_def_cfa_register 12
+ 4784 167c 00D82DE9 		stmfd	sp!, {fp, ip, lr, pc}
+ 4785 1680 04B04CE2 		sub	fp, ip, #4
+ 4786              		.cfi_offset 14, -8
+ 4787              		.cfi_offset 13, -12
+ 4788              		.cfi_offset 11, -16
+ 4789              	.LCFI23:
+ 4790              		.cfi_def_cfa 11, 4
+ 4791 1684 08D04DE2 		sub	sp, sp, #8
+ 4792 1688 0020A0E1 		mov	r2, r0
+ 4793 168c 0130A0E1 		mov	r3, r1
+ 4794 1690 BE204BE1 		strh	r2, [fp, #-14]	@ movhi
+ 4795 1694 B0314BE1 		strh	r3, [fp, #-16]	@ movhi
+ 205:../lcd.c      **** 		lcd_putpixel(x + 3, y + 0, LCD_BLACK);
+ 4796              		.loc 1 205 0
+ 4797 1698 BE305BE1 		ldrh	r3, [fp, #-14]	@ movhi
+ 4798 169c 033083E2 		add	r3, r3, #3
+ 4799 16a0 0338A0E1 		mov	r3, r3, asl #16
+ 4800 16a4 2328A0E1 		mov	r2, r3, lsr #16
+ 4801 16a8 B0315BE1 		ldrh	r3, [fp, #-16]
+ 4802 16ac 0200A0E1 		mov	r0, r2
+ 4803 16b0 0310A0E1 		mov	r1, r3
+ 4804 16b4 0F20A0E3 		mov	r2, #15
+ 4805 16b8 FEFFFFEB 		bl	lcd_putpixel
+ 206:../lcd.c      **** 		lcd_putpixel(x + 4, y + 0, LCD_BLACK);
+ 4806              		.loc 1 206 0
+ 4807 16bc BE305BE1 		ldrh	r3, [fp, #-14]	@ movhi
+ 4808 16c0 043083E2 		add	r3, r3, #4
+ 4809 16c4 0338A0E1 		mov	r3, r3, asl #16
+ 4810 16c8 2328A0E1 		mov	r2, r3, lsr #16
+ 4811 16cc B0315BE1 		ldrh	r3, [fp, #-16]
+ 4812 16d0 0200A0E1 		mov	r0, r2
+ 4813 16d4 0310A0E1 		mov	r1, r3
+ 4814 16d8 0F20A0E3 		mov	r2, #15
+ 4815 16dc FEFFFFEB 		bl	lcd_putpixel
+ 207:../lcd.c      **** 		lcd_putpixel(x + 2, y + 1, LCD_BLACK);
+ 4816              		.loc 1 207 0
+ 4817 16e0 BE305BE1 		ldrh	r3, [fp, #-14]	@ movhi
+ 4818 16e4 023083E2 		add	r3, r3, #2
+ 4819 16e8 0338A0E1 		mov	r3, r3, asl #16
+ 4820 16ec 2328A0E1 		mov	r2, r3, lsr #16
+ 4821 16f0 B0315BE1 		ldrh	r3, [fp, #-16]	@ movhi
+ 4822 16f4 013083E2 		add	r3, r3, #1
+ 4823 16f8 0338A0E1 		mov	r3, r3, asl #16
+ 4824 16fc 2338A0E1 		mov	r3, r3, lsr #16
+ 4825 1700 0200A0E1 		mov	r0, r2
+ 4826 1704 0310A0E1 		mov	r1, r3
+ 4827 1708 0F20A0E3 		mov	r2, #15
+ 4828 170c FEFFFFEB 		bl	lcd_putpixel
+ 208:../lcd.c      **** 		lcd_putpixel(x + 5, y + 1, LCD_BLACK);
+ 4829              		.loc 1 208 0
+ 4830 1710 BE305BE1 		ldrh	r3, [fp, #-14]	@ movhi
+ 4831 1714 053083E2 		add	r3, r3, #5
+ 4832 1718 0338A0E1 		mov	r3, r3, asl #16
+ 4833 171c 2328A0E1 		mov	r2, r3, lsr #16
+ 4834 1720 B0315BE1 		ldrh	r3, [fp, #-16]	@ movhi
+ 4835 1724 013083E2 		add	r3, r3, #1
+ 4836 1728 0338A0E1 		mov	r3, r3, asl #16
+ 4837 172c 2338A0E1 		mov	r3, r3, lsr #16
+ 4838 1730 0200A0E1 		mov	r0, r2
+ 4839 1734 0310A0E1 		mov	r1, r3
+ 4840 1738 0F20A0E3 		mov	r2, #15
+ 4841 173c FEFFFFEB 		bl	lcd_putpixel
+ 209:../lcd.c      **** 		lcd_putpixel(x + 1, y + 2, LCD_BLACK);
+ 4842              		.loc 1 209 0
+ 4843 1740 BE305BE1 		ldrh	r3, [fp, #-14]	@ movhi
+ 4844 1744 013083E2 		add	r3, r3, #1
+ 4845 1748 0338A0E1 		mov	r3, r3, asl #16
+ 4846 174c 2328A0E1 		mov	r2, r3, lsr #16
+ 4847 1750 B0315BE1 		ldrh	r3, [fp, #-16]	@ movhi
+ 4848 1754 023083E2 		add	r3, r3, #2
+ 4849 1758 0338A0E1 		mov	r3, r3, asl #16
+ 4850 175c 2338A0E1 		mov	r3, r3, lsr #16
+ 4851 1760 0200A0E1 		mov	r0, r2
+ 4852 1764 0310A0E1 		mov	r1, r3
+ 4853 1768 0F20A0E3 		mov	r2, #15
+ 4854 176c FEFFFFEB 		bl	lcd_putpixel
+ 210:../lcd.c      **** 		lcd_putpixel(x + 6, y + 2, LCD_BLACK);
+ 4855              		.loc 1 210 0
+ 4856 1770 BE305BE1 		ldrh	r3, [fp, #-14]	@ movhi
+ 4857 1774 063083E2 		add	r3, r3, #6
+ 4858 1778 0338A0E1 		mov	r3, r3, asl #16
+ 4859 177c 2328A0E1 		mov	r2, r3, lsr #16
+ 4860 1780 B0315BE1 		ldrh	r3, [fp, #-16]	@ movhi
+ 4861 1784 023083E2 		add	r3, r3, #2
+ 4862 1788 0338A0E1 		mov	r3, r3, asl #16
+ 4863 178c 2338A0E1 		mov	r3, r3, lsr #16
+ 4864 1790 0200A0E1 		mov	r0, r2
+ 4865 1794 0310A0E1 		mov	r1, r3
+ 4866 1798 0F20A0E3 		mov	r2, #15
+ 4867 179c FEFFFFEB 		bl	lcd_putpixel
+ 211:../lcd.c      **** 		lcd_putpixel(x + 0, y + 3, LCD_BLACK);
+ 4868              		.loc 1 211 0
+ 4869 17a0 B0315BE1 		ldrh	r3, [fp, #-16]	@ movhi
+ 4870 17a4 033083E2 		add	r3, r3, #3
+ 4871 17a8 0338A0E1 		mov	r3, r3, asl #16
+ 4872 17ac 2338A0E1 		mov	r3, r3, lsr #16
+ 4873 17b0 BE205BE1 		ldrh	r2, [fp, #-14]
+ 4874 17b4 0200A0E1 		mov	r0, r2
+ 4875 17b8 0310A0E1 		mov	r1, r3
+ 4876 17bc 0F20A0E3 		mov	r2, #15
+ 4877 17c0 FEFFFFEB 		bl	lcd_putpixel
+ 212:../lcd.c      **** 		lcd_putpixel(x + 7, y + 3, LCD_BLACK);
+ 4878              		.loc 1 212 0
+ 4879 17c4 BE305BE1 		ldrh	r3, [fp, #-14]	@ movhi
+ 4880 17c8 073083E2 		add	r3, r3, #7
+ 4881 17cc 0338A0E1 		mov	r3, r3, asl #16
+ 4882 17d0 2328A0E1 		mov	r2, r3, lsr #16
+ 4883 17d4 B0315BE1 		ldrh	r3, [fp, #-16]	@ movhi
+ 4884 17d8 033083E2 		add	r3, r3, #3
+ 4885 17dc 0338A0E1 		mov	r3, r3, asl #16
+ 4886 17e0 2338A0E1 		mov	r3, r3, lsr #16
+ 4887 17e4 0200A0E1 		mov	r0, r2
+ 4888 17e8 0310A0E1 		mov	r1, r3
+ 4889 17ec 0F20A0E3 		mov	r2, #15
+ 4890 17f0 FEFFFFEB 		bl	lcd_putpixel
+ 213:../lcd.c      **** 		lcd_putpixel(x + 0, y + 4, LCD_BLACK);
+ 4891              		.loc 1 213 0
+ 4892 17f4 B0315BE1 		ldrh	r3, [fp, #-16]	@ movhi
+ 4893 17f8 043083E2 		add	r3, r3, #4
+ 4894 17fc 0338A0E1 		mov	r3, r3, asl #16
+ 4895 1800 2338A0E1 		mov	r3, r3, lsr #16
+ 4896 1804 BE205BE1 		ldrh	r2, [fp, #-14]
+ 4897 1808 0200A0E1 		mov	r0, r2
+ 4898 180c 0310A0E1 		mov	r1, r3
+ 4899 1810 0F20A0E3 		mov	r2, #15
+ 4900 1814 FEFFFFEB 		bl	lcd_putpixel
+ 214:../lcd.c      **** 		lcd_putpixel(x + 1, y + 4, LCD_BLACK);
+ 4901              		.loc 1 214 0
+ 4902 1818 BE305BE1 		ldrh	r3, [fp, #-14]	@ movhi
+ 4903 181c 013083E2 		add	r3, r3, #1
+ 4904 1820 0338A0E1 		mov	r3, r3, asl #16
+ 4905 1824 2328A0E1 		mov	r2, r3, lsr #16
+ 4906 1828 B0315BE1 		ldrh	r3, [fp, #-16]	@ movhi
+ 4907 182c 043083E2 		add	r3, r3, #4
+ 4908 1830 0338A0E1 		mov	r3, r3, asl #16
+ 4909 1834 2338A0E1 		mov	r3, r3, lsr #16
+ 4910 1838 0200A0E1 		mov	r0, r2
+ 4911 183c 0310A0E1 		mov	r1, r3
+ 4912 1840 0F20A0E3 		mov	r2, #15
+ 4913 1844 FEFFFFEB 		bl	lcd_putpixel
+ 215:../lcd.c      **** 		lcd_putpixel(x + 2, y + 4, LCD_BLACK);
+ 4914              		.loc 1 215 0
+ 4915 1848 BE305BE1 		ldrh	r3, [fp, #-14]	@ movhi
+ 4916 184c 023083E2 		add	r3, r3, #2
+ 4917 1850 0338A0E1 		mov	r3, r3, asl #16
+ 4918 1854 2328A0E1 		mov	r2, r3, lsr #16
+ 4919 1858 B0315BE1 		ldrh	r3, [fp, #-16]	@ movhi
+ 4920 185c 043083E2 		add	r3, r3, #4
+ 4921 1860 0338A0E1 		mov	r3, r3, asl #16
+ 4922 1864 2338A0E1 		mov	r3, r3, lsr #16
+ 4923 1868 0200A0E1 		mov	r0, r2
+ 4924 186c 0310A0E1 		mov	r1, r3
+ 4925 1870 0F20A0E3 		mov	r2, #15
+ 4926 1874 FEFFFFEB 		bl	lcd_putpixel
+ 216:../lcd.c      **** 		lcd_putpixel(x + 5, y + 4, LCD_BLACK);
+ 4927              		.loc 1 216 0
+ 4928 1878 BE305BE1 		ldrh	r3, [fp, #-14]	@ movhi
+ 4929 187c 053083E2 		add	r3, r3, #5
+ 4930 1880 0338A0E1 		mov	r3, r3, asl #16
+ 4931 1884 2328A0E1 		mov	r2, r3, lsr #16
+ 4932 1888 B0315BE1 		ldrh	r3, [fp, #-16]	@ movhi
+ 4933 188c 043083E2 		add	r3, r3, #4
+ 4934 1890 0338A0E1 		mov	r3, r3, asl #16
+ 4935 1894 2338A0E1 		mov	r3, r3, lsr #16
+ 4936 1898 0200A0E1 		mov	r0, r2
+ 4937 189c 0310A0E1 		mov	r1, r3
+ 4938 18a0 0F20A0E3 		mov	r2, #15
+ 4939 18a4 FEFFFFEB 		bl	lcd_putpixel
+ 217:../lcd.c      **** 		lcd_putpixel(x + 6, y + 4, LCD_BLACK);
+ 4940              		.loc 1 217 0
+ 4941 18a8 BE305BE1 		ldrh	r3, [fp, #-14]	@ movhi
+ 4942 18ac 063083E2 		add	r3, r3, #6
+ 4943 18b0 0338A0E1 		mov	r3, r3, asl #16
+ 4944 18b4 2328A0E1 		mov	r2, r3, lsr #16
+ 4945 18b8 B0315BE1 		ldrh	r3, [fp, #-16]	@ movhi
+ 4946 18bc 043083E2 		add	r3, r3, #4
+ 4947 18c0 0338A0E1 		mov	r3, r3, asl #16
+ 4948 18c4 2338A0E1 		mov	r3, r3, lsr #16
+ 4949 18c8 0200A0E1 		mov	r0, r2
+ 4950 18cc 0310A0E1 		mov	r1, r3
+ 4951 18d0 0F20A0E3 		mov	r2, #15
+ 4952 18d4 FEFFFFEB 		bl	lcd_putpixel
+ 218:../lcd.c      **** 		lcd_putpixel(x + 7, y + 4, LCD_BLACK);
+ 4953              		.loc 1 218 0
+ 4954 18d8 BE305BE1 		ldrh	r3, [fp, #-14]	@ movhi
+ 4955 18dc 073083E2 		add	r3, r3, #7
+ 4956 18e0 0338A0E1 		mov	r3, r3, asl #16
+ 4957 18e4 2328A0E1 		mov	r2, r3, lsr #16
+ 4958 18e8 B0315BE1 		ldrh	r3, [fp, #-16]	@ movhi
+ 4959 18ec 043083E2 		add	r3, r3, #4
+ 4960 18f0 0338A0E1 		mov	r3, r3, asl #16
+ 4961 18f4 2338A0E1 		mov	r3, r3, lsr #16
+ 4962 18f8 0200A0E1 		mov	r0, r2
+ 4963 18fc 0310A0E1 		mov	r1, r3
+ 4964 1900 0F20A0E3 		mov	r2, #15
+ 4965 1904 FEFFFFEB 		bl	lcd_putpixel
+ 219:../lcd.c      **** 		lcd_putpixel(x + 0, y + 5, LCD_BLACK);
+ 4966              		.loc 1 219 0
+ 4967 1908 B0315BE1 		ldrh	r3, [fp, #-16]	@ movhi
+ 4968 190c 053083E2 		add	r3, r3, #5
+ 4969 1910 0338A0E1 		mov	r3, r3, asl #16
+ 4970 1914 2338A0E1 		mov	r3, r3, lsr #16
+ 4971 1918 BE205BE1 		ldrh	r2, [fp, #-14]
+ 4972 191c 0200A0E1 		mov	r0, r2
+ 4973 1920 0310A0E1 		mov	r1, r3
+ 4974 1924 0F20A0E3 		mov	r2, #15
+ 4975 1928 FEFFFFEB 		bl	lcd_putpixel
+ 220:../lcd.c      **** 		lcd_putpixel(x + 1, y + 5, LCD_BLACK);
+ 4976              		.loc 1 220 0
+ 4977 192c BE305BE1 		ldrh	r3, [fp, #-14]	@ movhi
+ 4978 1930 013083E2 		add	r3, r3, #1
+ 4979 1934 0338A0E1 		mov	r3, r3, asl #16
+ 4980 1938 2328A0E1 		mov	r2, r3, lsr #16
+ 4981 193c B0315BE1 		ldrh	r3, [fp, #-16]	@ movhi
+ 4982 1940 053083E2 		add	r3, r3, #5
+ 4983 1944 0338A0E1 		mov	r3, r3, asl #16
+ 4984 1948 2338A0E1 		mov	r3, r3, lsr #16
+ 4985 194c 0200A0E1 		mov	r0, r2
+ 4986 1950 0310A0E1 		mov	r1, r3
+ 4987 1954 0F20A0E3 		mov	r2, #15
+ 4988 1958 FEFFFFEB 		bl	lcd_putpixel
+ 221:../lcd.c      **** 		lcd_putpixel(x + 2, y + 5, LCD_BLACK);
+ 4989              		.loc 1 221 0
+ 4990 195c BE305BE1 		ldrh	r3, [fp, #-14]	@ movhi
+ 4991 1960 023083E2 		add	r3, r3, #2
+ 4992 1964 0338A0E1 		mov	r3, r3, asl #16
+ 4993 1968 2328A0E1 		mov	r2, r3, lsr #16
+ 4994 196c B0315BE1 		ldrh	r3, [fp, #-16]	@ movhi
+ 4995 1970 053083E2 		add	r3, r3, #5
+ 4996 1974 0338A0E1 		mov	r3, r3, asl #16
+ 4997 1978 2338A0E1 		mov	r3, r3, lsr #16
+ 4998 197c 0200A0E1 		mov	r0, r2
+ 4999 1980 0310A0E1 		mov	r1, r3
+ 5000 1984 0F20A0E3 		mov	r2, #15
+ 5001 1988 FEFFFFEB 		bl	lcd_putpixel
+ 222:../lcd.c      **** 		lcd_putpixel(x + 5, y + 5, LCD_BLACK);
+ 5002              		.loc 1 222 0
+ 5003 198c BE305BE1 		ldrh	r3, [fp, #-14]	@ movhi
+ 5004 1990 053083E2 		add	r3, r3, #5
+ 5005 1994 0338A0E1 		mov	r3, r3, asl #16
+ 5006 1998 2328A0E1 		mov	r2, r3, lsr #16
+ 5007 199c B0315BE1 		ldrh	r3, [fp, #-16]	@ movhi
+ 5008 19a0 053083E2 		add	r3, r3, #5
+ 5009 19a4 0338A0E1 		mov	r3, r3, asl #16
+ 5010 19a8 2338A0E1 		mov	r3, r3, lsr #16
+ 5011 19ac 0200A0E1 		mov	r0, r2
+ 5012 19b0 0310A0E1 		mov	r1, r3
+ 5013 19b4 0F20A0E3 		mov	r2, #15
+ 5014 19b8 FEFFFFEB 		bl	lcd_putpixel
+ 223:../lcd.c      **** 		lcd_putpixel(x + 6, y + 5, LCD_BLACK);
+ 5015              		.loc 1 223 0
+ 5016 19bc BE305BE1 		ldrh	r3, [fp, #-14]	@ movhi
+ 5017 19c0 063083E2 		add	r3, r3, #6
+ 5018 19c4 0338A0E1 		mov	r3, r3, asl #16
+ 5019 19c8 2328A0E1 		mov	r2, r3, lsr #16
+ 5020 19cc B0315BE1 		ldrh	r3, [fp, #-16]	@ movhi
+ 5021 19d0 053083E2 		add	r3, r3, #5
+ 5022 19d4 0338A0E1 		mov	r3, r3, asl #16
+ 5023 19d8 2338A0E1 		mov	r3, r3, lsr #16
+ 5024 19dc 0200A0E1 		mov	r0, r2
+ 5025 19e0 0310A0E1 		mov	r1, r3
+ 5026 19e4 0F20A0E3 		mov	r2, #15
+ 5027 19e8 FEFFFFEB 		bl	lcd_putpixel
+ 224:../lcd.c      **** 		lcd_putpixel(x + 7, y + 5, LCD_BLACK);
+ 5028              		.loc 1 224 0
+ 5029 19ec BE305BE1 		ldrh	r3, [fp, #-14]	@ movhi
+ 5030 19f0 073083E2 		add	r3, r3, #7
+ 5031 19f4 0338A0E1 		mov	r3, r3, asl #16
+ 5032 19f8 2328A0E1 		mov	r2, r3, lsr #16
+ 5033 19fc B0315BE1 		ldrh	r3, [fp, #-16]	@ movhi
+ 5034 1a00 053083E2 		add	r3, r3, #5
+ 5035 1a04 0338A0E1 		mov	r3, r3, asl #16
+ 5036 1a08 2338A0E1 		mov	r3, r3, lsr #16
+ 5037 1a0c 0200A0E1 		mov	r0, r2
+ 5038 1a10 0310A0E1 		mov	r1, r3
+ 5039 1a14 0F20A0E3 		mov	r2, #15
+ 5040 1a18 FEFFFFEB 		bl	lcd_putpixel
+ 225:../lcd.c      **** 		lcd_putpixel(x + 0, y + 6, LCD_BLACK);
+ 5041              		.loc 1 225 0
+ 5042 1a1c B0315BE1 		ldrh	r3, [fp, #-16]	@ movhi
+ 5043 1a20 063083E2 		add	r3, r3, #6
+ 5044 1a24 0338A0E1 		mov	r3, r3, asl #16
+ 5045 1a28 2338A0E1 		mov	r3, r3, lsr #16
+ 5046 1a2c BE205BE1 		ldrh	r2, [fp, #-14]
+ 5047 1a30 0200A0E1 		mov	r0, r2
+ 5048 1a34 0310A0E1 		mov	r1, r3
+ 5049 1a38 0F20A0E3 		mov	r2, #15
+ 5050 1a3c FEFFFFEB 		bl	lcd_putpixel
+ 226:../lcd.c      **** 		lcd_putpixel(x + 7, y + 6, LCD_BLACK);
+ 5051              		.loc 1 226 0
+ 5052 1a40 BE305BE1 		ldrh	r3, [fp, #-14]	@ movhi
+ 5053 1a44 073083E2 		add	r3, r3, #7
+ 5054 1a48 0338A0E1 		mov	r3, r3, asl #16
+ 5055 1a4c 2328A0E1 		mov	r2, r3, lsr #16
+ 5056 1a50 B0315BE1 		ldrh	r3, [fp, #-16]	@ movhi
+ 5057 1a54 063083E2 		add	r3, r3, #6
+ 5058 1a58 0338A0E1 		mov	r3, r3, asl #16
+ 5059 1a5c 2338A0E1 		mov	r3, r3, lsr #16
+ 5060 1a60 0200A0E1 		mov	r0, r2
+ 5061 1a64 0310A0E1 		mov	r1, r3
+ 5062 1a68 0F20A0E3 		mov	r2, #15
+ 5063 1a6c FEFFFFEB 		bl	lcd_putpixel
+ 227:../lcd.c      **** 		lcd_putpixel(x + 0, y + 7, LCD_BLACK);
+ 5064              		.loc 1 227 0
+ 5065 1a70 B0315BE1 		ldrh	r3, [fp, #-16]	@ movhi
+ 5066 1a74 073083E2 		add	r3, r3, #7
+ 5067 1a78 0338A0E1 		mov	r3, r3, asl #16
+ 5068 1a7c 2338A0E1 		mov	r3, r3, lsr #16
+ 5069 1a80 BE205BE1 		ldrh	r2, [fp, #-14]
+ 5070 1a84 0200A0E1 		mov	r0, r2
+ 5071 1a88 0310A0E1 		mov	r1, r3
+ 5072 1a8c 0F20A0E3 		mov	r2, #15
+ 5073 1a90 FEFFFFEB 		bl	lcd_putpixel
+ 228:../lcd.c      **** 		lcd_putpixel(x + 1, y + 7, LCD_BLACK);
+ 5074              		.loc 1 228 0
+ 5075 1a94 BE305BE1 		ldrh	r3, [fp, #-14]	@ movhi
+ 5076 1a98 013083E2 		add	r3, r3, #1
+ 5077 1a9c 0338A0E1 		mov	r3, r3, asl #16
+ 5078 1aa0 2328A0E1 		mov	r2, r3, lsr #16
+ 5079 1aa4 B0315BE1 		ldrh	r3, [fp, #-16]	@ movhi
+ 5080 1aa8 073083E2 		add	r3, r3, #7
+ 5081 1aac 0338A0E1 		mov	r3, r3, asl #16
+ 5082 1ab0 2338A0E1 		mov	r3, r3, lsr #16
+ 5083 1ab4 0200A0E1 		mov	r0, r2
+ 5084 1ab8 0310A0E1 		mov	r1, r3
+ 5085 1abc 0F20A0E3 		mov	r2, #15
+ 5086 1ac0 FEFFFFEB 		bl	lcd_putpixel
+ 229:../lcd.c      **** 		lcd_putpixel(x + 2, y + 7, LCD_BLACK);
+ 5087              		.loc 1 229 0
+ 5088 1ac4 BE305BE1 		ldrh	r3, [fp, #-14]	@ movhi
+ 5089 1ac8 023083E2 		add	r3, r3, #2
+ 5090 1acc 0338A0E1 		mov	r3, r3, asl #16
+ 5091 1ad0 2328A0E1 		mov	r2, r3, lsr #16
+ 5092 1ad4 B0315BE1 		ldrh	r3, [fp, #-16]	@ movhi
+ 5093 1ad8 073083E2 		add	r3, r3, #7
+ 5094 1adc 0338A0E1 		mov	r3, r3, asl #16
+ 5095 1ae0 2338A0E1 		mov	r3, r3, lsr #16
+ 5096 1ae4 0200A0E1 		mov	r0, r2
+ 5097 1ae8 0310A0E1 		mov	r1, r3
+ 5098 1aec 0F20A0E3 		mov	r2, #15
+ 5099 1af0 FEFFFFEB 		bl	lcd_putpixel
+ 230:../lcd.c      **** 		lcd_putpixel(x + 3, y + 7, LCD_BLACK);
+ 5100              		.loc 1 230 0
+ 5101 1af4 BE305BE1 		ldrh	r3, [fp, #-14]	@ movhi
+ 5102 1af8 033083E2 		add	r3, r3, #3
+ 5103 1afc 0338A0E1 		mov	r3, r3, asl #16
+ 5104 1b00 2328A0E1 		mov	r2, r3, lsr #16
+ 5105 1b04 B0315BE1 		ldrh	r3, [fp, #-16]	@ movhi
+ 5106 1b08 073083E2 		add	r3, r3, #7
+ 5107 1b0c 0338A0E1 		mov	r3, r3, asl #16
+ 5108 1b10 2338A0E1 		mov	r3, r3, lsr #16
+ 5109 1b14 0200A0E1 		mov	r0, r2
+ 5110 1b18 0310A0E1 		mov	r1, r3
+ 5111 1b1c 0F20A0E3 		mov	r2, #15
+ 5112 1b20 FEFFFFEB 		bl	lcd_putpixel
+ 231:../lcd.c      **** 		lcd_putpixel(x + 4, y + 7, LCD_BLACK);
+ 5113              		.loc 1 231 0
+ 5114 1b24 BE305BE1 		ldrh	r3, [fp, #-14]	@ movhi
+ 5115 1b28 043083E2 		add	r3, r3, #4
+ 5116 1b2c 0338A0E1 		mov	r3, r3, asl #16
+ 5117 1b30 2328A0E1 		mov	r2, r3, lsr #16
+ 5118 1b34 B0315BE1 		ldrh	r3, [fp, #-16]	@ movhi
+ 5119 1b38 073083E2 		add	r3, r3, #7
+ 5120 1b3c 0338A0E1 		mov	r3, r3, asl #16
+ 5121 1b40 2338A0E1 		mov	r3, r3, lsr #16
+ 5122 1b44 0200A0E1 		mov	r0, r2
+ 5123 1b48 0310A0E1 		mov	r1, r3
+ 5124 1b4c 0F20A0E3 		mov	r2, #15
+ 5125 1b50 FEFFFFEB 		bl	lcd_putpixel
+ 232:../lcd.c      **** 		lcd_putpixel(x + 5, y + 7, LCD_BLACK);
+ 5126              		.loc 1 232 0
+ 5127 1b54 BE305BE1 		ldrh	r3, [fp, #-14]	@ movhi
+ 5128 1b58 053083E2 		add	r3, r3, #5
+ 5129 1b5c 0338A0E1 		mov	r3, r3, asl #16
+ 5130 1b60 2328A0E1 		mov	r2, r3, lsr #16
+ 5131 1b64 B0315BE1 		ldrh	r3, [fp, #-16]	@ movhi
+ 5132 1b68 073083E2 		add	r3, r3, #7
+ 5133 1b6c 0338A0E1 		mov	r3, r3, asl #16
+ 5134 1b70 2338A0E1 		mov	r3, r3, lsr #16
+ 5135 1b74 0200A0E1 		mov	r0, r2
+ 5136 1b78 0310A0E1 		mov	r1, r3
+ 5137 1b7c 0F20A0E3 		mov	r2, #15
+ 5138 1b80 FEFFFFEB 		bl	lcd_putpixel
+ 233:../lcd.c      **** 		lcd_putpixel(x + 6, y + 7, LCD_BLACK);
+ 5139              		.loc 1 233 0
+ 5140 1b84 BE305BE1 		ldrh	r3, [fp, #-14]	@ movhi
+ 5141 1b88 063083E2 		add	r3, r3, #6
+ 5142 1b8c 0338A0E1 		mov	r3, r3, asl #16
+ 5143 1b90 2328A0E1 		mov	r2, r3, lsr #16
+ 5144 1b94 B0315BE1 		ldrh	r3, [fp, #-16]	@ movhi
+ 5145 1b98 073083E2 		add	r3, r3, #7
+ 5146 1b9c 0338A0E1 		mov	r3, r3, asl #16
+ 5147 1ba0 2338A0E1 		mov	r3, r3, lsr #16
+ 5148 1ba4 0200A0E1 		mov	r0, r2
+ 5149 1ba8 0310A0E1 		mov	r1, r3
+ 5150 1bac 0F20A0E3 		mov	r2, #15
+ 5151 1bb0 FEFFFFEB 		bl	lcd_putpixel
+ 234:../lcd.c      **** 		lcd_putpixel(x + 7, y + 7, LCD_BLACK);
+ 5152              		.loc 1 234 0
+ 5153 1bb4 BE305BE1 		ldrh	r3, [fp, #-14]	@ movhi
+ 5154 1bb8 073083E2 		add	r3, r3, #7
+ 5155 1bbc 0338A0E1 		mov	r3, r3, asl #16
+ 5156 1bc0 2328A0E1 		mov	r2, r3, lsr #16
+ 5157 1bc4 B0315BE1 		ldrh	r3, [fp, #-16]	@ movhi
+ 5158 1bc8 073083E2 		add	r3, r3, #7
+ 5159 1bcc 0338A0E1 		mov	r3, r3, asl #16
+ 5160 1bd0 2338A0E1 		mov	r3, r3, lsr #16
+ 5161 1bd4 0200A0E1 		mov	r0, r2
+ 5162 1bd8 0310A0E1 		mov	r1, r3
+ 5163 1bdc 0F20A0E3 		mov	r2, #15
+ 5164 1be0 FEFFFFEB 		bl	lcd_putpixel
+ 235:../lcd.c      **** }
+ 5165              		.loc 1 235 0
+ 5166 1be4 0CD04BE2 		sub	sp, fp, #12
+ 5167 1be8 00689DE8 		ldmfd	sp, {fp, sp, lr}
+ 5168 1bec 1EFF2FE1 		bx	lr
+ 5169              		.cfi_endproc
+ 5170              	.LFE11:
+ 5172              		.align	2
+ 5173              		.global	lcd_pintar_cuerpo_serpiente1
+ 5175              	lcd_pintar_cuerpo_serpiente1:
+ 5176              	.LFB12:
+ 236:../lcd.c      **** 
+ 237:../lcd.c      **** void lcd_pintar_cuerpo_serpiente1(uint16 x, uint16 y, uint8 tam_celda) {
+ 5177              		.loc 1 237 0
+ 5178              		.cfi_startproc
+ 5179              		@ Function supports interworking.
+ 5180              		@ args = 0, pretend = 0, frame = 16
+ 5181              		@ frame_needed = 1, uses_anonymous_args = 0
+ 5182 1bf0 0DC0A0E1 		mov	ip, sp
+ 5183              	.LCFI24:
+ 5184              		.cfi_def_cfa_register 12
+ 5185 1bf4 00D82DE9 		stmfd	sp!, {fp, ip, lr, pc}
+ 5186 1bf8 04B04CE2 		sub	fp, ip, #4
+ 5187              		.cfi_offset 14, -8
+ 5188              		.cfi_offset 13, -12
+ 5189              		.cfi_offset 11, -16
+ 5190              	.LCFI25:
+ 5191              		.cfi_def_cfa 11, 4
+ 5192 1bfc 10D04DE2 		sub	sp, sp, #16
+ 5193 1c00 0230A0E1 		mov	r3, r2
+ 5194 1c04 B6014BE1 		strh	r0, [fp, #-22]	@ movhi
+ 5195 1c08 B8114BE1 		strh	r1, [fp, #-24]	@ movhi
+ 5196 1c0c 19304BE5 		strb	r3, [fp, #-25]
+ 238:../lcd.c      **** 	uint16 i, j;
+ 239:../lcd.c      **** 	for (i = x; i < x + tam_celda; ++i) {
+ 5197              		.loc 1 239 0
+ 5198 1c10 B6315BE1 		ldrh	r3, [fp, #-22]	@ movhi
+ 5199 1c14 BE304BE1 		strh	r3, [fp, #-14]	@ movhi
+ 5200 1c18 370000EA 		b	.L40
+ 5201              	.L46:
+ 240:../lcd.c      **** 		for (j = y; j < y + tam_celda; ++j) {
+ 5202              		.loc 1 240 0
+ 5203 1c1c B8315BE1 		ldrh	r3, [fp, #-24]	@ movhi
+ 5204 1c20 B0314BE1 		strh	r3, [fp, #-16]	@ movhi
+ 5205 1c24 2B0000EA 		b	.L41
+ 5206              	.L45:
+ 241:../lcd.c      **** 			if ((x + y) % 2 == 0 || i == x || i == x + tam_celda - 1 || j == y || j == y + tam_celda - 1 ) 
+ 5207              		.loc 1 241 0
+ 5208 1c28 B6215BE1 		ldrh	r2, [fp, #-22]
+ 5209 1c2c B8315BE1 		ldrh	r3, [fp, #-24]
+ 5210 1c30 033082E0 		add	r3, r2, r3
+ 5211 1c34 013003E2 		and	r3, r3, #1
+ 5212 1c38 000053E3 		cmp	r3, #0
+ 5213 1c3c 1500000A 		beq	.L42
+ 5214              		.loc 1 241 0 is_stmt 0 discriminator 1
+ 5215 1c40 BE205BE1 		ldrh	r2, [fp, #-14]
+ 5216 1c44 B6315BE1 		ldrh	r3, [fp, #-22]
+ 5217 1c48 030052E1 		cmp	r2, r3
+ 5218 1c4c 1100000A 		beq	.L42
+ 5219 1c50 BE205BE1 		ldrh	r2, [fp, #-14]
+ 5220 1c54 B6115BE1 		ldrh	r1, [fp, #-22]
+ 5221 1c58 19305BE5 		ldrb	r3, [fp, #-25]	@ zero_extendqisi2
+ 5222 1c5c 033081E0 		add	r3, r1, r3
+ 5223 1c60 013043E2 		sub	r3, r3, #1
+ 5224 1c64 030052E1 		cmp	r2, r3
+ 5225 1c68 0A00000A 		beq	.L42
+ 5226 1c6c B0215BE1 		ldrh	r2, [fp, #-16]
+ 5227 1c70 B8315BE1 		ldrh	r3, [fp, #-24]
+ 5228 1c74 030052E1 		cmp	r2, r3
+ 5229 1c78 0600000A 		beq	.L42
+ 5230 1c7c B0215BE1 		ldrh	r2, [fp, #-16]
+ 5231 1c80 B8115BE1 		ldrh	r1, [fp, #-24]
+ 5232 1c84 19305BE5 		ldrb	r3, [fp, #-25]	@ zero_extendqisi2
+ 5233 1c88 033081E0 		add	r3, r1, r3
+ 5234 1c8c 013043E2 		sub	r3, r3, #1
+ 5235 1c90 030052E1 		cmp	r2, r3
+ 5236 1c94 0600001A 		bne	.L43
+ 5237              	.L42:
+ 242:../lcd.c      **** 				lcd_putpixel( i, j, LCD_BLACK);
+ 5238              		.loc 1 242 0 is_stmt 1
+ 5239 1c98 BE205BE1 		ldrh	r2, [fp, #-14]
+ 5240 1c9c B0315BE1 		ldrh	r3, [fp, #-16]
+ 5241 1ca0 0200A0E1 		mov	r0, r2
+ 5242 1ca4 0310A0E1 		mov	r1, r3
+ 5243 1ca8 0F20A0E3 		mov	r2, #15
+ 5244 1cac FEFFFFEB 		bl	lcd_putpixel
+ 5245 1cb0 050000EA 		b	.L44
+ 5246              	.L43:
+ 243:../lcd.c      **** 			else
+ 244:../lcd.c      **** 				lcd_putpixel( i, j, LCD_LIGHTGRAY);
+ 5247              		.loc 1 244 0
+ 5248 1cb4 BE205BE1 		ldrh	r2, [fp, #-14]
+ 5249 1cb8 B0315BE1 		ldrh	r3, [fp, #-16]
+ 5250 1cbc 0200A0E1 		mov	r0, r2
+ 5251 1cc0 0310A0E1 		mov	r1, r3
+ 5252 1cc4 0520A0E3 		mov	r2, #5
+ 5253 1cc8 FEFFFFEB 		bl	lcd_putpixel
+ 5254              	.L44:
+ 240:../lcd.c      **** 		for (j = y; j < y + tam_celda; ++j) {
+ 5255              		.loc 1 240 0
+ 5256 1ccc B0315BE1 		ldrh	r3, [fp, #-16]	@ movhi
+ 5257 1cd0 013083E2 		add	r3, r3, #1
+ 5258 1cd4 B0314BE1 		strh	r3, [fp, #-16]	@ movhi
+ 5259              	.L41:
+ 240:../lcd.c      **** 		for (j = y; j < y + tam_celda; ++j) {
+ 5260              		.loc 1 240 0 is_stmt 0 discriminator 1
+ 5261 1cd8 B0215BE1 		ldrh	r2, [fp, #-16]
+ 5262 1cdc B8115BE1 		ldrh	r1, [fp, #-24]
+ 5263 1ce0 19305BE5 		ldrb	r3, [fp, #-25]	@ zero_extendqisi2
+ 5264 1ce4 033081E0 		add	r3, r1, r3
+ 5265 1ce8 030052E1 		cmp	r2, r3
+ 5266 1cec CDFFFFBA 		blt	.L45
+ 239:../lcd.c      **** 	for (i = x; i < x + tam_celda; ++i) {
+ 5267              		.loc 1 239 0 is_stmt 1
+ 5268 1cf0 BE305BE1 		ldrh	r3, [fp, #-14]	@ movhi
+ 5269 1cf4 013083E2 		add	r3, r3, #1
+ 5270 1cf8 BE304BE1 		strh	r3, [fp, #-14]	@ movhi
+ 5271              	.L40:
+ 239:../lcd.c      **** 	for (i = x; i < x + tam_celda; ++i) {
+ 5272              		.loc 1 239 0 is_stmt 0 discriminator 1
+ 5273 1cfc BE205BE1 		ldrh	r2, [fp, #-14]
+ 5274 1d00 B6115BE1 		ldrh	r1, [fp, #-22]
+ 5275 1d04 19305BE5 		ldrb	r3, [fp, #-25]	@ zero_extendqisi2
+ 5276 1d08 033081E0 		add	r3, r1, r3
+ 5277 1d0c 030052E1 		cmp	r2, r3
+ 5278 1d10 C1FFFFBA 		blt	.L46
+ 245:../lcd.c      **** 		}
+ 246:../lcd.c      **** 	}
+ 247:../lcd.c      **** }
+ 5279              		.loc 1 247 0 is_stmt 1
+ 5280 1d14 0CD04BE2 		sub	sp, fp, #12
+ 5281 1d18 00689DE8 		ldmfd	sp, {fp, sp, lr}
+ 5282 1d1c 1EFF2FE1 		bx	lr
+ 5283              		.cfi_endproc
+ 5284              	.LFE12:
+ 5286              		.align	2
+ 5287              		.global	lcd_pintar_cuerpo_serpiente2
+ 5289              	lcd_pintar_cuerpo_serpiente2:
+ 5290              	.LFB13:
+ 248:../lcd.c      **** 
+ 249:../lcd.c      **** void lcd_pintar_cuerpo_serpiente2(uint16 x, uint16 y) {
+ 5291              		.loc 1 249 0
+ 5292              		.cfi_startproc
+ 5293              		@ Function supports interworking.
+ 5294              		@ args = 0, pretend = 0, frame = 8
+ 5295              		@ frame_needed = 1, uses_anonymous_args = 0
+ 5296 1d20 0DC0A0E1 		mov	ip, sp
+ 5297              	.LCFI26:
+ 5298              		.cfi_def_cfa_register 12
+ 5299 1d24 00D82DE9 		stmfd	sp!, {fp, ip, lr, pc}
+ 5300 1d28 04B04CE2 		sub	fp, ip, #4
+ 5301              		.cfi_offset 14, -8
+ 5302              		.cfi_offset 13, -12
+ 5303              		.cfi_offset 11, -16
+ 5304              	.LCFI27:
+ 5305              		.cfi_def_cfa 11, 4
+ 5306 1d2c 08D04DE2 		sub	sp, sp, #8
+ 5307 1d30 0020A0E1 		mov	r2, r0
+ 5308 1d34 0130A0E1 		mov	r3, r1
+ 5309 1d38 BE204BE1 		strh	r2, [fp, #-14]	@ movhi
+ 5310 1d3c B0314BE1 		strh	r3, [fp, #-16]	@ movhi
+ 250:../lcd.c      **** 	lcd_pintar_naranja(x, y);
+ 5311              		.loc 1 250 0
+ 5312 1d40 BE205BE1 		ldrh	r2, [fp, #-14]
+ 5313 1d44 B0315BE1 		ldrh	r3, [fp, #-16]
+ 5314 1d48 0200A0E1 		mov	r0, r2
+ 5315 1d4c 0310A0E1 		mov	r1, r3
+ 5316 1d50 FEFFFFEB 		bl	lcd_pintar_naranja
+ 251:../lcd.c      **** }
+ 5317              		.loc 1 251 0
+ 5318 1d54 0CD04BE2 		sub	sp, fp, #12
+ 5319 1d58 00689DE8 		ldmfd	sp, {fp, sp, lr}
+ 5320 1d5c 1EFF2FE1 		bx	lr
+ 5321              		.cfi_endproc
+ 5322              	.LFE13:
+ 5324              		.align	2
+ 5325              		.global	lcd_pintar_cereza
+ 5327              	lcd_pintar_cereza:
+ 5328              	.LFB14:
+ 252:../lcd.c      **** 
+ 253:../lcd.c      **** void lcd_pintar_cereza(uint16 x, uint16 y) {
+ 5329              		.loc 1 253 0
+ 5330              		.cfi_startproc
+ 5331              		@ Function supports interworking.
+ 5332              		@ args = 0, pretend = 0, frame = 8
+ 5333              		@ frame_needed = 1, uses_anonymous_args = 0
+ 5334 1d60 0DC0A0E1 		mov	ip, sp
+ 5335              	.LCFI28:
+ 5336              		.cfi_def_cfa_register 12
+ 5337 1d64 00D82DE9 		stmfd	sp!, {fp, ip, lr, pc}
+ 5338 1d68 04B04CE2 		sub	fp, ip, #4
+ 5339              		.cfi_offset 14, -8
+ 5340              		.cfi_offset 13, -12
+ 5341              		.cfi_offset 11, -16
+ 5342              	.LCFI29:
+ 5343              		.cfi_def_cfa 11, 4
+ 5344 1d6c 08D04DE2 		sub	sp, sp, #8
+ 5345 1d70 0020A0E1 		mov	r2, r0
+ 5346 1d74 0130A0E1 		mov	r3, r1
+ 5347 1d78 BE204BE1 		strh	r2, [fp, #-14]	@ movhi
+ 5348 1d7c B0314BE1 		strh	r3, [fp, #-16]	@ movhi
+ 254:../lcd.c      **** 	lcd_putpixel(x + 0, y + 5, LCD_BLACK);
+ 5349              		.loc 1 254 0
+ 5350 1d80 B0315BE1 		ldrh	r3, [fp, #-16]	@ movhi
+ 5351 1d84 053083E2 		add	r3, r3, #5
+ 5352 1d88 0338A0E1 		mov	r3, r3, asl #16
+ 5353 1d8c 2338A0E1 		mov	r3, r3, lsr #16
+ 5354 1d90 BE205BE1 		ldrh	r2, [fp, #-14]
+ 5355 1d94 0200A0E1 		mov	r0, r2
+ 5356 1d98 0310A0E1 		mov	r1, r3
+ 5357 1d9c 0F20A0E3 		mov	r2, #15
+ 5358 1da0 FEFFFFEB 		bl	lcd_putpixel
+ 255:../lcd.c      **** 	lcd_putpixel(x + 0, y + 6, LCD_BLACK);
+ 5359              		.loc 1 255 0
+ 5360 1da4 B0315BE1 		ldrh	r3, [fp, #-16]	@ movhi
+ 5361 1da8 063083E2 		add	r3, r3, #6
+ 5362 1dac 0338A0E1 		mov	r3, r3, asl #16
+ 5363 1db0 2338A0E1 		mov	r3, r3, lsr #16
+ 5364 1db4 BE205BE1 		ldrh	r2, [fp, #-14]
+ 5365 1db8 0200A0E1 		mov	r0, r2
+ 5366 1dbc 0310A0E1 		mov	r1, r3
+ 5367 1dc0 0F20A0E3 		mov	r2, #15
+ 5368 1dc4 FEFFFFEB 		bl	lcd_putpixel
+ 256:../lcd.c      **** 	lcd_putpixel(x + 1, y + 4, LCD_BLACK);
+ 5369              		.loc 1 256 0
+ 5370 1dc8 BE305BE1 		ldrh	r3, [fp, #-14]	@ movhi
+ 5371 1dcc 013083E2 		add	r3, r3, #1
+ 5372 1dd0 0338A0E1 		mov	r3, r3, asl #16
+ 5373 1dd4 2328A0E1 		mov	r2, r3, lsr #16
+ 5374 1dd8 B0315BE1 		ldrh	r3, [fp, #-16]	@ movhi
+ 5375 1ddc 043083E2 		add	r3, r3, #4
+ 5376 1de0 0338A0E1 		mov	r3, r3, asl #16
+ 5377 1de4 2338A0E1 		mov	r3, r3, lsr #16
+ 5378 1de8 0200A0E1 		mov	r0, r2
+ 5379 1dec 0310A0E1 		mov	r1, r3
+ 5380 1df0 0F20A0E3 		mov	r2, #15
+ 5381 1df4 FEFFFFEB 		bl	lcd_putpixel
+ 257:../lcd.c      **** 	lcd_putpixel(x + 1, y + 5, LCD_BLACK);
+ 5382              		.loc 1 257 0
+ 5383 1df8 BE305BE1 		ldrh	r3, [fp, #-14]	@ movhi
+ 5384 1dfc 013083E2 		add	r3, r3, #1
+ 5385 1e00 0338A0E1 		mov	r3, r3, asl #16
+ 5386 1e04 2328A0E1 		mov	r2, r3, lsr #16
+ 5387 1e08 B0315BE1 		ldrh	r3, [fp, #-16]	@ movhi
+ 5388 1e0c 053083E2 		add	r3, r3, #5
+ 5389 1e10 0338A0E1 		mov	r3, r3, asl #16
+ 5390 1e14 2338A0E1 		mov	r3, r3, lsr #16
+ 5391 1e18 0200A0E1 		mov	r0, r2
+ 5392 1e1c 0310A0E1 		mov	r1, r3
+ 5393 1e20 0F20A0E3 		mov	r2, #15
+ 5394 1e24 FEFFFFEB 		bl	lcd_putpixel
+ 258:../lcd.c      **** 	lcd_putpixel(x + 2, y + 3, LCD_BLACK);
+ 5395              		.loc 1 258 0
+ 5396 1e28 BE305BE1 		ldrh	r3, [fp, #-14]	@ movhi
+ 5397 1e2c 023083E2 		add	r3, r3, #2
+ 5398 1e30 0338A0E1 		mov	r3, r3, asl #16
+ 5399 1e34 2328A0E1 		mov	r2, r3, lsr #16
+ 5400 1e38 B0315BE1 		ldrh	r3, [fp, #-16]	@ movhi
+ 5401 1e3c 033083E2 		add	r3, r3, #3
+ 5402 1e40 0338A0E1 		mov	r3, r3, asl #16
+ 5403 1e44 2338A0E1 		mov	r3, r3, lsr #16
+ 5404 1e48 0200A0E1 		mov	r0, r2
+ 5405 1e4c 0310A0E1 		mov	r1, r3
+ 5406 1e50 0F20A0E3 		mov	r2, #15
+ 5407 1e54 FEFFFFEB 		bl	lcd_putpixel
+ 259:../lcd.c      **** 	lcd_putpixel(x + 2, y + 4, LCD_BLACK);
+ 5408              		.loc 1 259 0
+ 5409 1e58 BE305BE1 		ldrh	r3, [fp, #-14]	@ movhi
+ 5410 1e5c 023083E2 		add	r3, r3, #2
+ 5411 1e60 0338A0E1 		mov	r3, r3, asl #16
+ 5412 1e64 2328A0E1 		mov	r2, r3, lsr #16
+ 5413 1e68 B0315BE1 		ldrh	r3, [fp, #-16]	@ movhi
+ 5414 1e6c 043083E2 		add	r3, r3, #4
+ 5415 1e70 0338A0E1 		mov	r3, r3, asl #16
+ 5416 1e74 2338A0E1 		mov	r3, r3, lsr #16
+ 5417 1e78 0200A0E1 		mov	r0, r2
+ 5418 1e7c 0310A0E1 		mov	r1, r3
+ 5419 1e80 0F20A0E3 		mov	r2, #15
+ 5420 1e84 FEFFFFEB 		bl	lcd_putpixel
+ 260:../lcd.c      **** 	lcd_putpixel(x + 3, y + 1, LCD_BLACK);
+ 5421              		.loc 1 260 0
+ 5422 1e88 BE305BE1 		ldrh	r3, [fp, #-14]	@ movhi
+ 5423 1e8c 033083E2 		add	r3, r3, #3
+ 5424 1e90 0338A0E1 		mov	r3, r3, asl #16
+ 5425 1e94 2328A0E1 		mov	r2, r3, lsr #16
+ 5426 1e98 B0315BE1 		ldrh	r3, [fp, #-16]	@ movhi
+ 5427 1e9c 013083E2 		add	r3, r3, #1
+ 5428 1ea0 0338A0E1 		mov	r3, r3, asl #16
+ 5429 1ea4 2338A0E1 		mov	r3, r3, lsr #16
+ 5430 1ea8 0200A0E1 		mov	r0, r2
+ 5431 1eac 0310A0E1 		mov	r1, r3
+ 5432 1eb0 0F20A0E3 		mov	r2, #15
+ 5433 1eb4 FEFFFFEB 		bl	lcd_putpixel
+ 261:../lcd.c      **** 	lcd_putpixel(x + 3, y + 2, LCD_BLACK);
+ 5434              		.loc 1 261 0
+ 5435 1eb8 BE305BE1 		ldrh	r3, [fp, #-14]	@ movhi
+ 5436 1ebc 033083E2 		add	r3, r3, #3
+ 5437 1ec0 0338A0E1 		mov	r3, r3, asl #16
+ 5438 1ec4 2328A0E1 		mov	r2, r3, lsr #16
+ 5439 1ec8 B0315BE1 		ldrh	r3, [fp, #-16]	@ movhi
+ 5440 1ecc 023083E2 		add	r3, r3, #2
+ 5441 1ed0 0338A0E1 		mov	r3, r3, asl #16
+ 5442 1ed4 2338A0E1 		mov	r3, r3, lsr #16
+ 5443 1ed8 0200A0E1 		mov	r0, r2
+ 5444 1edc 0310A0E1 		mov	r1, r3
+ 5445 1ee0 0F20A0E3 		mov	r2, #15
+ 5446 1ee4 FEFFFFEB 		bl	lcd_putpixel
+ 262:../lcd.c      **** 	lcd_putpixel(x + 3, y + 3, LCD_BLACK);
+ 5447              		.loc 1 262 0
+ 5448 1ee8 BE305BE1 		ldrh	r3, [fp, #-14]	@ movhi
+ 5449 1eec 033083E2 		add	r3, r3, #3
+ 5450 1ef0 0338A0E1 		mov	r3, r3, asl #16
+ 5451 1ef4 2328A0E1 		mov	r2, r3, lsr #16
+ 5452 1ef8 B0315BE1 		ldrh	r3, [fp, #-16]	@ movhi
+ 5453 1efc 033083E2 		add	r3, r3, #3
+ 5454 1f00 0338A0E1 		mov	r3, r3, asl #16
+ 5455 1f04 2338A0E1 		mov	r3, r3, lsr #16
+ 5456 1f08 0200A0E1 		mov	r0, r2
+ 5457 1f0c 0310A0E1 		mov	r1, r3
+ 5458 1f10 0F20A0E3 		mov	r2, #15
+ 5459 1f14 FEFFFFEB 		bl	lcd_putpixel
+ 263:../lcd.c      **** 	lcd_putpixel(x + 3, y + 4, LCD_BLACK);
+ 5460              		.loc 1 263 0
+ 5461 1f18 BE305BE1 		ldrh	r3, [fp, #-14]	@ movhi
+ 5462 1f1c 033083E2 		add	r3, r3, #3
+ 5463 1f20 0338A0E1 		mov	r3, r3, asl #16
+ 5464 1f24 2328A0E1 		mov	r2, r3, lsr #16
+ 5465 1f28 B0315BE1 		ldrh	r3, [fp, #-16]	@ movhi
+ 5466 1f2c 043083E2 		add	r3, r3, #4
+ 5467 1f30 0338A0E1 		mov	r3, r3, asl #16
+ 5468 1f34 2338A0E1 		mov	r3, r3, lsr #16
+ 5469 1f38 0200A0E1 		mov	r0, r2
+ 5470 1f3c 0310A0E1 		mov	r1, r3
+ 5471 1f40 0F20A0E3 		mov	r2, #15
+ 5472 1f44 FEFFFFEB 		bl	lcd_putpixel
+ 264:../lcd.c      **** 	lcd_putpixel(x + 3, y + 5, LCD_BLACK);
+ 5473              		.loc 1 264 0
+ 5474 1f48 BE305BE1 		ldrh	r3, [fp, #-14]	@ movhi
+ 5475 1f4c 033083E2 		add	r3, r3, #3
+ 5476 1f50 0338A0E1 		mov	r3, r3, asl #16
+ 5477 1f54 2328A0E1 		mov	r2, r3, lsr #16
+ 5478 1f58 B0315BE1 		ldrh	r3, [fp, #-16]	@ movhi
+ 5479 1f5c 053083E2 		add	r3, r3, #5
+ 5480 1f60 0338A0E1 		mov	r3, r3, asl #16
+ 5481 1f64 2338A0E1 		mov	r3, r3, lsr #16
+ 5482 1f68 0200A0E1 		mov	r0, r2
+ 5483 1f6c 0310A0E1 		mov	r1, r3
+ 5484 1f70 0F20A0E3 		mov	r2, #15
+ 5485 1f74 FEFFFFEB 		bl	lcd_putpixel
+ 265:../lcd.c      **** 	lcd_putpixel(x + 3, y + 6, LCD_BLACK);
+ 5486              		.loc 1 265 0
+ 5487 1f78 BE305BE1 		ldrh	r3, [fp, #-14]	@ movhi
+ 5488 1f7c 033083E2 		add	r3, r3, #3
+ 5489 1f80 0338A0E1 		mov	r3, r3, asl #16
+ 5490 1f84 2328A0E1 		mov	r2, r3, lsr #16
+ 5491 1f88 B0315BE1 		ldrh	r3, [fp, #-16]	@ movhi
+ 5492 1f8c 063083E2 		add	r3, r3, #6
+ 5493 1f90 0338A0E1 		mov	r3, r3, asl #16
+ 5494 1f94 2338A0E1 		mov	r3, r3, lsr #16
+ 5495 1f98 0200A0E1 		mov	r0, r2
+ 5496 1f9c 0310A0E1 		mov	r1, r3
+ 5497 1fa0 0F20A0E3 		mov	r2, #15
+ 5498 1fa4 FEFFFFEB 		bl	lcd_putpixel
+ 266:../lcd.c      **** 	lcd_putpixel(x + 4, y + 0, LCD_BLACK);
+ 5499              		.loc 1 266 0
+ 5500 1fa8 BE305BE1 		ldrh	r3, [fp, #-14]	@ movhi
+ 5501 1fac 043083E2 		add	r3, r3, #4
+ 5502 1fb0 0338A0E1 		mov	r3, r3, asl #16
+ 5503 1fb4 2328A0E1 		mov	r2, r3, lsr #16
+ 5504 1fb8 B0315BE1 		ldrh	r3, [fp, #-16]
+ 5505 1fbc 0200A0E1 		mov	r0, r2
+ 5506 1fc0 0310A0E1 		mov	r1, r3
+ 5507 1fc4 0F20A0E3 		mov	r2, #15
+ 5508 1fc8 FEFFFFEB 		bl	lcd_putpixel
+ 267:../lcd.c      **** 	lcd_putpixel(x + 4, y + 3, LCD_BLACK);
+ 5509              		.loc 1 267 0
+ 5510 1fcc BE305BE1 		ldrh	r3, [fp, #-14]	@ movhi
+ 5511 1fd0 043083E2 		add	r3, r3, #4
+ 5512 1fd4 0338A0E1 		mov	r3, r3, asl #16
+ 5513 1fd8 2328A0E1 		mov	r2, r3, lsr #16
+ 5514 1fdc B0315BE1 		ldrh	r3, [fp, #-16]	@ movhi
+ 5515 1fe0 033083E2 		add	r3, r3, #3
+ 5516 1fe4 0338A0E1 		mov	r3, r3, asl #16
+ 5517 1fe8 2338A0E1 		mov	r3, r3, lsr #16
+ 5518 1fec 0200A0E1 		mov	r0, r2
+ 5519 1ff0 0310A0E1 		mov	r1, r3
+ 5520 1ff4 0F20A0E3 		mov	r2, #15
+ 5521 1ff8 FEFFFFEB 		bl	lcd_putpixel
+ 268:../lcd.c      **** 	lcd_putpixel(x + 4, y + 7, LCD_BLACK);
+ 5522              		.loc 1 268 0
+ 5523 1ffc BE305BE1 		ldrh	r3, [fp, #-14]	@ movhi
+ 5524 2000 043083E2 		add	r3, r3, #4
+ 5525 2004 0338A0E1 		mov	r3, r3, asl #16
+ 5526 2008 2328A0E1 		mov	r2, r3, lsr #16
+ 5527 200c B0315BE1 		ldrh	r3, [fp, #-16]	@ movhi
+ 5528 2010 073083E2 		add	r3, r3, #7
+ 5529 2014 0338A0E1 		mov	r3, r3, asl #16
+ 5530 2018 2338A0E1 		mov	r3, r3, lsr #16
+ 5531 201c 0200A0E1 		mov	r0, r2
+ 5532 2020 0310A0E1 		mov	r1, r3
+ 5533 2024 0F20A0E3 		mov	r2, #15
+ 5534 2028 FEFFFFEB 		bl	lcd_putpixel
+ 269:../lcd.c      **** 	lcd_putpixel(x + 5, y + 0, LCD_BLACK);
+ 5535              		.loc 1 269 0
+ 5536 202c BE305BE1 		ldrh	r3, [fp, #-14]	@ movhi
+ 5537 2030 053083E2 		add	r3, r3, #5
+ 5538 2034 0338A0E1 		mov	r3, r3, asl #16
+ 5539 2038 2328A0E1 		mov	r2, r3, lsr #16
+ 5540 203c B0315BE1 		ldrh	r3, [fp, #-16]
+ 5541 2040 0200A0E1 		mov	r0, r2
+ 5542 2044 0310A0E1 		mov	r1, r3
+ 5543 2048 0F20A0E3 		mov	r2, #15
+ 5544 204c FEFFFFEB 		bl	lcd_putpixel
+ 270:../lcd.c      **** 	lcd_putpixel(x + 5, y + 3, LCD_BLACK);
+ 5545              		.loc 1 270 0
+ 5546 2050 BE305BE1 		ldrh	r3, [fp, #-14]	@ movhi
+ 5547 2054 053083E2 		add	r3, r3, #5
+ 5548 2058 0338A0E1 		mov	r3, r3, asl #16
+ 5549 205c 2328A0E1 		mov	r2, r3, lsr #16
+ 5550 2060 B0315BE1 		ldrh	r3, [fp, #-16]	@ movhi
+ 5551 2064 033083E2 		add	r3, r3, #3
+ 5552 2068 0338A0E1 		mov	r3, r3, asl #16
+ 5553 206c 2338A0E1 		mov	r3, r3, lsr #16
+ 5554 2070 0200A0E1 		mov	r0, r2
+ 5555 2074 0310A0E1 		mov	r1, r3
+ 5556 2078 0F20A0E3 		mov	r2, #15
+ 5557 207c FEFFFFEB 		bl	lcd_putpixel
+ 271:../lcd.c      **** 	lcd_putpixel(x + 5, y + 7, LCD_BLACK);
+ 5558              		.loc 1 271 0
+ 5559 2080 BE305BE1 		ldrh	r3, [fp, #-14]	@ movhi
+ 5560 2084 053083E2 		add	r3, r3, #5
+ 5561 2088 0338A0E1 		mov	r3, r3, asl #16
+ 5562 208c 2328A0E1 		mov	r2, r3, lsr #16
+ 5563 2090 B0315BE1 		ldrh	r3, [fp, #-16]	@ movhi
+ 5564 2094 073083E2 		add	r3, r3, #7
+ 5565 2098 0338A0E1 		mov	r3, r3, asl #16
+ 5566 209c 2338A0E1 		mov	r3, r3, lsr #16
+ 5567 20a0 0200A0E1 		mov	r0, r2
+ 5568 20a4 0310A0E1 		mov	r1, r3
+ 5569 20a8 0F20A0E3 		mov	r2, #15
+ 5570 20ac FEFFFFEB 		bl	lcd_putpixel
+ 272:../lcd.c      **** 	lcd_putpixel(x + 6, y + 0, LCD_BLACK);
+ 5571              		.loc 1 272 0
+ 5572 20b0 BE305BE1 		ldrh	r3, [fp, #-14]	@ movhi
+ 5573 20b4 063083E2 		add	r3, r3, #6
+ 5574 20b8 0338A0E1 		mov	r3, r3, asl #16
+ 5575 20bc 2328A0E1 		mov	r2, r3, lsr #16
+ 5576 20c0 B0315BE1 		ldrh	r3, [fp, #-16]
+ 5577 20c4 0200A0E1 		mov	r0, r2
+ 5578 20c8 0310A0E1 		mov	r1, r3
+ 5579 20cc 0F20A0E3 		mov	r2, #15
+ 5580 20d0 FEFFFFEB 		bl	lcd_putpixel
+ 273:../lcd.c      **** 	lcd_putpixel(x + 6, y + 3, LCD_BLACK);
+ 5581              		.loc 1 273 0
+ 5582 20d4 BE305BE1 		ldrh	r3, [fp, #-14]	@ movhi
+ 5583 20d8 063083E2 		add	r3, r3, #6
+ 5584 20dc 0338A0E1 		mov	r3, r3, asl #16
+ 5585 20e0 2328A0E1 		mov	r2, r3, lsr #16
+ 5586 20e4 B0315BE1 		ldrh	r3, [fp, #-16]	@ movhi
+ 5587 20e8 033083E2 		add	r3, r3, #3
+ 5588 20ec 0338A0E1 		mov	r3, r3, asl #16
+ 5589 20f0 2338A0E1 		mov	r3, r3, lsr #16
+ 5590 20f4 0200A0E1 		mov	r0, r2
+ 5591 20f8 0310A0E1 		mov	r1, r3
+ 5592 20fc 0F20A0E3 		mov	r2, #15
+ 5593 2100 FEFFFFEB 		bl	lcd_putpixel
+ 274:../lcd.c      **** 	lcd_putpixel(x + 6, y + 7, LCD_BLACK);
+ 5594              		.loc 1 274 0
+ 5595 2104 BE305BE1 		ldrh	r3, [fp, #-14]	@ movhi
+ 5596 2108 063083E2 		add	r3, r3, #6
+ 5597 210c 0338A0E1 		mov	r3, r3, asl #16
+ 5598 2110 2328A0E1 		mov	r2, r3, lsr #16
+ 5599 2114 B0315BE1 		ldrh	r3, [fp, #-16]	@ movhi
+ 5600 2118 073083E2 		add	r3, r3, #7
+ 5601 211c 0338A0E1 		mov	r3, r3, asl #16
+ 5602 2120 2338A0E1 		mov	r3, r3, lsr #16
+ 5603 2124 0200A0E1 		mov	r0, r2
+ 5604 2128 0310A0E1 		mov	r1, r3
+ 5605 212c 0F20A0E3 		mov	r2, #15
+ 5606 2130 FEFFFFEB 		bl	lcd_putpixel
+ 275:../lcd.c      **** 	lcd_putpixel(x + 7, y + 1, LCD_BLACK);
+ 5607              		.loc 1 275 0
+ 5608 2134 BE305BE1 		ldrh	r3, [fp, #-14]	@ movhi
+ 5609 2138 073083E2 		add	r3, r3, #7
+ 5610 213c 0338A0E1 		mov	r3, r3, asl #16
+ 5611 2140 2328A0E1 		mov	r2, r3, lsr #16
+ 5612 2144 B0315BE1 		ldrh	r3, [fp, #-16]	@ movhi
+ 5613 2148 013083E2 		add	r3, r3, #1
+ 5614 214c 0338A0E1 		mov	r3, r3, asl #16
+ 5615 2150 2338A0E1 		mov	r3, r3, lsr #16
+ 5616 2154 0200A0E1 		mov	r0, r2
+ 5617 2158 0310A0E1 		mov	r1, r3
+ 5618 215c 0F20A0E3 		mov	r2, #15
+ 5619 2160 FEFFFFEB 		bl	lcd_putpixel
+ 276:../lcd.c      **** 	lcd_putpixel(x + 7, y + 2, LCD_BLACK);
+ 5620              		.loc 1 276 0
+ 5621 2164 BE305BE1 		ldrh	r3, [fp, #-14]	@ movhi
+ 5622 2168 073083E2 		add	r3, r3, #7
+ 5623 216c 0338A0E1 		mov	r3, r3, asl #16
+ 5624 2170 2328A0E1 		mov	r2, r3, lsr #16
+ 5625 2174 B0315BE1 		ldrh	r3, [fp, #-16]	@ movhi
+ 5626 2178 023083E2 		add	r3, r3, #2
+ 5627 217c 0338A0E1 		mov	r3, r3, asl #16
+ 5628 2180 2338A0E1 		mov	r3, r3, lsr #16
+ 5629 2184 0200A0E1 		mov	r0, r2
+ 5630 2188 0310A0E1 		mov	r1, r3
+ 5631 218c 0F20A0E3 		mov	r2, #15
+ 5632 2190 FEFFFFEB 		bl	lcd_putpixel
+ 277:../lcd.c      **** 	lcd_putpixel(x + 7, y + 4, LCD_BLACK);
+ 5633              		.loc 1 277 0
+ 5634 2194 BE305BE1 		ldrh	r3, [fp, #-14]	@ movhi
+ 5635 2198 073083E2 		add	r3, r3, #7
+ 5636 219c 0338A0E1 		mov	r3, r3, asl #16
+ 5637 21a0 2328A0E1 		mov	r2, r3, lsr #16
+ 5638 21a4 B0315BE1 		ldrh	r3, [fp, #-16]	@ movhi
+ 5639 21a8 043083E2 		add	r3, r3, #4
+ 5640 21ac 0338A0E1 		mov	r3, r3, asl #16
+ 5641 21b0 2338A0E1 		mov	r3, r3, lsr #16
+ 5642 21b4 0200A0E1 		mov	r0, r2
+ 5643 21b8 0310A0E1 		mov	r1, r3
+ 5644 21bc 0F20A0E3 		mov	r2, #15
+ 5645 21c0 FEFFFFEB 		bl	lcd_putpixel
+ 278:../lcd.c      **** 	lcd_putpixel(x + 7, y + 5, LCD_BLACK);
+ 5646              		.loc 1 278 0
+ 5647 21c4 BE305BE1 		ldrh	r3, [fp, #-14]	@ movhi
+ 5648 21c8 073083E2 		add	r3, r3, #7
+ 5649 21cc 0338A0E1 		mov	r3, r3, asl #16
+ 5650 21d0 2328A0E1 		mov	r2, r3, lsr #16
+ 5651 21d4 B0315BE1 		ldrh	r3, [fp, #-16]	@ movhi
+ 5652 21d8 053083E2 		add	r3, r3, #5
+ 5653 21dc 0338A0E1 		mov	r3, r3, asl #16
+ 5654 21e0 2338A0E1 		mov	r3, r3, lsr #16
+ 5655 21e4 0200A0E1 		mov	r0, r2
+ 5656 21e8 0310A0E1 		mov	r1, r3
+ 5657 21ec 0F20A0E3 		mov	r2, #15
+ 5658 21f0 FEFFFFEB 		bl	lcd_putpixel
+ 279:../lcd.c      **** 	lcd_putpixel(x + 7, y + 6, LCD_BLACK);
+ 5659              		.loc 1 279 0
+ 5660 21f4 BE305BE1 		ldrh	r3, [fp, #-14]	@ movhi
+ 5661 21f8 073083E2 		add	r3, r3, #7
+ 5662 21fc 0338A0E1 		mov	r3, r3, asl #16
+ 5663 2200 2328A0E1 		mov	r2, r3, lsr #16
+ 5664 2204 B0315BE1 		ldrh	r3, [fp, #-16]	@ movhi
+ 5665 2208 063083E2 		add	r3, r3, #6
+ 5666 220c 0338A0E1 		mov	r3, r3, asl #16
+ 5667 2210 2338A0E1 		mov	r3, r3, lsr #16
+ 5668 2214 0200A0E1 		mov	r0, r2
+ 5669 2218 0310A0E1 		mov	r1, r3
+ 5670 221c 0F20A0E3 		mov	r2, #15
+ 5671 2220 FEFFFFEB 		bl	lcd_putpixel
+ 280:../lcd.c      **** }
+ 5672              		.loc 1 280 0
+ 5673 2224 0CD04BE2 		sub	sp, fp, #12
+ 5674 2228 00689DE8 		ldmfd	sp, {fp, sp, lr}
+ 5675 222c 1EFF2FE1 		bx	lr
+ 5676              		.cfi_endproc
+ 5677              	.LFE14:
+ 5679              		.align	2
+ 5680              		.global	lcd_pintar_platano
+ 5682              	lcd_pintar_platano:
+ 5683              	.LFB15:
+ 281:../lcd.c      **** 
+ 282:../lcd.c      **** void lcd_pintar_platano(uint16 x, uint16 y) {
+ 5684              		.loc 1 282 0
+ 5685              		.cfi_startproc
+ 5686              		@ Function supports interworking.
+ 5687              		@ args = 0, pretend = 0, frame = 8
+ 5688              		@ frame_needed = 1, uses_anonymous_args = 0
+ 5689 2230 0DC0A0E1 		mov	ip, sp
+ 5690              	.LCFI30:
+ 5691              		.cfi_def_cfa_register 12
+ 5692 2234 00D82DE9 		stmfd	sp!, {fp, ip, lr, pc}
+ 5693 2238 04B04CE2 		sub	fp, ip, #4
+ 5694              		.cfi_offset 14, -8
+ 5695              		.cfi_offset 13, -12
+ 5696              		.cfi_offset 11, -16
+ 5697              	.LCFI31:
+ 5698              		.cfi_def_cfa 11, 4
+ 5699 223c 08D04DE2 		sub	sp, sp, #8
+ 5700 2240 0020A0E1 		mov	r2, r0
+ 5701 2244 0130A0E1 		mov	r3, r1
+ 5702 2248 BE204BE1 		strh	r2, [fp, #-14]	@ movhi
+ 5703 224c B0314BE1 		strh	r3, [fp, #-16]	@ movhi
+ 283:../lcd.c      **** 	lcd_putpixel(x + 0, y + 6, LCD_BLACK);
+ 5704              		.loc 1 283 0
+ 5705 2250 B0315BE1 		ldrh	r3, [fp, #-16]	@ movhi
+ 5706 2254 063083E2 		add	r3, r3, #6
+ 5707 2258 0338A0E1 		mov	r3, r3, asl #16
+ 5708 225c 2338A0E1 		mov	r3, r3, lsr #16
+ 5709 2260 BE205BE1 		ldrh	r2, [fp, #-14]
+ 5710 2264 0200A0E1 		mov	r0, r2
+ 5711 2268 0310A0E1 		mov	r1, r3
+ 5712 226c 0F20A0E3 		mov	r2, #15
+ 5713 2270 FEFFFFEB 		bl	lcd_putpixel
+ 284:../lcd.c      **** 	lcd_putpixel(x + 0, y + 7, LCD_BLACK);
+ 5714              		.loc 1 284 0
+ 5715 2274 B0315BE1 		ldrh	r3, [fp, #-16]	@ movhi
+ 5716 2278 073083E2 		add	r3, r3, #7
+ 5717 227c 0338A0E1 		mov	r3, r3, asl #16
+ 5718 2280 2338A0E1 		mov	r3, r3, lsr #16
+ 5719 2284 BE205BE1 		ldrh	r2, [fp, #-14]
+ 5720 2288 0200A0E1 		mov	r0, r2
+ 5721 228c 0310A0E1 		mov	r1, r3
+ 5722 2290 0F20A0E3 		mov	r2, #15
+ 5723 2294 FEFFFFEB 		bl	lcd_putpixel
+ 285:../lcd.c      **** 	lcd_putpixel(x + 1, y + 6, LCD_BLACK);
+ 5724              		.loc 1 285 0
+ 5725 2298 BE305BE1 		ldrh	r3, [fp, #-14]	@ movhi
+ 5726 229c 013083E2 		add	r3, r3, #1
+ 5727 22a0 0338A0E1 		mov	r3, r3, asl #16
+ 5728 22a4 2328A0E1 		mov	r2, r3, lsr #16
+ 5729 22a8 B0315BE1 		ldrh	r3, [fp, #-16]	@ movhi
+ 5730 22ac 063083E2 		add	r3, r3, #6
+ 5731 22b0 0338A0E1 		mov	r3, r3, asl #16
+ 5732 22b4 2338A0E1 		mov	r3, r3, lsr #16
+ 5733 22b8 0200A0E1 		mov	r0, r2
+ 5734 22bc 0310A0E1 		mov	r1, r3
+ 5735 22c0 0F20A0E3 		mov	r2, #15
+ 5736 22c4 FEFFFFEB 		bl	lcd_putpixel
+ 286:../lcd.c      **** 	lcd_putpixel(x + 1, y + 7, LCD_BLACK);
+ 5737              		.loc 1 286 0
+ 5738 22c8 BE305BE1 		ldrh	r3, [fp, #-14]	@ movhi
+ 5739 22cc 013083E2 		add	r3, r3, #1
+ 5740 22d0 0338A0E1 		mov	r3, r3, asl #16
+ 5741 22d4 2328A0E1 		mov	r2, r3, lsr #16
+ 5742 22d8 B0315BE1 		ldrh	r3, [fp, #-16]	@ movhi
+ 5743 22dc 073083E2 		add	r3, r3, #7
+ 5744 22e0 0338A0E1 		mov	r3, r3, asl #16
+ 5745 22e4 2338A0E1 		mov	r3, r3, lsr #16
+ 5746 22e8 0200A0E1 		mov	r0, r2
+ 5747 22ec 0310A0E1 		mov	r1, r3
+ 5748 22f0 0F20A0E3 		mov	r2, #15
+ 5749 22f4 FEFFFFEB 		bl	lcd_putpixel
+ 287:../lcd.c      **** 	lcd_putpixel(x + 2, y + 5, LCD_BLACK);
+ 5750              		.loc 1 287 0
+ 5751 22f8 BE305BE1 		ldrh	r3, [fp, #-14]	@ movhi
+ 5752 22fc 023083E2 		add	r3, r3, #2
+ 5753 2300 0338A0E1 		mov	r3, r3, asl #16
+ 5754 2304 2328A0E1 		mov	r2, r3, lsr #16
+ 5755 2308 B0315BE1 		ldrh	r3, [fp, #-16]	@ movhi
+ 5756 230c 053083E2 		add	r3, r3, #5
+ 5757 2310 0338A0E1 		mov	r3, r3, asl #16
+ 5758 2314 2338A0E1 		mov	r3, r3, lsr #16
+ 5759 2318 0200A0E1 		mov	r0, r2
+ 5760 231c 0310A0E1 		mov	r1, r3
+ 5761 2320 0F20A0E3 		mov	r2, #15
+ 5762 2324 FEFFFFEB 		bl	lcd_putpixel
+ 288:../lcd.c      **** 	lcd_putpixel(x + 2, y + 7, LCD_BLACK);
+ 5763              		.loc 1 288 0
+ 5764 2328 BE305BE1 		ldrh	r3, [fp, #-14]	@ movhi
+ 5765 232c 023083E2 		add	r3, r3, #2
+ 5766 2330 0338A0E1 		mov	r3, r3, asl #16
+ 5767 2334 2328A0E1 		mov	r2, r3, lsr #16
+ 5768 2338 B0315BE1 		ldrh	r3, [fp, #-16]	@ movhi
+ 5769 233c 073083E2 		add	r3, r3, #7
+ 5770 2340 0338A0E1 		mov	r3, r3, asl #16
+ 5771 2344 2338A0E1 		mov	r3, r3, lsr #16
+ 5772 2348 0200A0E1 		mov	r0, r2
+ 5773 234c 0310A0E1 		mov	r1, r3
+ 5774 2350 0F20A0E3 		mov	r2, #15
+ 5775 2354 FEFFFFEB 		bl	lcd_putpixel
+ 289:../lcd.c      **** 	lcd_putpixel(x + 3, y + 5, LCD_BLACK);
+ 5776              		.loc 1 289 0
+ 5777 2358 BE305BE1 		ldrh	r3, [fp, #-14]	@ movhi
+ 5778 235c 033083E2 		add	r3, r3, #3
+ 5779 2360 0338A0E1 		mov	r3, r3, asl #16
+ 5780 2364 2328A0E1 		mov	r2, r3, lsr #16
+ 5781 2368 B0315BE1 		ldrh	r3, [fp, #-16]	@ movhi
+ 5782 236c 053083E2 		add	r3, r3, #5
+ 5783 2370 0338A0E1 		mov	r3, r3, asl #16
+ 5784 2374 2338A0E1 		mov	r3, r3, lsr #16
+ 5785 2378 0200A0E1 		mov	r0, r2
+ 5786 237c 0310A0E1 		mov	r1, r3
+ 5787 2380 0F20A0E3 		mov	r2, #15
+ 5788 2384 FEFFFFEB 		bl	lcd_putpixel
+ 290:../lcd.c      **** 	lcd_putpixel(x + 3, y + 7, LCD_BLACK);
+ 5789              		.loc 1 290 0
+ 5790 2388 BE305BE1 		ldrh	r3, [fp, #-14]	@ movhi
+ 5791 238c 033083E2 		add	r3, r3, #3
+ 5792 2390 0338A0E1 		mov	r3, r3, asl #16
+ 5793 2394 2328A0E1 		mov	r2, r3, lsr #16
+ 5794 2398 B0315BE1 		ldrh	r3, [fp, #-16]	@ movhi
+ 5795 239c 073083E2 		add	r3, r3, #7
+ 5796 23a0 0338A0E1 		mov	r3, r3, asl #16
+ 5797 23a4 2338A0E1 		mov	r3, r3, lsr #16
+ 5798 23a8 0200A0E1 		mov	r0, r2
+ 5799 23ac 0310A0E1 		mov	r1, r3
+ 5800 23b0 0F20A0E3 		mov	r2, #15
+ 5801 23b4 FEFFFFEB 		bl	lcd_putpixel
+ 291:../lcd.c      **** 	lcd_putpixel(x + 4, y + 4, LCD_BLACK);
+ 5802              		.loc 1 291 0
+ 5803 23b8 BE305BE1 		ldrh	r3, [fp, #-14]	@ movhi
+ 5804 23bc 043083E2 		add	r3, r3, #4
+ 5805 23c0 0338A0E1 		mov	r3, r3, asl #16
+ 5806 23c4 2328A0E1 		mov	r2, r3, lsr #16
+ 5807 23c8 B0315BE1 		ldrh	r3, [fp, #-16]	@ movhi
+ 5808 23cc 043083E2 		add	r3, r3, #4
+ 5809 23d0 0338A0E1 		mov	r3, r3, asl #16
+ 5810 23d4 2338A0E1 		mov	r3, r3, lsr #16
+ 5811 23d8 0200A0E1 		mov	r0, r2
+ 5812 23dc 0310A0E1 		mov	r1, r3
+ 5813 23e0 0F20A0E3 		mov	r2, #15
+ 5814 23e4 FEFFFFEB 		bl	lcd_putpixel
+ 292:../lcd.c      **** 	lcd_putpixel(x + 4, y + 7, LCD_BLACK);
+ 5815              		.loc 1 292 0
+ 5816 23e8 BE305BE1 		ldrh	r3, [fp, #-14]	@ movhi
+ 5817 23ec 043083E2 		add	r3, r3, #4
+ 5818 23f0 0338A0E1 		mov	r3, r3, asl #16
+ 5819 23f4 2328A0E1 		mov	r2, r3, lsr #16
+ 5820 23f8 B0315BE1 		ldrh	r3, [fp, #-16]	@ movhi
+ 5821 23fc 073083E2 		add	r3, r3, #7
+ 5822 2400 0338A0E1 		mov	r3, r3, asl #16
+ 5823 2404 2338A0E1 		mov	r3, r3, lsr #16
+ 5824 2408 0200A0E1 		mov	r0, r2
+ 5825 240c 0310A0E1 		mov	r1, r3
+ 5826 2410 0F20A0E3 		mov	r2, #15
+ 5827 2414 FEFFFFEB 		bl	lcd_putpixel
+ 293:../lcd.c      **** 	lcd_putpixel(x + 5, y + 1, LCD_BLACK);
+ 5828              		.loc 1 293 0
+ 5829 2418 BE305BE1 		ldrh	r3, [fp, #-14]	@ movhi
+ 5830 241c 053083E2 		add	r3, r3, #5
+ 5831 2420 0338A0E1 		mov	r3, r3, asl #16
+ 5832 2424 2328A0E1 		mov	r2, r3, lsr #16
+ 5833 2428 B0315BE1 		ldrh	r3, [fp, #-16]	@ movhi
+ 5834 242c 013083E2 		add	r3, r3, #1
+ 5835 2430 0338A0E1 		mov	r3, r3, asl #16
+ 5836 2434 2338A0E1 		mov	r3, r3, lsr #16
+ 5837 2438 0200A0E1 		mov	r0, r2
+ 5838 243c 0310A0E1 		mov	r1, r3
+ 5839 2440 0F20A0E3 		mov	r2, #15
+ 5840 2444 FEFFFFEB 		bl	lcd_putpixel
+ 294:../lcd.c      **** 	lcd_putpixel(x + 5, y + 2, LCD_BLACK);
+ 5841              		.loc 1 294 0
+ 5842 2448 BE305BE1 		ldrh	r3, [fp, #-14]	@ movhi
+ 5843 244c 053083E2 		add	r3, r3, #5
+ 5844 2450 0338A0E1 		mov	r3, r3, asl #16
+ 5845 2454 2328A0E1 		mov	r2, r3, lsr #16
+ 5846 2458 B0315BE1 		ldrh	r3, [fp, #-16]	@ movhi
+ 5847 245c 023083E2 		add	r3, r3, #2
+ 5848 2460 0338A0E1 		mov	r3, r3, asl #16
+ 5849 2464 2338A0E1 		mov	r3, r3, lsr #16
+ 5850 2468 0200A0E1 		mov	r0, r2
+ 5851 246c 0310A0E1 		mov	r1, r3
+ 5852 2470 0F20A0E3 		mov	r2, #15
+ 5853 2474 FEFFFFEB 		bl	lcd_putpixel
+ 295:../lcd.c      **** 	lcd_putpixel(x + 5, y + 3, LCD_BLACK);
+ 5854              		.loc 1 295 0
+ 5855 2478 BE305BE1 		ldrh	r3, [fp, #-14]	@ movhi
+ 5856 247c 053083E2 		add	r3, r3, #5
+ 5857 2480 0338A0E1 		mov	r3, r3, asl #16
+ 5858 2484 2328A0E1 		mov	r2, r3, lsr #16
+ 5859 2488 B0315BE1 		ldrh	r3, [fp, #-16]	@ movhi
+ 5860 248c 033083E2 		add	r3, r3, #3
+ 5861 2490 0338A0E1 		mov	r3, r3, asl #16
+ 5862 2494 2338A0E1 		mov	r3, r3, lsr #16
+ 5863 2498 0200A0E1 		mov	r0, r2
+ 5864 249c 0310A0E1 		mov	r1, r3
+ 5865 24a0 0F20A0E3 		mov	r2, #15
+ 5866 24a4 FEFFFFEB 		bl	lcd_putpixel
+ 296:../lcd.c      **** 	lcd_putpixel(x + 5, y + 6, LCD_BLACK);
+ 5867              		.loc 1 296 0
+ 5868 24a8 BE305BE1 		ldrh	r3, [fp, #-14]	@ movhi
+ 5869 24ac 053083E2 		add	r3, r3, #5
+ 5870 24b0 0338A0E1 		mov	r3, r3, asl #16
+ 5871 24b4 2328A0E1 		mov	r2, r3, lsr #16
+ 5872 24b8 B0315BE1 		ldrh	r3, [fp, #-16]	@ movhi
+ 5873 24bc 063083E2 		add	r3, r3, #6
+ 5874 24c0 0338A0E1 		mov	r3, r3, asl #16
+ 5875 24c4 2338A0E1 		mov	r3, r3, lsr #16
+ 5876 24c8 0200A0E1 		mov	r0, r2
+ 5877 24cc 0310A0E1 		mov	r1, r3
+ 5878 24d0 0F20A0E3 		mov	r2, #15
+ 5879 24d4 FEFFFFEB 		bl	lcd_putpixel
+ 297:../lcd.c      **** 	lcd_putpixel(x + 5, y + 7, LCD_BLACK);
+ 5880              		.loc 1 297 0
+ 5881 24d8 BE305BE1 		ldrh	r3, [fp, #-14]	@ movhi
+ 5882 24dc 053083E2 		add	r3, r3, #5
+ 5883 24e0 0338A0E1 		mov	r3, r3, asl #16
+ 5884 24e4 2328A0E1 		mov	r2, r3, lsr #16
+ 5885 24e8 B0315BE1 		ldrh	r3, [fp, #-16]	@ movhi
+ 5886 24ec 073083E2 		add	r3, r3, #7
+ 5887 24f0 0338A0E1 		mov	r3, r3, asl #16
+ 5888 24f4 2338A0E1 		mov	r3, r3, lsr #16
+ 5889 24f8 0200A0E1 		mov	r0, r2
+ 5890 24fc 0310A0E1 		mov	r1, r3
+ 5891 2500 0F20A0E3 		mov	r2, #15
+ 5892 2504 FEFFFFEB 		bl	lcd_putpixel
+ 298:../lcd.c      **** 	lcd_putpixel(x + 6, y + 0, LCD_BLACK);
+ 5893              		.loc 1 298 0
+ 5894 2508 BE305BE1 		ldrh	r3, [fp, #-14]	@ movhi
+ 5895 250c 063083E2 		add	r3, r3, #6
+ 5896 2510 0338A0E1 		mov	r3, r3, asl #16
+ 5897 2514 2328A0E1 		mov	r2, r3, lsr #16
+ 5898 2518 B0315BE1 		ldrh	r3, [fp, #-16]
+ 5899 251c 0200A0E1 		mov	r0, r2
+ 5900 2520 0310A0E1 		mov	r1, r3
+ 5901 2524 0F20A0E3 		mov	r2, #15
+ 5902 2528 FEFFFFEB 		bl	lcd_putpixel
+ 299:../lcd.c      **** 	lcd_putpixel(x + 6, y + 5, LCD_BLACK);
+ 5903              		.loc 1 299 0
+ 5904 252c BE305BE1 		ldrh	r3, [fp, #-14]	@ movhi
+ 5905 2530 063083E2 		add	r3, r3, #6
+ 5906 2534 0338A0E1 		mov	r3, r3, asl #16
+ 5907 2538 2328A0E1 		mov	r2, r3, lsr #16
+ 5908 253c B0315BE1 		ldrh	r3, [fp, #-16]	@ movhi
+ 5909 2540 053083E2 		add	r3, r3, #5
+ 5910 2544 0338A0E1 		mov	r3, r3, asl #16
+ 5911 2548 2338A0E1 		mov	r3, r3, lsr #16
+ 5912 254c 0200A0E1 		mov	r0, r2
+ 5913 2550 0310A0E1 		mov	r1, r3
+ 5914 2554 0F20A0E3 		mov	r2, #15
+ 5915 2558 FEFFFFEB 		bl	lcd_putpixel
+ 300:../lcd.c      **** 	lcd_putpixel(x + 6, y + 6, LCD_BLACK);
+ 5916              		.loc 1 300 0
+ 5917 255c BE305BE1 		ldrh	r3, [fp, #-14]	@ movhi
+ 5918 2560 063083E2 		add	r3, r3, #6
+ 5919 2564 0338A0E1 		mov	r3, r3, asl #16
+ 5920 2568 2328A0E1 		mov	r2, r3, lsr #16
+ 5921 256c B0315BE1 		ldrh	r3, [fp, #-16]	@ movhi
+ 5922 2570 063083E2 		add	r3, r3, #6
+ 5923 2574 0338A0E1 		mov	r3, r3, asl #16
+ 5924 2578 2338A0E1 		mov	r3, r3, lsr #16
+ 5925 257c 0200A0E1 		mov	r0, r2
+ 5926 2580 0310A0E1 		mov	r1, r3
+ 5927 2584 0F20A0E3 		mov	r2, #15
+ 5928 2588 FEFFFFEB 		bl	lcd_putpixel
+ 301:../lcd.c      **** 	lcd_putpixel(x + 7, y + 0, LCD_BLACK);
+ 5929              		.loc 1 301 0
+ 5930 258c BE305BE1 		ldrh	r3, [fp, #-14]	@ movhi
+ 5931 2590 073083E2 		add	r3, r3, #7
+ 5932 2594 0338A0E1 		mov	r3, r3, asl #16
+ 5933 2598 2328A0E1 		mov	r2, r3, lsr #16
+ 5934 259c B0315BE1 		ldrh	r3, [fp, #-16]
+ 5935 25a0 0200A0E1 		mov	r0, r2
+ 5936 25a4 0310A0E1 		mov	r1, r3
+ 5937 25a8 0F20A0E3 		mov	r2, #15
+ 5938 25ac FEFFFFEB 		bl	lcd_putpixel
+ 302:../lcd.c      **** 	lcd_putpixel(x + 7, y + 1, LCD_BLACK);
+ 5939              		.loc 1 302 0
+ 5940 25b0 BE305BE1 		ldrh	r3, [fp, #-14]	@ movhi
+ 5941 25b4 073083E2 		add	r3, r3, #7
+ 5942 25b8 0338A0E1 		mov	r3, r3, asl #16
+ 5943 25bc 2328A0E1 		mov	r2, r3, lsr #16
+ 5944 25c0 B0315BE1 		ldrh	r3, [fp, #-16]	@ movhi
+ 5945 25c4 013083E2 		add	r3, r3, #1
+ 5946 25c8 0338A0E1 		mov	r3, r3, asl #16
+ 5947 25cc 2338A0E1 		mov	r3, r3, lsr #16
+ 5948 25d0 0200A0E1 		mov	r0, r2
+ 5949 25d4 0310A0E1 		mov	r1, r3
+ 5950 25d8 0F20A0E3 		mov	r2, #15
+ 5951 25dc FEFFFFEB 		bl	lcd_putpixel
+ 303:../lcd.c      **** 	lcd_putpixel(x + 7, y + 2, LCD_BLACK);
+ 5952              		.loc 1 303 0
+ 5953 25e0 BE305BE1 		ldrh	r3, [fp, #-14]	@ movhi
+ 5954 25e4 073083E2 		add	r3, r3, #7
+ 5955 25e8 0338A0E1 		mov	r3, r3, asl #16
+ 5956 25ec 2328A0E1 		mov	r2, r3, lsr #16
+ 5957 25f0 B0315BE1 		ldrh	r3, [fp, #-16]	@ movhi
+ 5958 25f4 023083E2 		add	r3, r3, #2
+ 5959 25f8 0338A0E1 		mov	r3, r3, asl #16
+ 5960 25fc 2338A0E1 		mov	r3, r3, lsr #16
+ 5961 2600 0200A0E1 		mov	r0, r2
+ 5962 2604 0310A0E1 		mov	r1, r3
+ 5963 2608 0F20A0E3 		mov	r2, #15
+ 5964 260c FEFFFFEB 		bl	lcd_putpixel
+ 304:../lcd.c      **** 	lcd_putpixel(x + 7, y + 3, LCD_BLACK);
+ 5965              		.loc 1 304 0
+ 5966 2610 BE305BE1 		ldrh	r3, [fp, #-14]	@ movhi
+ 5967 2614 073083E2 		add	r3, r3, #7
+ 5968 2618 0338A0E1 		mov	r3, r3, asl #16
+ 5969 261c 2328A0E1 		mov	r2, r3, lsr #16
+ 5970 2620 B0315BE1 		ldrh	r3, [fp, #-16]	@ movhi
+ 5971 2624 033083E2 		add	r3, r3, #3
+ 5972 2628 0338A0E1 		mov	r3, r3, asl #16
+ 5973 262c 2338A0E1 		mov	r3, r3, lsr #16
+ 5974 2630 0200A0E1 		mov	r0, r2
+ 5975 2634 0310A0E1 		mov	r1, r3
+ 5976 2638 0F20A0E3 		mov	r2, #15
+ 5977 263c FEFFFFEB 		bl	lcd_putpixel
+ 305:../lcd.c      **** 	lcd_putpixel(x + 7, y + 4, LCD_BLACK);
+ 5978              		.loc 1 305 0
+ 5979 2640 BE305BE1 		ldrh	r3, [fp, #-14]	@ movhi
+ 5980 2644 073083E2 		add	r3, r3, #7
+ 5981 2648 0338A0E1 		mov	r3, r3, asl #16
+ 5982 264c 2328A0E1 		mov	r2, r3, lsr #16
+ 5983 2650 B0315BE1 		ldrh	r3, [fp, #-16]	@ movhi
+ 5984 2654 043083E2 		add	r3, r3, #4
+ 5985 2658 0338A0E1 		mov	r3, r3, asl #16
+ 5986 265c 2338A0E1 		mov	r3, r3, lsr #16
+ 5987 2660 0200A0E1 		mov	r0, r2
+ 5988 2664 0310A0E1 		mov	r1, r3
+ 5989 2668 0F20A0E3 		mov	r2, #15
+ 5990 266c FEFFFFEB 		bl	lcd_putpixel
+ 306:../lcd.c      **** 	lcd_putpixel(x + 7, y + 5, LCD_BLACK);
+ 5991              		.loc 1 306 0
+ 5992 2670 BE305BE1 		ldrh	r3, [fp, #-14]	@ movhi
+ 5993 2674 073083E2 		add	r3, r3, #7
+ 5994 2678 0338A0E1 		mov	r3, r3, asl #16
+ 5995 267c 2328A0E1 		mov	r2, r3, lsr #16
+ 5996 2680 B0315BE1 		ldrh	r3, [fp, #-16]	@ movhi
+ 5997 2684 053083E2 		add	r3, r3, #5
+ 5998 2688 0338A0E1 		mov	r3, r3, asl #16
+ 5999 268c 2338A0E1 		mov	r3, r3, lsr #16
+ 6000 2690 0200A0E1 		mov	r0, r2
+ 6001 2694 0310A0E1 		mov	r1, r3
+ 6002 2698 0F20A0E3 		mov	r2, #15
+ 6003 269c FEFFFFEB 		bl	lcd_putpixel
+ 307:../lcd.c      **** }
+ 6004              		.loc 1 307 0
+ 6005 26a0 0CD04BE2 		sub	sp, fp, #12
+ 6006 26a4 00689DE8 		ldmfd	sp, {fp, sp, lr}
+ 6007 26a8 1EFF2FE1 		bx	lr
+ 6008              		.cfi_endproc
+ 6009              	.LFE15:
+ 6011              		.align	2
+ 6012              		.global	lcd_pintar_naranja
+ 6014              	lcd_pintar_naranja:
+ 6015              	.LFB16:
+ 308:../lcd.c      **** 
+ 309:../lcd.c      **** void lcd_pintar_naranja(uint16 x, uint16 y) {
+ 6016              		.loc 1 309 0
+ 6017              		.cfi_startproc
+ 6018              		@ Function supports interworking.
+ 6019              		@ args = 0, pretend = 0, frame = 8
+ 6020              		@ frame_needed = 1, uses_anonymous_args = 0
+ 6021 26ac 0DC0A0E1 		mov	ip, sp
+ 6022              	.LCFI32:
+ 6023              		.cfi_def_cfa_register 12
+ 6024 26b0 00D82DE9 		stmfd	sp!, {fp, ip, lr, pc}
+ 6025 26b4 04B04CE2 		sub	fp, ip, #4
+ 6026              		.cfi_offset 14, -8
+ 6027              		.cfi_offset 13, -12
+ 6028              		.cfi_offset 11, -16
+ 6029              	.LCFI33:
+ 6030              		.cfi_def_cfa 11, 4
+ 6031 26b8 08D04DE2 		sub	sp, sp, #8
+ 6032 26bc 0020A0E1 		mov	r2, r0
+ 6033 26c0 0130A0E1 		mov	r3, r1
+ 6034 26c4 BE204BE1 		strh	r2, [fp, #-14]	@ movhi
+ 6035 26c8 B0314BE1 		strh	r3, [fp, #-16]	@ movhi
+ 310:../lcd.c      **** 	lcd_putpixel(x + 0, y + 2, LCD_BLACK);
+ 6036              		.loc 1 310 0
+ 6037 26cc B0315BE1 		ldrh	r3, [fp, #-16]	@ movhi
+ 6038 26d0 023083E2 		add	r3, r3, #2
+ 6039 26d4 0338A0E1 		mov	r3, r3, asl #16
+ 6040 26d8 2338A0E1 		mov	r3, r3, lsr #16
+ 6041 26dc BE205BE1 		ldrh	r2, [fp, #-14]
+ 6042 26e0 0200A0E1 		mov	r0, r2
+ 6043 26e4 0310A0E1 		mov	r1, r3
+ 6044 26e8 0F20A0E3 		mov	r2, #15
+ 6045 26ec FEFFFFEB 		bl	lcd_putpixel
+ 311:../lcd.c      **** 	lcd_putpixel(x + 0, y + 3, LCD_BLACK);
+ 6046              		.loc 1 311 0
+ 6047 26f0 B0315BE1 		ldrh	r3, [fp, #-16]	@ movhi
+ 6048 26f4 033083E2 		add	r3, r3, #3
+ 6049 26f8 0338A0E1 		mov	r3, r3, asl #16
+ 6050 26fc 2338A0E1 		mov	r3, r3, lsr #16
+ 6051 2700 BE205BE1 		ldrh	r2, [fp, #-14]
+ 6052 2704 0200A0E1 		mov	r0, r2
+ 6053 2708 0310A0E1 		mov	r1, r3
+ 6054 270c 0F20A0E3 		mov	r2, #15
+ 6055 2710 FEFFFFEB 		bl	lcd_putpixel
+ 312:../lcd.c      **** 	lcd_putpixel(x + 0, y + 4, LCD_BLACK);
+ 6056              		.loc 1 312 0
+ 6057 2714 B0315BE1 		ldrh	r3, [fp, #-16]	@ movhi
+ 6058 2718 043083E2 		add	r3, r3, #4
+ 6059 271c 0338A0E1 		mov	r3, r3, asl #16
+ 6060 2720 2338A0E1 		mov	r3, r3, lsr #16
+ 6061 2724 BE205BE1 		ldrh	r2, [fp, #-14]
+ 6062 2728 0200A0E1 		mov	r0, r2
+ 6063 272c 0310A0E1 		mov	r1, r3
+ 6064 2730 0F20A0E3 		mov	r2, #15
+ 6065 2734 FEFFFFEB 		bl	lcd_putpixel
+ 313:../lcd.c      **** 	lcd_putpixel(x + 0, y + 5, LCD_BLACK);
+ 6066              		.loc 1 313 0
+ 6067 2738 B0315BE1 		ldrh	r3, [fp, #-16]	@ movhi
+ 6068 273c 053083E2 		add	r3, r3, #5
+ 6069 2740 0338A0E1 		mov	r3, r3, asl #16
+ 6070 2744 2338A0E1 		mov	r3, r3, lsr #16
+ 6071 2748 BE205BE1 		ldrh	r2, [fp, #-14]
+ 6072 274c 0200A0E1 		mov	r0, r2
+ 6073 2750 0310A0E1 		mov	r1, r3
+ 6074 2754 0F20A0E3 		mov	r2, #15
+ 6075 2758 FEFFFFEB 		bl	lcd_putpixel
+ 314:../lcd.c      **** 	lcd_putpixel(x + 1, y + 1, LCD_BLACK);
+ 6076              		.loc 1 314 0
+ 6077 275c BE305BE1 		ldrh	r3, [fp, #-14]	@ movhi
+ 6078 2760 013083E2 		add	r3, r3, #1
+ 6079 2764 0338A0E1 		mov	r3, r3, asl #16
+ 6080 2768 2328A0E1 		mov	r2, r3, lsr #16
+ 6081 276c B0315BE1 		ldrh	r3, [fp, #-16]	@ movhi
+ 6082 2770 013083E2 		add	r3, r3, #1
+ 6083 2774 0338A0E1 		mov	r3, r3, asl #16
+ 6084 2778 2338A0E1 		mov	r3, r3, lsr #16
+ 6085 277c 0200A0E1 		mov	r0, r2
+ 6086 2780 0310A0E1 		mov	r1, r3
+ 6087 2784 0F20A0E3 		mov	r2, #15
+ 6088 2788 FEFFFFEB 		bl	lcd_putpixel
+ 315:../lcd.c      **** 	lcd_putpixel(x + 1, y + 6, LCD_BLACK);
+ 6089              		.loc 1 315 0
+ 6090 278c BE305BE1 		ldrh	r3, [fp, #-14]	@ movhi
+ 6091 2790 013083E2 		add	r3, r3, #1
+ 6092 2794 0338A0E1 		mov	r3, r3, asl #16
+ 6093 2798 2328A0E1 		mov	r2, r3, lsr #16
+ 6094 279c B0315BE1 		ldrh	r3, [fp, #-16]	@ movhi
+ 6095 27a0 063083E2 		add	r3, r3, #6
+ 6096 27a4 0338A0E1 		mov	r3, r3, asl #16
+ 6097 27a8 2338A0E1 		mov	r3, r3, lsr #16
+ 6098 27ac 0200A0E1 		mov	r0, r2
+ 6099 27b0 0310A0E1 		mov	r1, r3
+ 6100 27b4 0F20A0E3 		mov	r2, #15
+ 6101 27b8 FEFFFFEB 		bl	lcd_putpixel
+ 316:../lcd.c      **** 	lcd_putpixel(x + 2, y + 0, LCD_BLACK);
+ 6102              		.loc 1 316 0
+ 6103 27bc BE305BE1 		ldrh	r3, [fp, #-14]	@ movhi
+ 6104 27c0 023083E2 		add	r3, r3, #2
+ 6105 27c4 0338A0E1 		mov	r3, r3, asl #16
+ 6106 27c8 2328A0E1 		mov	r2, r3, lsr #16
+ 6107 27cc B0315BE1 		ldrh	r3, [fp, #-16]
+ 6108 27d0 0200A0E1 		mov	r0, r2
+ 6109 27d4 0310A0E1 		mov	r1, r3
+ 6110 27d8 0F20A0E3 		mov	r2, #15
+ 6111 27dc FEFFFFEB 		bl	lcd_putpixel
+ 317:../lcd.c      **** 	lcd_putpixel(x + 2, y + 2, LCD_BLACK);
+ 6112              		.loc 1 317 0
+ 6113 27e0 BE305BE1 		ldrh	r3, [fp, #-14]	@ movhi
+ 6114 27e4 023083E2 		add	r3, r3, #2
+ 6115 27e8 0338A0E1 		mov	r3, r3, asl #16
+ 6116 27ec 2328A0E1 		mov	r2, r3, lsr #16
+ 6117 27f0 B0315BE1 		ldrh	r3, [fp, #-16]	@ movhi
+ 6118 27f4 023083E2 		add	r3, r3, #2
+ 6119 27f8 0338A0E1 		mov	r3, r3, asl #16
+ 6120 27fc 2338A0E1 		mov	r3, r3, lsr #16
+ 6121 2800 0200A0E1 		mov	r0, r2
+ 6122 2804 0310A0E1 		mov	r1, r3
+ 6123 2808 0F20A0E3 		mov	r2, #15
+ 6124 280c FEFFFFEB 		bl	lcd_putpixel
+ 318:../lcd.c      **** 	lcd_putpixel(x + 2, y + 7, LCD_BLACK);
+ 6125              		.loc 1 318 0
+ 6126 2810 BE305BE1 		ldrh	r3, [fp, #-14]	@ movhi
+ 6127 2814 023083E2 		add	r3, r3, #2
+ 6128 2818 0338A0E1 		mov	r3, r3, asl #16
+ 6129 281c 2328A0E1 		mov	r2, r3, lsr #16
+ 6130 2820 B0315BE1 		ldrh	r3, [fp, #-16]	@ movhi
+ 6131 2824 073083E2 		add	r3, r3, #7
+ 6132 2828 0338A0E1 		mov	r3, r3, asl #16
+ 6133 282c 2338A0E1 		mov	r3, r3, lsr #16
+ 6134 2830 0200A0E1 		mov	r0, r2
+ 6135 2834 0310A0E1 		mov	r1, r3
+ 6136 2838 0F20A0E3 		mov	r2, #15
+ 6137 283c FEFFFFEB 		bl	lcd_putpixel
+ 319:../lcd.c      **** 	lcd_putpixel(x + 3, y + 0, LCD_BLACK);
+ 6138              		.loc 1 319 0
+ 6139 2840 BE305BE1 		ldrh	r3, [fp, #-14]	@ movhi
+ 6140 2844 033083E2 		add	r3, r3, #3
+ 6141 2848 0338A0E1 		mov	r3, r3, asl #16
+ 6142 284c 2328A0E1 		mov	r2, r3, lsr #16
+ 6143 2850 B0315BE1 		ldrh	r3, [fp, #-16]
+ 6144 2854 0200A0E1 		mov	r0, r2
+ 6145 2858 0310A0E1 		mov	r1, r3
+ 6146 285c 0F20A0E3 		mov	r2, #15
+ 6147 2860 FEFFFFEB 		bl	lcd_putpixel
+ 320:../lcd.c      **** 	lcd_putpixel(x + 3, y + 5, LCD_BLACK);
+ 6148              		.loc 1 320 0
+ 6149 2864 BE305BE1 		ldrh	r3, [fp, #-14]	@ movhi
+ 6150 2868 033083E2 		add	r3, r3, #3
+ 6151 286c 0338A0E1 		mov	r3, r3, asl #16
+ 6152 2870 2328A0E1 		mov	r2, r3, lsr #16
+ 6153 2874 B0315BE1 		ldrh	r3, [fp, #-16]	@ movhi
+ 6154 2878 053083E2 		add	r3, r3, #5
+ 6155 287c 0338A0E1 		mov	r3, r3, asl #16
+ 6156 2880 2338A0E1 		mov	r3, r3, lsr #16
+ 6157 2884 0200A0E1 		mov	r0, r2
+ 6158 2888 0310A0E1 		mov	r1, r3
+ 6159 288c 0F20A0E3 		mov	r2, #15
+ 6160 2890 FEFFFFEB 		bl	lcd_putpixel
+ 321:../lcd.c      **** 	lcd_putpixel(x + 3, y + 7, LCD_BLACK);
+ 6161              		.loc 1 321 0
+ 6162 2894 BE305BE1 		ldrh	r3, [fp, #-14]	@ movhi
+ 6163 2898 033083E2 		add	r3, r3, #3
+ 6164 289c 0338A0E1 		mov	r3, r3, asl #16
+ 6165 28a0 2328A0E1 		mov	r2, r3, lsr #16
+ 6166 28a4 B0315BE1 		ldrh	r3, [fp, #-16]	@ movhi
+ 6167 28a8 073083E2 		add	r3, r3, #7
+ 6168 28ac 0338A0E1 		mov	r3, r3, asl #16
+ 6169 28b0 2338A0E1 		mov	r3, r3, lsr #16
+ 6170 28b4 0200A0E1 		mov	r0, r2
+ 6171 28b8 0310A0E1 		mov	r1, r3
+ 6172 28bc 0F20A0E3 		mov	r2, #15
+ 6173 28c0 FEFFFFEB 		bl	lcd_putpixel
+ 322:../lcd.c      **** 	lcd_putpixel(x + 4, y + 0, LCD_BLACK);
+ 6174              		.loc 1 322 0
+ 6175 28c4 BE305BE1 		ldrh	r3, [fp, #-14]	@ movhi
+ 6176 28c8 043083E2 		add	r3, r3, #4
+ 6177 28cc 0338A0E1 		mov	r3, r3, asl #16
+ 6178 28d0 2328A0E1 		mov	r2, r3, lsr #16
+ 6179 28d4 B0315BE1 		ldrh	r3, [fp, #-16]
+ 6180 28d8 0200A0E1 		mov	r0, r2
+ 6181 28dc 0310A0E1 		mov	r1, r3
+ 6182 28e0 0F20A0E3 		mov	r2, #15
+ 6183 28e4 FEFFFFEB 		bl	lcd_putpixel
+ 323:../lcd.c      **** 	lcd_putpixel(x + 4, y + 2, LCD_BLACK);
+ 6184              		.loc 1 323 0
+ 6185 28e8 BE305BE1 		ldrh	r3, [fp, #-14]	@ movhi
+ 6186 28ec 043083E2 		add	r3, r3, #4
+ 6187 28f0 0338A0E1 		mov	r3, r3, asl #16
+ 6188 28f4 2328A0E1 		mov	r2, r3, lsr #16
+ 6189 28f8 B0315BE1 		ldrh	r3, [fp, #-16]	@ movhi
+ 6190 28fc 023083E2 		add	r3, r3, #2
+ 6191 2900 0338A0E1 		mov	r3, r3, asl #16
+ 6192 2904 2338A0E1 		mov	r3, r3, lsr #16
+ 6193 2908 0200A0E1 		mov	r0, r2
+ 6194 290c 0310A0E1 		mov	r1, r3
+ 6195 2910 0F20A0E3 		mov	r2, #15
+ 6196 2914 FEFFFFEB 		bl	lcd_putpixel
+ 324:../lcd.c      **** 	lcd_putpixel(x + 4, y + 7, LCD_BLACK);
+ 6197              		.loc 1 324 0
+ 6198 2918 BE305BE1 		ldrh	r3, [fp, #-14]	@ movhi
+ 6199 291c 043083E2 		add	r3, r3, #4
+ 6200 2920 0338A0E1 		mov	r3, r3, asl #16
+ 6201 2924 2328A0E1 		mov	r2, r3, lsr #16
+ 6202 2928 B0315BE1 		ldrh	r3, [fp, #-16]	@ movhi
+ 6203 292c 073083E2 		add	r3, r3, #7
+ 6204 2930 0338A0E1 		mov	r3, r3, asl #16
+ 6205 2934 2338A0E1 		mov	r3, r3, lsr #16
+ 6206 2938 0200A0E1 		mov	r0, r2
+ 6207 293c 0310A0E1 		mov	r1, r3
+ 6208 2940 0F20A0E3 		mov	r2, #15
+ 6209 2944 FEFFFFEB 		bl	lcd_putpixel
+ 325:../lcd.c      **** 	lcd_putpixel(x + 5, y + 0, LCD_BLACK);
+ 6210              		.loc 1 325 0
+ 6211 2948 BE305BE1 		ldrh	r3, [fp, #-14]	@ movhi
+ 6212 294c 053083E2 		add	r3, r3, #5
+ 6213 2950 0338A0E1 		mov	r3, r3, asl #16
+ 6214 2954 2328A0E1 		mov	r2, r3, lsr #16
+ 6215 2958 B0315BE1 		ldrh	r3, [fp, #-16]
+ 6216 295c 0200A0E1 		mov	r0, r2
+ 6217 2960 0310A0E1 		mov	r1, r3
+ 6218 2964 0F20A0E3 		mov	r2, #15
+ 6219 2968 FEFFFFEB 		bl	lcd_putpixel
+ 326:../lcd.c      **** 	lcd_putpixel(x + 5, y + 4, LCD_BLACK);
+ 6220              		.loc 1 326 0
+ 6221 296c BE305BE1 		ldrh	r3, [fp, #-14]	@ movhi
+ 6222 2970 053083E2 		add	r3, r3, #5
+ 6223 2974 0338A0E1 		mov	r3, r3, asl #16
+ 6224 2978 2328A0E1 		mov	r2, r3, lsr #16
+ 6225 297c B0315BE1 		ldrh	r3, [fp, #-16]	@ movhi
+ 6226 2980 043083E2 		add	r3, r3, #4
+ 6227 2984 0338A0E1 		mov	r3, r3, asl #16
+ 6228 2988 2338A0E1 		mov	r3, r3, lsr #16
+ 6229 298c 0200A0E1 		mov	r0, r2
+ 6230 2990 0310A0E1 		mov	r1, r3
+ 6231 2994 0F20A0E3 		mov	r2, #15
+ 6232 2998 FEFFFFEB 		bl	lcd_putpixel
+ 327:../lcd.c      **** 	lcd_putpixel(x + 5, y + 7, LCD_BLACK);
+ 6233              		.loc 1 327 0
+ 6234 299c BE305BE1 		ldrh	r3, [fp, #-14]	@ movhi
+ 6235 29a0 053083E2 		add	r3, r3, #5
+ 6236 29a4 0338A0E1 		mov	r3, r3, asl #16
+ 6237 29a8 2328A0E1 		mov	r2, r3, lsr #16
+ 6238 29ac B0315BE1 		ldrh	r3, [fp, #-16]	@ movhi
+ 6239 29b0 073083E2 		add	r3, r3, #7
+ 6240 29b4 0338A0E1 		mov	r3, r3, asl #16
+ 6241 29b8 2338A0E1 		mov	r3, r3, lsr #16
+ 6242 29bc 0200A0E1 		mov	r0, r2
+ 6243 29c0 0310A0E1 		mov	r1, r3
+ 6244 29c4 0F20A0E3 		mov	r2, #15
+ 6245 29c8 FEFFFFEB 		bl	lcd_putpixel
+ 328:../lcd.c      **** 	lcd_putpixel(x + 6, y + 1, LCD_BLACK);
+ 6246              		.loc 1 328 0
+ 6247 29cc BE305BE1 		ldrh	r3, [fp, #-14]	@ movhi
+ 6248 29d0 063083E2 		add	r3, r3, #6
+ 6249 29d4 0338A0E1 		mov	r3, r3, asl #16
+ 6250 29d8 2328A0E1 		mov	r2, r3, lsr #16
+ 6251 29dc B0315BE1 		ldrh	r3, [fp, #-16]	@ movhi
+ 6252 29e0 013083E2 		add	r3, r3, #1
+ 6253 29e4 0338A0E1 		mov	r3, r3, asl #16
+ 6254 29e8 2338A0E1 		mov	r3, r3, lsr #16
+ 6255 29ec 0200A0E1 		mov	r0, r2
+ 6256 29f0 0310A0E1 		mov	r1, r3
+ 6257 29f4 0F20A0E3 		mov	r2, #15
+ 6258 29f8 FEFFFFEB 		bl	lcd_putpixel
+ 329:../lcd.c      **** 	lcd_putpixel(x + 6, y + 6, LCD_BLACK);
+ 6259              		.loc 1 329 0
+ 6260 29fc BE305BE1 		ldrh	r3, [fp, #-14]	@ movhi
+ 6261 2a00 063083E2 		add	r3, r3, #6
+ 6262 2a04 0338A0E1 		mov	r3, r3, asl #16
+ 6263 2a08 2328A0E1 		mov	r2, r3, lsr #16
+ 6264 2a0c B0315BE1 		ldrh	r3, [fp, #-16]	@ movhi
+ 6265 2a10 063083E2 		add	r3, r3, #6
+ 6266 2a14 0338A0E1 		mov	r3, r3, asl #16
+ 6267 2a18 2338A0E1 		mov	r3, r3, lsr #16
+ 6268 2a1c 0200A0E1 		mov	r0, r2
+ 6269 2a20 0310A0E1 		mov	r1, r3
+ 6270 2a24 0F20A0E3 		mov	r2, #15
+ 6271 2a28 FEFFFFEB 		bl	lcd_putpixel
+ 330:../lcd.c      **** 	lcd_putpixel(x + 7, y + 2, LCD_BLACK);
+ 6272              		.loc 1 330 0
+ 6273 2a2c BE305BE1 		ldrh	r3, [fp, #-14]	@ movhi
+ 6274 2a30 073083E2 		add	r3, r3, #7
+ 6275 2a34 0338A0E1 		mov	r3, r3, asl #16
+ 6276 2a38 2328A0E1 		mov	r2, r3, lsr #16
+ 6277 2a3c B0315BE1 		ldrh	r3, [fp, #-16]	@ movhi
+ 6278 2a40 023083E2 		add	r3, r3, #2
+ 6279 2a44 0338A0E1 		mov	r3, r3, asl #16
+ 6280 2a48 2338A0E1 		mov	r3, r3, lsr #16
+ 6281 2a4c 0200A0E1 		mov	r0, r2
+ 6282 2a50 0310A0E1 		mov	r1, r3
+ 6283 2a54 0F20A0E3 		mov	r2, #15
+ 6284 2a58 FEFFFFEB 		bl	lcd_putpixel
+ 331:../lcd.c      **** 	lcd_putpixel(x + 7, y + 3, LCD_BLACK);
+ 6285              		.loc 1 331 0
+ 6286 2a5c BE305BE1 		ldrh	r3, [fp, #-14]	@ movhi
+ 6287 2a60 073083E2 		add	r3, r3, #7
+ 6288 2a64 0338A0E1 		mov	r3, r3, asl #16
+ 6289 2a68 2328A0E1 		mov	r2, r3, lsr #16
+ 6290 2a6c B0315BE1 		ldrh	r3, [fp, #-16]	@ movhi
+ 6291 2a70 033083E2 		add	r3, r3, #3
+ 6292 2a74 0338A0E1 		mov	r3, r3, asl #16
+ 6293 2a78 2338A0E1 		mov	r3, r3, lsr #16
+ 6294 2a7c 0200A0E1 		mov	r0, r2
+ 6295 2a80 0310A0E1 		mov	r1, r3
+ 6296 2a84 0F20A0E3 		mov	r2, #15
+ 6297 2a88 FEFFFFEB 		bl	lcd_putpixel
+ 332:../lcd.c      **** 	lcd_putpixel(x + 7, y + 4, LCD_BLACK);
+ 6298              		.loc 1 332 0
+ 6299 2a8c BE305BE1 		ldrh	r3, [fp, #-14]	@ movhi
+ 6300 2a90 073083E2 		add	r3, r3, #7
+ 6301 2a94 0338A0E1 		mov	r3, r3, asl #16
+ 6302 2a98 2328A0E1 		mov	r2, r3, lsr #16
+ 6303 2a9c B0315BE1 		ldrh	r3, [fp, #-16]	@ movhi
+ 6304 2aa0 043083E2 		add	r3, r3, #4
+ 6305 2aa4 0338A0E1 		mov	r3, r3, asl #16
+ 6306 2aa8 2338A0E1 		mov	r3, r3, lsr #16
+ 6307 2aac 0200A0E1 		mov	r0, r2
+ 6308 2ab0 0310A0E1 		mov	r1, r3
+ 6309 2ab4 0F20A0E3 		mov	r2, #15
+ 6310 2ab8 FEFFFFEB 		bl	lcd_putpixel
+ 333:../lcd.c      **** 	lcd_putpixel(x + 7, y + 5, LCD_BLACK);
+ 6311              		.loc 1 333 0
+ 6312 2abc BE305BE1 		ldrh	r3, [fp, #-14]	@ movhi
+ 6313 2ac0 073083E2 		add	r3, r3, #7
+ 6314 2ac4 0338A0E1 		mov	r3, r3, asl #16
+ 6315 2ac8 2328A0E1 		mov	r2, r3, lsr #16
+ 6316 2acc B0315BE1 		ldrh	r3, [fp, #-16]	@ movhi
+ 6317 2ad0 053083E2 		add	r3, r3, #5
+ 6318 2ad4 0338A0E1 		mov	r3, r3, asl #16
+ 6319 2ad8 2338A0E1 		mov	r3, r3, lsr #16
+ 6320 2adc 0200A0E1 		mov	r0, r2
+ 6321 2ae0 0310A0E1 		mov	r1, r3
+ 6322 2ae4 0F20A0E3 		mov	r2, #15
+ 6323 2ae8 FEFFFFEB 		bl	lcd_putpixel
+ 334:../lcd.c      **** }
+ 6324              		.loc 1 334 0
+ 6325 2aec 0CD04BE2 		sub	sp, fp, #12
+ 6326 2af0 00689DE8 		ldmfd	sp, {fp, sp, lr}
+ 6327 2af4 1EFF2FE1 		bx	lr
+ 6328              		.cfi_endproc
+ 6329              	.LFE16:
+ 6331              		.align	2
+ 6332              		.global	lcd_pintar_muro
+ 6334              	lcd_pintar_muro:
+ 6335              	.LFB17:
+ 335:../lcd.c      **** 
+ 336:../lcd.c      **** void lcd_pintar_muro(uint16 x, uint16 y, uint8 tam_celda) {
+ 6336              		.loc 1 336 0
+ 6337              		.cfi_startproc
+ 6338              		@ Function supports interworking.
+ 6339              		@ args = 0, pretend = 0, frame = 16
+ 6340              		@ frame_needed = 1, uses_anonymous_args = 0
+ 6341 2af8 0DC0A0E1 		mov	ip, sp
+ 6342              	.LCFI34:
+ 6343              		.cfi_def_cfa_register 12
+ 6344 2afc 00D82DE9 		stmfd	sp!, {fp, ip, lr, pc}
+ 6345 2b00 04B04CE2 		sub	fp, ip, #4
+ 6346              		.cfi_offset 14, -8
+ 6347              		.cfi_offset 13, -12
+ 6348              		.cfi_offset 11, -16
+ 6349              	.LCFI35:
+ 6350              		.cfi_def_cfa 11, 4
+ 6351 2b04 10D04DE2 		sub	sp, sp, #16
+ 6352 2b08 0230A0E1 		mov	r3, r2
+ 6353 2b0c B6014BE1 		strh	r0, [fp, #-22]	@ movhi
+ 6354 2b10 B8114BE1 		strh	r1, [fp, #-24]	@ movhi
+ 6355 2b14 19304BE5 		strb	r3, [fp, #-25]
+ 337:../lcd.c      **** 	uint16 i, j;
+ 338:../lcd.c      **** 	for (i = x; i < x + tam_celda; ++i)
+ 6356              		.loc 1 338 0
+ 6357 2b18 B6315BE1 		ldrh	r3, [fp, #-22]	@ movhi
+ 6358 2b1c BE304BE1 		strh	r3, [fp, #-14]	@ movhi
+ 6359 2b20 140000EA 		b	.L52
+ 6360              	.L55:
+ 339:../lcd.c      **** 		for (j = y; j < y + tam_celda; ++j)
+ 6361              		.loc 1 339 0
+ 6362 2b24 B8315BE1 		ldrh	r3, [fp, #-24]	@ movhi
+ 6363 2b28 B0314BE1 		strh	r3, [fp, #-16]	@ movhi
+ 6364 2b2c 080000EA 		b	.L53
+ 6365              	.L54:
+ 340:../lcd.c      **** 			lcd_putpixel(i, j, LCD_BLACK);
+ 6366              		.loc 1 340 0 discriminator 2
+ 6367 2b30 BE205BE1 		ldrh	r2, [fp, #-14]
+ 6368 2b34 B0315BE1 		ldrh	r3, [fp, #-16]
+ 6369 2b38 0200A0E1 		mov	r0, r2
+ 6370 2b3c 0310A0E1 		mov	r1, r3
+ 6371 2b40 0F20A0E3 		mov	r2, #15
+ 6372 2b44 FEFFFFEB 		bl	lcd_putpixel
+ 339:../lcd.c      **** 		for (j = y; j < y + tam_celda; ++j)
+ 6373              		.loc 1 339 0 discriminator 2
+ 6374 2b48 B0315BE1 		ldrh	r3, [fp, #-16]	@ movhi
+ 6375 2b4c 013083E2 		add	r3, r3, #1
+ 6376 2b50 B0314BE1 		strh	r3, [fp, #-16]	@ movhi
+ 6377              	.L53:
+ 339:../lcd.c      **** 		for (j = y; j < y + tam_celda; ++j)
+ 6378              		.loc 1 339 0 is_stmt 0 discriminator 1
+ 6379 2b54 B0215BE1 		ldrh	r2, [fp, #-16]
+ 6380 2b58 B8115BE1 		ldrh	r1, [fp, #-24]
+ 6381 2b5c 19305BE5 		ldrb	r3, [fp, #-25]	@ zero_extendqisi2
+ 6382 2b60 033081E0 		add	r3, r1, r3
+ 6383 2b64 030052E1 		cmp	r2, r3
+ 6384 2b68 F0FFFFBA 		blt	.L54
+ 338:../lcd.c      **** 	for (i = x; i < x + tam_celda; ++i)
+ 6385              		.loc 1 338 0 is_stmt 1
+ 6386 2b6c BE305BE1 		ldrh	r3, [fp, #-14]	@ movhi
+ 6387 2b70 013083E2 		add	r3, r3, #1
+ 6388 2b74 BE304BE1 		strh	r3, [fp, #-14]	@ movhi
+ 6389              	.L52:
+ 338:../lcd.c      **** 	for (i = x; i < x + tam_celda; ++i)
+ 6390              		.loc 1 338 0 is_stmt 0 discriminator 1
+ 6391 2b78 BE205BE1 		ldrh	r2, [fp, #-14]
+ 6392 2b7c B6115BE1 		ldrh	r1, [fp, #-22]
+ 6393 2b80 19305BE5 		ldrb	r3, [fp, #-25]	@ zero_extendqisi2
+ 6394 2b84 033081E0 		add	r3, r1, r3
+ 6395 2b88 030052E1 		cmp	r2, r3
+ 6396 2b8c E4FFFFBA 		blt	.L55
+ 341:../lcd.c      **** 
+ 342:../lcd.c      **** 	lcd_putpixel(x + 3, y + 2, LCD_BLACK);
+ 6397              		.loc 1 342 0 is_stmt 1
+ 6398 2b90 B6315BE1 		ldrh	r3, [fp, #-22]	@ movhi
+ 6399 2b94 033083E2 		add	r3, r3, #3
+ 6400 2b98 0338A0E1 		mov	r3, r3, asl #16
+ 6401 2b9c 2328A0E1 		mov	r2, r3, lsr #16
+ 6402 2ba0 B8315BE1 		ldrh	r3, [fp, #-24]	@ movhi
+ 6403 2ba4 023083E2 		add	r3, r3, #2
+ 6404 2ba8 0338A0E1 		mov	r3, r3, asl #16
+ 6405 2bac 2338A0E1 		mov	r3, r3, lsr #16
+ 6406 2bb0 0200A0E1 		mov	r0, r2
+ 6407 2bb4 0310A0E1 		mov	r1, r3
+ 6408 2bb8 0F20A0E3 		mov	r2, #15
+ 6409 2bbc FEFFFFEB 		bl	lcd_putpixel
+ 343:../lcd.c      **** 	lcd_putpixel(x + 3, y + 4, LCD_BLACK);
+ 6410              		.loc 1 343 0
+ 6411 2bc0 B6315BE1 		ldrh	r3, [fp, #-22]	@ movhi
+ 6412 2bc4 033083E2 		add	r3, r3, #3
+ 6413 2bc8 0338A0E1 		mov	r3, r3, asl #16
+ 6414 2bcc 2328A0E1 		mov	r2, r3, lsr #16
+ 6415 2bd0 B8315BE1 		ldrh	r3, [fp, #-24]	@ movhi
+ 6416 2bd4 043083E2 		add	r3, r3, #4
+ 6417 2bd8 0338A0E1 		mov	r3, r3, asl #16
+ 6418 2bdc 2338A0E1 		mov	r3, r3, lsr #16
+ 6419 2be0 0200A0E1 		mov	r0, r2
+ 6420 2be4 0310A0E1 		mov	r1, r3
+ 6421 2be8 0F20A0E3 		mov	r2, #15
+ 6422 2bec FEFFFFEB 		bl	lcd_putpixel
+ 344:../lcd.c      **** 	lcd_putpixel(x + 3, y + 6, LCD_BLACK);
+ 6423              		.loc 1 344 0
+ 6424 2bf0 B6315BE1 		ldrh	r3, [fp, #-22]	@ movhi
+ 6425 2bf4 033083E2 		add	r3, r3, #3
+ 6426 2bf8 0338A0E1 		mov	r3, r3, asl #16
+ 6427 2bfc 2328A0E1 		mov	r2, r3, lsr #16
+ 6428 2c00 B8315BE1 		ldrh	r3, [fp, #-24]	@ movhi
+ 6429 2c04 063083E2 		add	r3, r3, #6
+ 6430 2c08 0338A0E1 		mov	r3, r3, asl #16
+ 6431 2c0c 2338A0E1 		mov	r3, r3, lsr #16
+ 6432 2c10 0200A0E1 		mov	r0, r2
+ 6433 2c14 0310A0E1 		mov	r1, r3
+ 6434 2c18 0F20A0E3 		mov	r2, #15
+ 6435 2c1c FEFFFFEB 		bl	lcd_putpixel
+ 345:../lcd.c      **** 	lcd_putpixel(x + 4, y + 1, LCD_BLACK);
+ 6436              		.loc 1 345 0
+ 6437 2c20 B6315BE1 		ldrh	r3, [fp, #-22]	@ movhi
+ 6438 2c24 043083E2 		add	r3, r3, #4
+ 6439 2c28 0338A0E1 		mov	r3, r3, asl #16
+ 6440 2c2c 2328A0E1 		mov	r2, r3, lsr #16
+ 6441 2c30 B8315BE1 		ldrh	r3, [fp, #-24]	@ movhi
+ 6442 2c34 013083E2 		add	r3, r3, #1
+ 6443 2c38 0338A0E1 		mov	r3, r3, asl #16
+ 6444 2c3c 2338A0E1 		mov	r3, r3, lsr #16
+ 6445 2c40 0200A0E1 		mov	r0, r2
+ 6446 2c44 0310A0E1 		mov	r1, r3
+ 6447 2c48 0F20A0E3 		mov	r2, #15
+ 6448 2c4c FEFFFFEB 		bl	lcd_putpixel
+ 346:../lcd.c      **** 	lcd_putpixel(x + 4, y + 3, LCD_BLACK);
+ 6449              		.loc 1 346 0
+ 6450 2c50 B6315BE1 		ldrh	r3, [fp, #-22]	@ movhi
+ 6451 2c54 043083E2 		add	r3, r3, #4
+ 6452 2c58 0338A0E1 		mov	r3, r3, asl #16
+ 6453 2c5c 2328A0E1 		mov	r2, r3, lsr #16
+ 6454 2c60 B8315BE1 		ldrh	r3, [fp, #-24]	@ movhi
+ 6455 2c64 033083E2 		add	r3, r3, #3
+ 6456 2c68 0338A0E1 		mov	r3, r3, asl #16
+ 6457 2c6c 2338A0E1 		mov	r3, r3, lsr #16
+ 6458 2c70 0200A0E1 		mov	r0, r2
+ 6459 2c74 0310A0E1 		mov	r1, r3
+ 6460 2c78 0F20A0E3 		mov	r2, #15
+ 6461 2c7c FEFFFFEB 		bl	lcd_putpixel
+ 347:../lcd.c      **** 	lcd_putpixel(x + 4, y + 5, LCD_BLACK);
+ 6462              		.loc 1 347 0
+ 6463 2c80 B6315BE1 		ldrh	r3, [fp, #-22]	@ movhi
+ 6464 2c84 043083E2 		add	r3, r3, #4
+ 6465 2c88 0338A0E1 		mov	r3, r3, asl #16
+ 6466 2c8c 2328A0E1 		mov	r2, r3, lsr #16
+ 6467 2c90 B8315BE1 		ldrh	r3, [fp, #-24]	@ movhi
+ 6468 2c94 053083E2 		add	r3, r3, #5
+ 6469 2c98 0338A0E1 		mov	r3, r3, asl #16
+ 6470 2c9c 2338A0E1 		mov	r3, r3, lsr #16
+ 6471 2ca0 0200A0E1 		mov	r0, r2
+ 6472 2ca4 0310A0E1 		mov	r1, r3
+ 6473 2ca8 0F20A0E3 		mov	r2, #15
+ 6474 2cac FEFFFFEB 		bl	lcd_putpixel
+ 348:../lcd.c      **** 	lcd_putpixel(x + 5, y + 2, LCD_BLACK);
+ 6475              		.loc 1 348 0
+ 6476 2cb0 B6315BE1 		ldrh	r3, [fp, #-22]	@ movhi
+ 6477 2cb4 053083E2 		add	r3, r3, #5
+ 6478 2cb8 0338A0E1 		mov	r3, r3, asl #16
+ 6479 2cbc 2328A0E1 		mov	r2, r3, lsr #16
+ 6480 2cc0 B8315BE1 		ldrh	r3, [fp, #-24]	@ movhi
+ 6481 2cc4 023083E2 		add	r3, r3, #2
+ 6482 2cc8 0338A0E1 		mov	r3, r3, asl #16
+ 6483 2ccc 2338A0E1 		mov	r3, r3, lsr #16
+ 6484 2cd0 0200A0E1 		mov	r0, r2
+ 6485 2cd4 0310A0E1 		mov	r1, r3
+ 6486 2cd8 0F20A0E3 		mov	r2, #15
+ 6487 2cdc FEFFFFEB 		bl	lcd_putpixel
+ 349:../lcd.c      **** 	lcd_putpixel(x + 5, y + 4, LCD_BLACK);
+ 6488              		.loc 1 349 0
+ 6489 2ce0 B6315BE1 		ldrh	r3, [fp, #-22]	@ movhi
+ 6490 2ce4 053083E2 		add	r3, r3, #5
+ 6491 2ce8 0338A0E1 		mov	r3, r3, asl #16
+ 6492 2cec 2328A0E1 		mov	r2, r3, lsr #16
+ 6493 2cf0 B8315BE1 		ldrh	r3, [fp, #-24]	@ movhi
+ 6494 2cf4 043083E2 		add	r3, r3, #4
+ 6495 2cf8 0338A0E1 		mov	r3, r3, asl #16
+ 6496 2cfc 2338A0E1 		mov	r3, r3, lsr #16
+ 6497 2d00 0200A0E1 		mov	r0, r2
+ 6498 2d04 0310A0E1 		mov	r1, r3
+ 6499 2d08 0F20A0E3 		mov	r2, #15
+ 6500 2d0c FEFFFFEB 		bl	lcd_putpixel
+ 350:../lcd.c      **** 	lcd_putpixel(x + 5, y + 6, LCD_BLACK);
+ 6501              		.loc 1 350 0
+ 6502 2d10 B6315BE1 		ldrh	r3, [fp, #-22]	@ movhi
+ 6503 2d14 053083E2 		add	r3, r3, #5
+ 6504 2d18 0338A0E1 		mov	r3, r3, asl #16
+ 6505 2d1c 2328A0E1 		mov	r2, r3, lsr #16
+ 6506 2d20 B8315BE1 		ldrh	r3, [fp, #-24]	@ movhi
+ 6507 2d24 063083E2 		add	r3, r3, #6
+ 6508 2d28 0338A0E1 		mov	r3, r3, asl #16
+ 6509 2d2c 2338A0E1 		mov	r3, r3, lsr #16
+ 6510 2d30 0200A0E1 		mov	r0, r2
+ 6511 2d34 0310A0E1 		mov	r1, r3
+ 6512 2d38 0F20A0E3 		mov	r2, #15
+ 6513 2d3c FEFFFFEB 		bl	lcd_putpixel
+ 351:../lcd.c      **** 	lcd_putpixel(x + 6, y + 1, LCD_BLACK);
+ 6514              		.loc 1 351 0
+ 6515 2d40 B6315BE1 		ldrh	r3, [fp, #-22]	@ movhi
+ 6516 2d44 063083E2 		add	r3, r3, #6
+ 6517 2d48 0338A0E1 		mov	r3, r3, asl #16
+ 6518 2d4c 2328A0E1 		mov	r2, r3, lsr #16
+ 6519 2d50 B8315BE1 		ldrh	r3, [fp, #-24]	@ movhi
+ 6520 2d54 013083E2 		add	r3, r3, #1
+ 6521 2d58 0338A0E1 		mov	r3, r3, asl #16
+ 6522 2d5c 2338A0E1 		mov	r3, r3, lsr #16
+ 6523 2d60 0200A0E1 		mov	r0, r2
+ 6524 2d64 0310A0E1 		mov	r1, r3
+ 6525 2d68 0F20A0E3 		mov	r2, #15
+ 6526 2d6c FEFFFFEB 		bl	lcd_putpixel
+ 352:../lcd.c      **** 	lcd_putpixel(x + 6, y + 3, LCD_BLACK);
+ 6527              		.loc 1 352 0
+ 6528 2d70 B6315BE1 		ldrh	r3, [fp, #-22]	@ movhi
+ 6529 2d74 063083E2 		add	r3, r3, #6
+ 6530 2d78 0338A0E1 		mov	r3, r3, asl #16
+ 6531 2d7c 2328A0E1 		mov	r2, r3, lsr #16
+ 6532 2d80 B8315BE1 		ldrh	r3, [fp, #-24]	@ movhi
+ 6533 2d84 033083E2 		add	r3, r3, #3
+ 6534 2d88 0338A0E1 		mov	r3, r3, asl #16
+ 6535 2d8c 2338A0E1 		mov	r3, r3, lsr #16
+ 6536 2d90 0200A0E1 		mov	r0, r2
+ 6537 2d94 0310A0E1 		mov	r1, r3
+ 6538 2d98 0F20A0E3 		mov	r2, #15
+ 6539 2d9c FEFFFFEB 		bl	lcd_putpixel
+ 353:../lcd.c      **** 	lcd_putpixel(x + 6, y + 5, LCD_BLACK);
+ 6540              		.loc 1 353 0
+ 6541 2da0 B6315BE1 		ldrh	r3, [fp, #-22]	@ movhi
+ 6542 2da4 063083E2 		add	r3, r3, #6
+ 6543 2da8 0338A0E1 		mov	r3, r3, asl #16
+ 6544 2dac 2328A0E1 		mov	r2, r3, lsr #16
+ 6545 2db0 B8315BE1 		ldrh	r3, [fp, #-24]	@ movhi
+ 6546 2db4 053083E2 		add	r3, r3, #5
+ 6547 2db8 0338A0E1 		mov	r3, r3, asl #16
+ 6548 2dbc 2338A0E1 		mov	r3, r3, lsr #16
+ 6549 2dc0 0200A0E1 		mov	r0, r2
+ 6550 2dc4 0310A0E1 		mov	r1, r3
+ 6551 2dc8 0F20A0E3 		mov	r2, #15
+ 6552 2dcc FEFFFFEB 		bl	lcd_putpixel
+ 354:../lcd.c      **** }
+ 6553              		.loc 1 354 0
+ 6554 2dd0 0CD04BE2 		sub	sp, fp, #12
+ 6555 2dd4 00689DE8 		ldmfd	sp, {fp, sp, lr}
+ 6556 2dd8 1EFF2FE1 		bx	lr
+ 6557              		.cfi_endproc
+ 6558              	.LFE17:
+ 6560              		.align	2
+ 6561              		.global	lcd_draw_esperar_otro_jugador
+ 6563              	lcd_draw_esperar_otro_jugador:
+ 6564              	.LFB18:
+ 355:../lcd.c      **** 
+ 356:../lcd.c      **** 
+ 357:../lcd.c      **** void lcd_draw_esperar_otro_jugador(void) {
+ 6565              		.loc 1 357 0
+ 6566              		.cfi_startproc
+ 6567              		@ Function supports interworking.
+ 6568              		@ args = 0, pretend = 0, frame = 0
+ 6569              		@ frame_needed = 1, uses_anonymous_args = 0
+ 6570 2ddc 0DC0A0E1 		mov	ip, sp
+ 6571              	.LCFI36:
+ 6572              		.cfi_def_cfa_register 12
+ 6573 2de0 00D82DE9 		stmfd	sp!, {fp, ip, lr, pc}
+ 6574 2de4 04B04CE2 		sub	fp, ip, #4
+ 6575              		.cfi_offset 14, -8
+ 6576              		.cfi_offset 13, -12
+ 6577              		.cfi_offset 11, -16
+ 6578              	.LCFI37:
+ 6579              		.cfi_def_cfa 11, 4
+ 358:../lcd.c      **** 
+ 359:../lcd.c      **** 	lcd_pintar_celda(0, 0, 8, LCD_BLACK);
+ 6580              		.loc 1 359 0
+ 6581 2de8 0000A0E3 		mov	r0, #0
+ 6582 2dec 0010A0E3 		mov	r1, #0
+ 6583 2df0 0820A0E3 		mov	r2, #8
+ 6584 2df4 0F30A0E3 		mov	r3, #15
+ 6585 2df8 FEFFFFEB 		bl	lcd_pintar_celda
+ 360:../lcd.c      **** 
+ 361:../lcd.c      **** }
+ 6586              		.loc 1 361 0
+ 6587 2dfc 0CD04BE2 		sub	sp, fp, #12
+ 6588 2e00 00689DE8 		ldmfd	sp, {fp, sp, lr}
+ 6589 2e04 1EFF2FE1 		bx	lr
+ 6590              		.cfi_endproc
+ 6591              	.LFE18:
+ 6593              	.Letext0:
+DEFINED SYMBOLS
+                            *ABS*:00000000 lcd.c
+C:\Users\USUARI~1\AppData\Local\Temp\ccC5S8z4.s:2915   .bss:00000000 $d
+C:\Users\USUARI~1\AppData\Local\Temp\ccC5S8z4.s:2916   .bss:00000000 buffer
+C:\Users\USUARI~1\AppData\Local\Temp\ccC5S8z4.s:2919   .text:00000000 $a
+C:\Users\USUARI~1\AppData\Local\Temp\ccC5S8z4.s:2922   .text:00000000 lcd_init
+C:\Users\USUARI~1\AppData\Local\Temp\ccC5S8z4.s:3025   .text:0000010c $d
+C:\Users\USUARI~1\AppData\Local\Temp\ccC5S8z4.s:3057   .text:00000180 $a
+C:\Users\USUARI~1\AppData\Local\Temp\ccC5S8z4.s:3060   .text:00000180 lcd_clear
+C:\Users\USUARI~1\AppData\Local\Temp\ccC5S8z4.s:3132   .text:00000214 lcd_putpixel
+C:\Users\USUARI~1\AppData\Local\Temp\ccC5S8z4.s:3125   .text:00000210 $d
+C:\Users\USUARI~1\AppData\Local\Temp\ccC5S8z4.s:3129   .text:00000214 $a
+C:\Users\USUARI~1\AppData\Local\Temp\ccC5S8z4.s:3219   .text:000002fc $d
+C:\Users\USUARI~1\AppData\Local\Temp\ccC5S8z4.s:3223   .text:00000300 $a
+C:\Users\USUARI~1\AppData\Local\Temp\ccC5S8z4.s:3226   .text:00000300 lcd_getpixel
+C:\Users\USUARI~1\AppData\Local\Temp\ccC5S8z4.s:3290   .text:000003a8 $d
+C:\Users\USUARI~1\AppData\Local\Temp\ccC5S8z4.s:3294   .text:000003ac $a
+C:\Users\USUARI~1\AppData\Local\Temp\ccC5S8z4.s:3297   .text:000003ac lcd_draw_hline
+C:\Users\USUARI~1\AppData\Local\Temp\ccC5S8z4.s:3375   .text:00000464 lcd_draw_vline
+C:\Users\USUARI~1\AppData\Local\Temp\ccC5S8z4.s:3453   .text:0000051c lcd_draw_box
+C:\Users\USUARI~1\AppData\Local\Temp\ccC5S8z4.s:3533   .text:000005f8 lcd_pintar_celda
+C:\Users\USUARI~1\AppData\Local\Temp\ccC5S8z4.s:3607   .text:000006a0 lcd_pintar_cabeza_serpiente_arriba
+C:\Users\USUARI~1\AppData\Local\Temp\ccC5S8z4.s:4008   .text:00000c18 lcd_pintar_cabeza_serpiente_abajo
+C:\Users\USUARI~1\AppData\Local\Temp\ccC5S8z4.s:4391   .text:00001148 lcd_pintar_cabeza_serpiente_derecha
+C:\Users\USUARI~1\AppData\Local\Temp\ccC5S8z4.s:4774   .text:00001678 lcd_pintar_cabeza_serpiente_izquierda
+C:\Users\USUARI~1\AppData\Local\Temp\ccC5S8z4.s:5175   .text:00001bf0 lcd_pintar_cuerpo_serpiente1
+C:\Users\USUARI~1\AppData\Local\Temp\ccC5S8z4.s:5289   .text:00001d20 lcd_pintar_cuerpo_serpiente2
+C:\Users\USUARI~1\AppData\Local\Temp\ccC5S8z4.s:6014   .text:000026ac lcd_pintar_naranja
+C:\Users\USUARI~1\AppData\Local\Temp\ccC5S8z4.s:5327   .text:00001d60 lcd_pintar_cereza
+C:\Users\USUARI~1\AppData\Local\Temp\ccC5S8z4.s:5682   .text:00002230 lcd_pintar_platano
+C:\Users\USUARI~1\AppData\Local\Temp\ccC5S8z4.s:6334   .text:00002af8 lcd_pintar_muro
+C:\Users\USUARI~1\AppData\Local\Temp\ccC5S8z4.s:6563   .text:00002ddc lcd_draw_esperar_otro_jugador
+                     .debug_frame:00000010 $d
+
+NO UNDEFINED SYMBOLS
