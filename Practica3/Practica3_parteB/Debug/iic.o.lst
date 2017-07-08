@@ -1,0 +1,611 @@
+   1              		.cpu arm7tdmi
+   2              		.fpu softvfp
+   3              		.eabi_attribute 20, 1
+   4              		.eabi_attribute 21, 1
+   5              		.eabi_attribute 23, 3
+   6              		.eabi_attribute 24, 1
+   7              		.eabi_attribute 25, 1
+   8              		.eabi_attribute 26, 1
+   9              		.eabi_attribute 30, 6
+  10              		.eabi_attribute 18, 4
+  11              		.file	"iic.c"
+  21              	.Ltext0:
+  22              		.file 1 "../iic.c"
+ 1867              		.align	2
+ 1868              		.global	iic_init
+ 1870              	iic_init:
+ 1871              	.LFB0:
+   1:../iic.c      **** #include "44b.h"
+   2:../iic.c      **** #include "iic.h"
+   3:../iic.c      **** 
+   4:../iic.c      **** extern uint32 mclk;			   // Frecuencia actual del reloj (Hz)
+   5:../iic.c      **** 
+   6:../iic.c      **** extern void DelayMs(int ms_time);
+   7:../iic.c      **** 
+   8:../iic.c      **** void iic_init( void ) {
+ 1872              		.loc 1 8 0
+ 1873              		.cfi_startproc
+ 1874              		@ Function supports interworking.
+ 1875              		@ args = 0, pretend = 0, frame = 0
+ 1876              		@ frame_needed = 1, uses_anonymous_args = 0
+ 1877 0000 0DC0A0E1 		mov	ip, sp
+ 1878              	.LCFI0:
+ 1879              		.cfi_def_cfa_register 12
+ 1880 0004 00D82DE9 		stmfd	sp!, {fp, ip, lr, pc}
+ 1881 0008 04B04CE2 		sub	fp, ip, #4
+ 1882              		.cfi_offset 14, -8
+ 1883              		.cfi_offset 13, -12
+ 1884              		.cfi_offset 11, -16
+ 1885              	.LCFI1:
+ 1886              		.cfi_def_cfa 11, 4
+   9:../iic.c      **** 	// Enable IIC & GPIO & BDMA blocks (si no se activa BDMA, el controlador IIC no es accesible)
+  10:../iic.c      **** 	rCLKCON |= (1<<13) | (1<<10) | (1<<7);
+ 1887              		.loc 1 10 0
+ 1888 000c 94309FE5 		ldr	r3, .L2
+ 1889 0010 90209FE5 		ldr	r2, .L2
+ 1890 0014 002092E5 		ldr	r2, [r2, #0]
+ 1891 0018 922D82E3 		orr	r2, r2, #9344
+ 1892 001c 002083E5 		str	r2, [r3, #0]
+  11:../iic.c      **** 	
+  12:../iic.c      **** 	// PF[1] = IICSDA, PF[0] = IICSCL
+  13:../iic.c      **** 	rPCONF = 0xA; // 1010 --> últimos 4 bits del registro.
+ 1893              		.loc 1 13 0
+ 1894 0020 84309FE5 		ldr	r3, .L2+4
+ 1895 0024 0A20A0E3 		mov	r2, #10
+ 1896 0028 002083E5 		str	r2, [r3, #0]
+  14:../iic.c      **** 	
+  15:../iic.c      **** 	// Pull-up enable
+  16:../iic.c      **** 	rPUPF &= ~(1<<1) & ~(1<<0);
+ 1897              		.loc 1 16 0
+ 1898 002c 7C309FE5 		ldr	r3, .L2+8
+ 1899 0030 78209FE5 		ldr	r2, .L2+8
+ 1900 0034 002092E5 		ldr	r2, [r2, #0]
+ 1901 0038 0320C2E3 		bic	r2, r2, #3
+ 1902 003c 002083E5 		str	r2, [r3, #0]
+  17:../iic.c      **** 	
+  18:../iic.c      ****     //Configurar la dirección del slave
+  19:../iic.c      **** 	// IICADD [7:0] -> slave address = [7-1], Not Mapped = [0]
+  20:../iic.c      **** 	rIICADD = S3C44B0X_SLAVE_ADDRESS<<1;
+ 1903              		.loc 1 20 0
+ 1904 0040 6C309FE5 		ldr	r3, .L2+12
+ 1905 0044 1020A0E3 		mov	r2, #16
+ 1906 0048 002083E5 		str	r2, [r3, #0]
+  21:../iic.c      **** 
+  22:../iic.c      ****     //Generación ACK habilitada, interrupciones habilitadas
+  23:../iic.c      ****     rIICCON = rIICCON | ((mclk / 4000000 - 1) & 0xf); 	//Valor de preescalado, PREESCALER = mclk/16
+ 1907              		.loc 1 23 0
+ 1908 004c 64309FE5 		ldr	r3, .L2+16
+ 1909 0050 60209FE5 		ldr	r2, .L2+16
+ 1910 0054 001092E5 		ldr	r1, [r2, #0]
+ 1911 0058 5C209FE5 		ldr	r2, .L2+20
+ 1912 005c 000092E5 		ldr	r0, [r2, #0]
+ 1913 0060 58209FE5 		ldr	r2, .L2+24
+ 1914 0064 90C282E0 		umull	ip, r2, r0, r2
+ 1915 0068 222AA0E1 		mov	r2, r2, lsr #20
+ 1916 006c 012042E2 		sub	r2, r2, #1
+ 1917 0070 0F2002E2 		and	r2, r2, #15
+ 1918 0074 022081E1 		orr	r2, r1, r2
+ 1919 0078 002083E5 		str	r2, [r3, #0]
+  24:../iic.c      ****     rIICCON = rIICCON | (1<<7) | (1<<5); //Habilitado ACK e interrupciones
+ 1920              		.loc 1 24 0
+ 1921 007c 34309FE5 		ldr	r3, .L2+16
+ 1922 0080 30209FE5 		ldr	r2, .L2+16
+ 1923 0084 002092E5 		ldr	r2, [r2, #0]
+ 1924 0088 A02082E3 		orr	r2, r2, #160
+ 1925 008c 002083E5 		str	r2, [r3, #0]
+  25:../iic.c      **** 
+  26:../iic.c      ****     // Activa Tx/Rx
+  27:../iic.c      ****     rIICSTAT = (1<<4); // (Se recomienda NO realizar operaciones lógica sobre este registro)
+ 1926              		.loc 1 27 0
+ 1927 0090 2C309FE5 		ldr	r3, .L2+28
+ 1928 0094 1020A0E3 		mov	r2, #16
+ 1929 0098 002083E5 		str	r2, [r3, #0]
+  28:../iic.c      **** }
+ 1930              		.loc 1 28 0
+ 1931 009c 0CD04BE2 		sub	sp, fp, #12
+ 1932 00a0 00689DE8 		ldmfd	sp, {fp, sp, lr}
+ 1933 00a4 1EFF2FE1 		bx	lr
+ 1934              	.L3:
+ 1935              		.align	2
+ 1936              	.L2:
+ 1937 00a8 0400D801 		.word	30932996
+ 1938 00ac 3400D201 		.word	30539828
+ 1939 00b0 3C00D201 		.word	30539836
+ 1940 00b4 0800D601 		.word	30801928
+ 1941 00b8 0000D601 		.word	30801920
+ 1942 00bc 00000000 		.word	mclk
+ 1943 00c0 83DE1B43 		.word	1125899907
+ 1944 00c4 0400D601 		.word	30801924
+ 1945              		.cfi_endproc
+ 1946              	.LFE0:
+ 1948              		.align	2
+ 1949              		.global	iic_putByte_start
+ 1951              	iic_putByte_start:
+ 1952              	.LFB1:
+  29:../iic.c      **** 
+  30:../iic.c      **** void iic_putByte_start( uint8 byte ) { // OK
+ 1953              		.loc 1 30 0
+ 1954              		.cfi_startproc
+ 1955              		@ Function supports interworking.
+ 1956              		@ args = 0, pretend = 0, frame = 8
+ 1957              		@ frame_needed = 1, uses_anonymous_args = 0
+ 1958 00c8 0DC0A0E1 		mov	ip, sp
+ 1959              	.LCFI2:
+ 1960              		.cfi_def_cfa_register 12
+ 1961 00cc 00D82DE9 		stmfd	sp!, {fp, ip, lr, pc}
+ 1962 00d0 04B04CE2 		sub	fp, ip, #4
+ 1963              		.cfi_offset 14, -8
+ 1964              		.cfi_offset 13, -12
+ 1965              		.cfi_offset 11, -16
+ 1966              	.LCFI3:
+ 1967              		.cfi_def_cfa 11, 4
+ 1968 00d4 08D04DE2 		sub	sp, sp, #8
+ 1969 00d8 0030A0E1 		mov	r3, r0
+ 1970 00dc 0D304BE5 		strb	r3, [fp, #-13]
+  31:../iic.c      **** 	// Escribe el dato
+  32:../iic.c      **** 	rIICDS = byte;
+ 1971              		.loc 1 32 0
+ 1972 00e0 48309FE5 		ldr	r3, .L6
+ 1973 00e4 0D205BE5 		ldrb	r2, [fp, #-13]	@ zero_extendqisi2
+ 1974 00e8 002083E5 		str	r2, [r3, #0]
+  33:../iic.c      **** 
+  34:../iic.c      **** 	// Máster Tx, start condition, Tx/Rx habilitada
+  35:../iic.c      **** 	rIICSTAT = 0xF0;
+ 1975              		.loc 1 35 0
+ 1976 00ec 40309FE5 		ldr	r3, .L6+4
+ 1977 00f0 F020A0E3 		mov	r2, #240
+ 1978 00f4 002083E5 		str	r2, [r3, #0]
+  36:../iic.c      **** 
+  37:../iic.c      **** 	// Comienza la transmisión (borrando pending bit del IICCON)
+  38:../iic.c      **** 	rIICCON &= ~(1<<4);
+ 1979              		.loc 1 38 0
+ 1980 00f8 38309FE5 		ldr	r3, .L6+8
+ 1981 00fc 34209FE5 		ldr	r2, .L6+8
+ 1982 0100 002092E5 		ldr	r2, [r2, #0]
+ 1983 0104 1020C2E3 		bic	r2, r2, #16
+ 1984 0108 002083E5 		str	r2, [r3, #0]
+  39:../iic.c      **** 
+  40:../iic.c      ****     // Espera la recepción de ACK
+  41:../iic.c      **** 	while((rIICCON & (1<<4)) == 0x0){}
+ 1985              		.loc 1 41 0
+ 1986 010c 0000A0E1 		mov	r0, r0	@ nop
+ 1987              	.L5:
+ 1988              		.loc 1 41 0 is_stmt 0 discriminator 1
+ 1989 0110 20309FE5 		ldr	r3, .L6+8
+ 1990 0114 003093E5 		ldr	r3, [r3, #0]
+ 1991 0118 103003E2 		and	r3, r3, #16
+ 1992 011c 000053E3 		cmp	r3, #0
+ 1993 0120 FAFFFF0A 		beq	.L5
+  42:../iic.c      **** }
+ 1994              		.loc 1 42 0 is_stmt 1
+ 1995 0124 0CD04BE2 		sub	sp, fp, #12
+ 1996 0128 00689DE8 		ldmfd	sp, {fp, sp, lr}
+ 1997 012c 1EFF2FE1 		bx	lr
+ 1998              	.L7:
+ 1999              		.align	2
+ 2000              	.L6:
+ 2001 0130 0C00D601 		.word	30801932
+ 2002 0134 0400D601 		.word	30801924
+ 2003 0138 0000D601 		.word	30801920
+ 2004              		.cfi_endproc
+ 2005              	.LFE1:
+ 2007              		.align	2
+ 2008              		.global	iic_putByte
+ 2010              	iic_putByte:
+ 2011              	.LFB2:
+  43:../iic.c      **** 
+  44:../iic.c      **** void iic_putByte( uint8 byte ) {
+ 2012              		.loc 1 44 0
+ 2013              		.cfi_startproc
+ 2014              		@ Function supports interworking.
+ 2015              		@ args = 0, pretend = 0, frame = 8
+ 2016              		@ frame_needed = 1, uses_anonymous_args = 0
+ 2017 013c 0DC0A0E1 		mov	ip, sp
+ 2018              	.LCFI4:
+ 2019              		.cfi_def_cfa_register 12
+ 2020 0140 00D82DE9 		stmfd	sp!, {fp, ip, lr, pc}
+ 2021 0144 04B04CE2 		sub	fp, ip, #4
+ 2022              		.cfi_offset 14, -8
+ 2023              		.cfi_offset 13, -12
+ 2024              		.cfi_offset 11, -16
+ 2025              	.LCFI5:
+ 2026              		.cfi_def_cfa 11, 4
+ 2027 0148 08D04DE2 		sub	sp, sp, #8
+ 2028 014c 0030A0E1 		mov	r3, r0
+ 2029 0150 0D304BE5 		strb	r3, [fp, #-13]
+  45:../iic.c      ****     // Escribe el dato
+  46:../iic.c      **** 	rIICDS = byte;
+ 2030              		.loc 1 46 0
+ 2031 0154 3C309FE5 		ldr	r3, .L10
+ 2032 0158 0D205BE5 		ldrb	r2, [fp, #-13]	@ zero_extendqisi2
+ 2033 015c 002083E5 		str	r2, [r3, #0]
+  47:../iic.c      **** 
+  48:../iic.c      **** 	// Comienza la transmisión del dato (borrando pending bit del IICCON)
+  49:../iic.c      **** 	rIICCON &= ~(1<<4);
+ 2034              		.loc 1 49 0
+ 2035 0160 34309FE5 		ldr	r3, .L10+4
+ 2036 0164 30209FE5 		ldr	r2, .L10+4
+ 2037 0168 002092E5 		ldr	r2, [r2, #0]
+ 2038 016c 1020C2E3 		bic	r2, r2, #16
+ 2039 0170 002083E5 		str	r2, [r3, #0]
+  50:../iic.c      **** 
+  51:../iic.c      ****     // Espera la recepción de ACK
+  52:../iic.c      **** 	while((rIICCON & (1<<4)) == 0x0){}
+ 2040              		.loc 1 52 0
+ 2041 0174 0000A0E1 		mov	r0, r0	@ nop
+ 2042              	.L9:
+ 2043              		.loc 1 52 0 is_stmt 0 discriminator 1
+ 2044 0178 1C309FE5 		ldr	r3, .L10+4
+ 2045 017c 003093E5 		ldr	r3, [r3, #0]
+ 2046 0180 103003E2 		and	r3, r3, #16
+ 2047 0184 000053E3 		cmp	r3, #0
+ 2048 0188 FAFFFF0A 		beq	.L9
+  53:../iic.c      **** };
+ 2049              		.loc 1 53 0 is_stmt 1
+ 2050 018c 0CD04BE2 		sub	sp, fp, #12
+ 2051 0190 00689DE8 		ldmfd	sp, {fp, sp, lr}
+ 2052 0194 1EFF2FE1 		bx	lr
+ 2053              	.L11:
+ 2054              		.align	2
+ 2055              	.L10:
+ 2056 0198 0C00D601 		.word	30801932
+ 2057 019c 0000D601 		.word	30801920
+ 2058              		.cfi_endproc
+ 2059              	.LFE2:
+ 2061              		.align	2
+ 2062              		.global	iic_putByte_stop
+ 2064              	iic_putByte_stop:
+ 2065              	.LFB3:
+  54:../iic.c      **** 
+  55:../iic.c      **** void iic_putByte_stop( uint8 byte ) {
+ 2066              		.loc 1 55 0
+ 2067              		.cfi_startproc
+ 2068              		@ Function supports interworking.
+ 2069              		@ args = 0, pretend = 0, frame = 8
+ 2070              		@ frame_needed = 1, uses_anonymous_args = 0
+ 2071 01a0 0DC0A0E1 		mov	ip, sp
+ 2072              	.LCFI6:
+ 2073              		.cfi_def_cfa_register 12
+ 2074 01a4 00D82DE9 		stmfd	sp!, {fp, ip, lr, pc}
+ 2075 01a8 04B04CE2 		sub	fp, ip, #4
+ 2076              		.cfi_offset 14, -8
+ 2077              		.cfi_offset 13, -12
+ 2078              		.cfi_offset 11, -16
+ 2079              	.LCFI7:
+ 2080              		.cfi_def_cfa 11, 4
+ 2081 01ac 08D04DE2 		sub	sp, sp, #8
+ 2082 01b0 0030A0E1 		mov	r3, r0
+ 2083 01b4 0D304BE5 		strb	r3, [fp, #-13]
+  56:../iic.c      ****     // Escribe el dato
+  57:../iic.c      **** 	rIICDS = byte;
+ 2084              		.loc 1 57 0
+ 2085 01b8 64309FE5 		ldr	r3, .L14
+ 2086 01bc 0D205BE5 		ldrb	r2, [fp, #-13]	@ zero_extendqisi2
+ 2087 01c0 002083E5 		str	r2, [r3, #0]
+  58:../iic.c      **** 
+  59:../iic.c      **** 	// Comienza la trasmisión del dato (borrando pending bit del IICCON)
+  60:../iic.c      **** 	rIICCON &= ~(1<<4);
+ 2088              		.loc 1 60 0
+ 2089 01c4 5C309FE5 		ldr	r3, .L14+4
+ 2090 01c8 58209FE5 		ldr	r2, .L14+4
+ 2091 01cc 002092E5 		ldr	r2, [r2, #0]
+ 2092 01d0 1020C2E3 		bic	r2, r2, #16
+ 2093 01d4 002083E5 		str	r2, [r3, #0]
+  61:../iic.c      **** 
+  62:../iic.c      ****     // Espera la recepción de ACK
+  63:../iic.c      **** 	while((rIICCON & (1<<4)) == 0x0){}
+ 2094              		.loc 1 63 0
+ 2095 01d8 0000A0E1 		mov	r0, r0	@ nop
+ 2096              	.L13:
+ 2097              		.loc 1 63 0 is_stmt 0 discriminator 1
+ 2098 01dc 44309FE5 		ldr	r3, .L14+4
+ 2099 01e0 003093E5 		ldr	r3, [r3, #0]
+ 2100 01e4 103003E2 		and	r3, r3, #16
+ 2101 01e8 000053E3 		cmp	r3, #0
+ 2102 01ec FAFFFF0A 		beq	.L13
+  64:../iic.c      ****     
+  65:../iic.c      ****     // Máster Tx, stop condition, Tx/Rx habilitada
+  66:../iic.c      **** 	rIICSTAT = 0xD0;
+ 2103              		.loc 1 66 0 is_stmt 1
+ 2104 01f0 34309FE5 		ldr	r3, .L14+8
+ 2105 01f4 D020A0E3 		mov	r2, #208
+ 2106 01f8 002083E5 		str	r2, [r3, #0]
+  67:../iic.c      **** 
+  68:../iic.c      ****     // Comienza la trasmisión de STOP (borrando pending bit del IICCON)
+  69:../iic.c      **** 	rIICCON &= ~(1<<4);
+ 2107              		.loc 1 69 0
+ 2108 01fc 24309FE5 		ldr	r3, .L14+4
+ 2109 0200 20209FE5 		ldr	r2, .L14+4
+ 2110 0204 002092E5 		ldr	r2, [r2, #0]
+ 2111 0208 1020C2E3 		bic	r2, r2, #16
+ 2112 020c 002083E5 		str	r2, [r3, #0]
+  70:../iic.c      **** 
+  71:../iic.c      ****     // Espera a que la stop condition tenga efecto (5 ms para la at24c04)
+  72:../iic.c      **** 	DelayMs(5);
+ 2113              		.loc 1 72 0
+ 2114 0210 0500A0E3 		mov	r0, #5
+ 2115 0214 FEFFFFEB 		bl	DelayMs
+  73:../iic.c      **** 
+  74:../iic.c      **** }
+ 2116              		.loc 1 74 0
+ 2117 0218 0CD04BE2 		sub	sp, fp, #12
+ 2118 021c 00689DE8 		ldmfd	sp, {fp, sp, lr}
+ 2119 0220 1EFF2FE1 		bx	lr
+ 2120              	.L15:
+ 2121              		.align	2
+ 2122              	.L14:
+ 2123 0224 0C00D601 		.word	30801932
+ 2124 0228 0000D601 		.word	30801920
+ 2125 022c 0400D601 		.word	30801924
+ 2126              		.cfi_endproc
+ 2127              	.LFE3:
+ 2129              		.align	2
+ 2130              		.global	iic_getByte_start
+ 2132              	iic_getByte_start:
+ 2133              	.LFB4:
+  75:../iic.c      **** 
+  76:../iic.c      **** void iic_getByte_start( uint8 byte ) {
+ 2134              		.loc 1 76 0
+ 2135              		.cfi_startproc
+ 2136              		@ Function supports interworking.
+ 2137              		@ args = 0, pretend = 0, frame = 8
+ 2138              		@ frame_needed = 1, uses_anonymous_args = 0
+ 2139 0230 0DC0A0E1 		mov	ip, sp
+ 2140              	.LCFI8:
+ 2141              		.cfi_def_cfa_register 12
+ 2142 0234 00D82DE9 		stmfd	sp!, {fp, ip, lr, pc}
+ 2143 0238 04B04CE2 		sub	fp, ip, #4
+ 2144              		.cfi_offset 14, -8
+ 2145              		.cfi_offset 13, -12
+ 2146              		.cfi_offset 11, -16
+ 2147              	.LCFI9:
+ 2148              		.cfi_def_cfa 11, 4
+ 2149 023c 08D04DE2 		sub	sp, sp, #8
+ 2150 0240 0030A0E1 		mov	r3, r0
+ 2151 0244 0D304BE5 		strb	r3, [fp, #-13]
+  77:../iic.c      **** 	// Escribe el dato
+  78:../iic.c      **** 	rIICDS = byte;
+ 2152              		.loc 1 78 0
+ 2153 0248 48309FE5 		ldr	r3, .L18
+ 2154 024c 0D205BE5 		ldrb	r2, [fp, #-13]	@ zero_extendqisi2
+ 2155 0250 002083E5 		str	r2, [r3, #0]
+  79:../iic.c      **** 
+  80:../iic.c      ****     // Máster Rx, start condition, Tx/Rx habilitada
+  81:../iic.c      **** 	rIICSTAT = 0xB0;
+ 2156              		.loc 1 81 0
+ 2157 0254 40309FE5 		ldr	r3, .L18+4
+ 2158 0258 B020A0E3 		mov	r2, #176
+ 2159 025c 002083E5 		str	r2, [r3, #0]
+  82:../iic.c      **** 
+  83:../iic.c      ****     // Comienza la transmisión (borrando pending bit del IICCON)
+  84:../iic.c      **** 	rIICCON &= ~(1<<4);
+ 2160              		.loc 1 84 0
+ 2161 0260 38309FE5 		ldr	r3, .L18+8
+ 2162 0264 34209FE5 		ldr	r2, .L18+8
+ 2163 0268 002092E5 		ldr	r2, [r2, #0]
+ 2164 026c 1020C2E3 		bic	r2, r2, #16
+ 2165 0270 002083E5 		str	r2, [r3, #0]
+  85:../iic.c      **** 
+  86:../iic.c      ****     // Espera la rececpión de ACK
+  87:../iic.c      **** 	while((rIICCON & (1<<4)) == 0x0){}
+ 2166              		.loc 1 87 0
+ 2167 0274 0000A0E1 		mov	r0, r0	@ nop
+ 2168              	.L17:
+ 2169              		.loc 1 87 0 is_stmt 0 discriminator 1
+ 2170 0278 20309FE5 		ldr	r3, .L18+8
+ 2171 027c 003093E5 		ldr	r3, [r3, #0]
+ 2172 0280 103003E2 		and	r3, r3, #16
+ 2173 0284 000053E3 		cmp	r3, #0
+ 2174 0288 FAFFFF0A 		beq	.L17
+  88:../iic.c      **** }
+ 2175              		.loc 1 88 0 is_stmt 1
+ 2176 028c 0CD04BE2 		sub	sp, fp, #12
+ 2177 0290 00689DE8 		ldmfd	sp, {fp, sp, lr}
+ 2178 0294 1EFF2FE1 		bx	lr
+ 2179              	.L19:
+ 2180              		.align	2
+ 2181              	.L18:
+ 2182 0298 0C00D601 		.word	30801932
+ 2183 029c 0400D601 		.word	30801924
+ 2184 02a0 0000D601 		.word	30801920
+ 2185              		.cfi_endproc
+ 2186              	.LFE4:
+ 2188              		.align	2
+ 2189              		.global	iic_getByte
+ 2191              	iic_getByte:
+ 2192              	.LFB5:
+  89:../iic.c      **** 
+  90:../iic.c      **** uint8 iic_getByte( void ) {
+ 2193              		.loc 1 90 0
+ 2194              		.cfi_startproc
+ 2195              		@ Function supports interworking.
+ 2196              		@ args = 0, pretend = 0, frame = 0
+ 2197              		@ frame_needed = 1, uses_anonymous_args = 0
+ 2198 02a4 0DC0A0E1 		mov	ip, sp
+ 2199              	.LCFI10:
+ 2200              		.cfi_def_cfa_register 12
+ 2201 02a8 00D82DE9 		stmfd	sp!, {fp, ip, lr, pc}
+ 2202 02ac 04B04CE2 		sub	fp, ip, #4
+ 2203              		.cfi_offset 14, -8
+ 2204              		.cfi_offset 13, -12
+ 2205              		.cfi_offset 11, -16
+ 2206              	.LCFI11:
+ 2207              		.cfi_def_cfa 11, 4
+  91:../iic.c      ****     // Reanuda la recepción (borrando pending bit del IICCON)
+  92:../iic.c      **** 	rIICCON &= ~(1<<4);
+ 2208              		.loc 1 92 0
+ 2209 02b0 40309FE5 		ldr	r3, .L22
+ 2210 02b4 3C209FE5 		ldr	r2, .L22
+ 2211 02b8 002092E5 		ldr	r2, [r2, #0]
+ 2212 02bc 1020C2E3 		bic	r2, r2, #16
+ 2213 02c0 002083E5 		str	r2, [r3, #0]
+  93:../iic.c      **** 
+  94:../iic.c      **** 	// Espera la recepción del dato
+  95:../iic.c      **** 	while((rIICCON & (1<<4)) == 0x0){}
+ 2214              		.loc 1 95 0
+ 2215 02c4 0000A0E1 		mov	r0, r0	@ nop
+ 2216              	.L21:
+ 2217              		.loc 1 95 0 is_stmt 0 discriminator 1
+ 2218 02c8 28309FE5 		ldr	r3, .L22
+ 2219 02cc 003093E5 		ldr	r3, [r3, #0]
+ 2220 02d0 103003E2 		and	r3, r3, #16
+ 2221 02d4 000053E3 		cmp	r3, #0
+ 2222 02d8 FAFFFF0A 		beq	.L21
+  96:../iic.c      **** 
+  97:../iic.c      ****     return rIICDS;// Lee el dato
+ 2223              		.loc 1 97 0 is_stmt 1
+ 2224 02dc 18309FE5 		ldr	r3, .L22+4
+ 2225 02e0 003093E5 		ldr	r3, [r3, #0]
+ 2226 02e4 FF3003E2 		and	r3, r3, #255
+  98:../iic.c      **** }
+ 2227              		.loc 1 98 0
+ 2228 02e8 0300A0E1 		mov	r0, r3
+ 2229 02ec 0CD04BE2 		sub	sp, fp, #12
+ 2230 02f0 00689DE8 		ldmfd	sp, {fp, sp, lr}
+ 2231 02f4 1EFF2FE1 		bx	lr
+ 2232              	.L23:
+ 2233              		.align	2
+ 2234              	.L22:
+ 2235 02f8 0000D601 		.word	30801920
+ 2236 02fc 0C00D601 		.word	30801932
+ 2237              		.cfi_endproc
+ 2238              	.LFE5:
+ 2240              		.align	2
+ 2241              		.global	iic_getByte_stop
+ 2243              	iic_getByte_stop:
+ 2244              	.LFB6:
+  99:../iic.c      **** 
+ 100:../iic.c      **** uint8 iic_getByte_stop( int8 ack ) {
+ 2245              		.loc 1 100 0
+ 2246              		.cfi_startproc
+ 2247              		@ Function supports interworking.
+ 2248              		@ args = 0, pretend = 0, frame = 16
+ 2249              		@ frame_needed = 1, uses_anonymous_args = 0
+ 2250 0300 0DC0A0E1 		mov	ip, sp
+ 2251              	.LCFI12:
+ 2252              		.cfi_def_cfa_register 12
+ 2253 0304 00D82DE9 		stmfd	sp!, {fp, ip, lr, pc}
+ 2254 0308 04B04CE2 		sub	fp, ip, #4
+ 2255              		.cfi_offset 14, -8
+ 2256              		.cfi_offset 13, -12
+ 2257              		.cfi_offset 11, -16
+ 2258              	.LCFI13:
+ 2259              		.cfi_def_cfa 11, 4
+ 2260 030c 10D04DE2 		sub	sp, sp, #16
+ 2261 0310 0030A0E1 		mov	r3, r0
+ 2262 0314 15304BE5 		strb	r3, [fp, #-21]
+ 101:../iic.c      **** 	uint8 byte;
+ 102:../iic.c      **** 
+ 103:../iic.c      ****     rIICCON = (rIICCON & ~(1 << 7)) | (ack << 7); // Habilita/deshabilita la generación de ACK
+ 2263              		.loc 1 103 0
+ 2264 0318 A0309FE5 		ldr	r3, .L26
+ 2265 031c 9C209FE5 		ldr	r2, .L26
+ 2266 0320 002092E5 		ldr	r2, [r2, #0]
+ 2267 0324 8010C2E3 		bic	r1, r2, #128
+ 2268 0328 D5215BE1 		ldrsb	r2, [fp, #-21]
+ 2269 032c 8223A0E1 		mov	r2, r2, asl #7
+ 2270 0330 022081E1 		orr	r2, r1, r2
+ 2271 0334 002083E5 		str	r2, [r3, #0]
+ 104:../iic.c      **** 
+ 105:../iic.c      ****     // Reanuda la recepción (borrando pending bit del IICCON)
+ 106:../iic.c      ****     rIICCON &= ~(1<<4);
+ 2272              		.loc 1 106 0
+ 2273 0338 80309FE5 		ldr	r3, .L26
+ 2274 033c 7C209FE5 		ldr	r2, .L26
+ 2275 0340 002092E5 		ldr	r2, [r2, #0]
+ 2276 0344 1020C2E3 		bic	r2, r2, #16
+ 2277 0348 002083E5 		str	r2, [r3, #0]
+ 107:../iic.c      **** 	
+ 108:../iic.c      **** 	// Espera la recepción del dato
+ 109:../iic.c      ****     while((rIICCON & (1<<4)) == 0x0){}
+ 2278              		.loc 1 109 0
+ 2279 034c 0000A0E1 		mov	r0, r0	@ nop
+ 2280              	.L25:
+ 2281              		.loc 1 109 0 is_stmt 0 discriminator 1
+ 2282 0350 68309FE5 		ldr	r3, .L26
+ 2283 0354 003093E5 		ldr	r3, [r3, #0]
+ 2284 0358 103003E2 		and	r3, r3, #16
+ 2285 035c 000053E3 		cmp	r3, #0
+ 2286 0360 FAFFFF0A 		beq	.L25
+ 110:../iic.c      **** 	
+ 111:../iic.c      ****     byte = rIICDS;	// Lee el dato
+ 2287              		.loc 1 111 0 is_stmt 1
+ 2288 0364 58309FE5 		ldr	r3, .L26+4
+ 2289 0368 003093E5 		ldr	r3, [r3, #0]
+ 2290 036c 0D304BE5 		strb	r3, [fp, #-13]
+ 112:../iic.c      **** 
+ 113:../iic.c      ****    	// Máster Rx, stop condition, Tx/Rx habilitada
+ 114:../iic.c      ****     rIICSTAT = 0x90;
+ 2291              		.loc 1 114 0
+ 2292 0370 50309FE5 		ldr	r3, .L26+8
+ 2293 0374 9020A0E3 		mov	r2, #144
+ 2294 0378 002083E5 		str	r2, [r3, #0]
+ 115:../iic.c      **** 
+ 116:../iic.c      ****    	// Comienza la trasmisión de STOP (borrando pending bit del IICCON)
+ 117:../iic.c      ****     rIICCON &= ~(1<<4);
+ 2295              		.loc 1 117 0
+ 2296 037c 3C309FE5 		ldr	r3, .L26
+ 2297 0380 38209FE5 		ldr	r2, .L26
+ 2298 0384 002092E5 		ldr	r2, [r2, #0]
+ 2299 0388 1020C2E3 		bic	r2, r2, #16
+ 2300 038c 002083E5 		str	r2, [r3, #0]
+ 118:../iic.c      **** 
+ 119:../iic.c      ****    	// Espera a que la stop condition tenga efecto (5 ms para la at24c04)
+ 120:../iic.c      ****     DelayMs(5);
+ 2301              		.loc 1 120 0
+ 2302 0390 0500A0E3 		mov	r0, #5
+ 2303 0394 FEFFFFEB 		bl	DelayMs
+ 121:../iic.c      **** 
+ 122:../iic.c      **** 	rIICCON |= (1<<7); // Habilita la generación de ACK
+ 2304              		.loc 1 122 0
+ 2305 0398 20309FE5 		ldr	r3, .L26
+ 2306 039c 1C209FE5 		ldr	r2, .L26
+ 2307 03a0 002092E5 		ldr	r2, [r2, #0]
+ 2308 03a4 802082E3 		orr	r2, r2, #128
+ 2309 03a8 002083E5 		str	r2, [r3, #0]
+ 123:../iic.c      ****    	return byte;
+ 2310              		.loc 1 123 0
+ 2311 03ac 0D305BE5 		ldrb	r3, [fp, #-13]	@ zero_extendqisi2
+ 124:../iic.c      **** }
+ 2312              		.loc 1 124 0
+ 2313 03b0 0300A0E1 		mov	r0, r3
+ 2314 03b4 0CD04BE2 		sub	sp, fp, #12
+ 2315 03b8 00689DE8 		ldmfd	sp, {fp, sp, lr}
+ 2316 03bc 1EFF2FE1 		bx	lr
+ 2317              	.L27:
+ 2318              		.align	2
+ 2319              	.L26:
+ 2320 03c0 0000D601 		.word	30801920
+ 2321 03c4 0C00D601 		.word	30801932
+ 2322 03c8 0400D601 		.word	30801924
+ 2323              		.cfi_endproc
+ 2324              	.LFE6:
+ 2326              	.Letext0:
+DEFINED SYMBOLS
+                            *ABS*:00000000 iic.c
+C:\Users\USUARI~1\AppData\Local\Temp\ccpkdU0j.s:1867   .text:00000000 $a
+C:\Users\USUARI~1\AppData\Local\Temp\ccpkdU0j.s:1870   .text:00000000 iic_init
+C:\Users\USUARI~1\AppData\Local\Temp\ccpkdU0j.s:1937   .text:000000a8 $d
+C:\Users\USUARI~1\AppData\Local\Temp\ccpkdU0j.s:1948   .text:000000c8 $a
+C:\Users\USUARI~1\AppData\Local\Temp\ccpkdU0j.s:1951   .text:000000c8 iic_putByte_start
+C:\Users\USUARI~1\AppData\Local\Temp\ccpkdU0j.s:2001   .text:00000130 $d
+C:\Users\USUARI~1\AppData\Local\Temp\ccpkdU0j.s:2007   .text:0000013c $a
+C:\Users\USUARI~1\AppData\Local\Temp\ccpkdU0j.s:2010   .text:0000013c iic_putByte
+C:\Users\USUARI~1\AppData\Local\Temp\ccpkdU0j.s:2056   .text:00000198 $d
+C:\Users\USUARI~1\AppData\Local\Temp\ccpkdU0j.s:2061   .text:000001a0 $a
+C:\Users\USUARI~1\AppData\Local\Temp\ccpkdU0j.s:2064   .text:000001a0 iic_putByte_stop
+C:\Users\USUARI~1\AppData\Local\Temp\ccpkdU0j.s:2123   .text:00000224 $d
+C:\Users\USUARI~1\AppData\Local\Temp\ccpkdU0j.s:2129   .text:00000230 $a
+C:\Users\USUARI~1\AppData\Local\Temp\ccpkdU0j.s:2132   .text:00000230 iic_getByte_start
+C:\Users\USUARI~1\AppData\Local\Temp\ccpkdU0j.s:2182   .text:00000298 $d
+C:\Users\USUARI~1\AppData\Local\Temp\ccpkdU0j.s:2188   .text:000002a4 $a
+C:\Users\USUARI~1\AppData\Local\Temp\ccpkdU0j.s:2191   .text:000002a4 iic_getByte
+C:\Users\USUARI~1\AppData\Local\Temp\ccpkdU0j.s:2235   .text:000002f8 $d
+C:\Users\USUARI~1\AppData\Local\Temp\ccpkdU0j.s:2240   .text:00000300 $a
+C:\Users\USUARI~1\AppData\Local\Temp\ccpkdU0j.s:2243   .text:00000300 iic_getByte_stop
+C:\Users\USUARI~1\AppData\Local\Temp\ccpkdU0j.s:2320   .text:000003c0 $d
+                     .debug_frame:00000010 $d
+
+UNDEFINED SYMBOLS
+mclk
+DelayMs
